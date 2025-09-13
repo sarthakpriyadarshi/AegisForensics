@@ -1794,3 +1794,552 @@ API Endpoints Available:
 2025-09-14 00:12:21 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
 2025-09-14 00:12:25 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
 2025-09-14 00:12:25 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 00:44:51 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:46:27 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:46:27 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 00:46:27 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:46:27 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 00:46:27 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 00:46:27 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:46:27 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 00:46:27 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 00:46:27 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 00:46:27 - aegis_forensics - INFO -   Environment: Production
+2025-09-14 00:46:27 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 00:46:27 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 00:46:27 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 00:46:27 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 00:46:27 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 00:46:27 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 00:46:27 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 00:46:27 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 00:46:27 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 00:46:27 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 00:46:27 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 00:46:27 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 00:46:27 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 00:46:27 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 00:46:27 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 00:46:27 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 00:46:27 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 00:46:27 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 00:46:27 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 00:46:27 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 00:46:27 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 00:46:27 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 00:46:27 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 00:46:27 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:46:27 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:46:27 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 00:46:27 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 00:47:04 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 00:47:04 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 00:47:11 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 00:47:11 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 00:49:18 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:49:18 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 00:49:18 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:49:18 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 00:49:18 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 00:49:18 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:49:18 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 00:49:18 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 00:49:18 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 00:49:18 - aegis_forensics - INFO -   Environment: Production
+2025-09-14 00:49:18 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 00:49:18 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 00:49:18 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 00:49:18 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 00:49:18 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 00:49:18 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 00:49:18 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 00:49:18 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 00:49:18 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 00:49:18 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 00:49:18 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 00:49:18 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 00:49:18 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 00:49:18 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 00:49:18 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 00:49:18 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 00:49:18 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 00:49:18 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 00:49:18 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 00:49:18 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 00:49:18 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 00:49:18 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 00:49:18 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 00:49:18 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:49:18 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:49:18 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 00:49:18 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 00:49:26 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 00:49:26 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 00:49:31 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 00:49:31 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 00:49:45 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:49:45 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 00:49:45 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:49:45 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 00:49:45 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 00:49:45 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:49:45 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 00:49:45 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 00:49:45 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 00:49:45 - aegis_forensics - INFO -   Environment: Production
+2025-09-14 00:49:45 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 00:49:45 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 00:49:45 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 00:49:45 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 00:49:45 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 00:49:45 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 00:49:45 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 00:49:45 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 00:49:45 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 00:49:45 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 00:49:45 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 00:49:45 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 00:49:45 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 00:49:45 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 00:49:45 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 00:49:45 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 00:49:45 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 00:49:45 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 00:49:45 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 00:49:45 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 00:49:45 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 00:49:45 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 00:49:45 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 00:49:45 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:49:45 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:49:45 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 00:49:45 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 00:49:52 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 00:49:52 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 00:49:55 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 00:49:55 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 00:51:00 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:51:00 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 00:51:00 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:51:00 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 00:51:00 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 00:51:00 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:51:00 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 00:51:00 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 00:51:00 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 00:51:00 - aegis_forensics - INFO -   Environment: Production
+2025-09-14 00:51:00 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 00:51:00 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 00:51:00 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 00:51:00 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 00:51:00 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 00:51:00 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 00:51:00 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 00:51:00 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 00:51:00 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 00:51:00 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 00:51:00 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 00:51:00 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 00:51:00 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 00:51:00 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 00:51:00 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 00:51:00 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 00:51:00 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 00:51:00 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 00:51:00 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 00:51:00 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 00:51:00 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 00:51:00 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 00:51:00 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 00:51:00 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:51:00 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:51:00 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 00:51:00 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 00:51:23 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:51:23 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 00:51:23 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:51:23 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 00:51:23 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 00:51:23 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:51:23 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 00:51:23 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 00:51:23 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 00:51:23 - aegis_forensics - INFO -   Environment: Production
+2025-09-14 00:51:23 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 00:51:23 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 00:51:23 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 00:51:23 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 00:51:23 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 00:51:23 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 00:51:23 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 00:51:23 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 00:51:23 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 00:51:23 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 00:51:23 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 00:51:23 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 00:51:23 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 00:51:23 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 00:51:23 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 00:51:23 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 00:51:23 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 00:51:23 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 00:51:23 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 00:51:23 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 00:51:23 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 00:51:23 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 00:51:23 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 00:51:23 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:51:23 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:51:23 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 00:51:23 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 00:52:45 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:52:45 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 00:52:45 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:52:45 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 00:52:45 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 00:52:45 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:52:45 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 00:52:45 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 00:52:45 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 00:52:45 - aegis_forensics - INFO -   Environment: Production
+2025-09-14 00:52:45 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 00:52:45 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 00:52:45 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 00:52:45 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 00:52:45 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 00:52:45 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 00:52:45 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 00:52:45 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 00:52:45 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 00:52:45 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 00:52:45 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 00:52:45 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 00:52:45 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 00:52:45 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 00:52:45 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 00:52:45 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 00:52:45 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 00:52:45 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 00:52:45 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 00:52:45 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 00:52:45 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 00:52:45 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 00:52:45 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 00:52:45 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:52:45 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:52:45 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 00:52:45 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 00:52:59 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 00:52:59 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 00:53:04 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 00:53:04 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 00:53:16 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:53:16 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 00:53:16 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:53:16 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 00:53:16 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 00:53:16 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:53:16 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 00:53:16 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 00:53:16 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 00:53:16 - aegis_forensics - INFO -   Environment: Production
+2025-09-14 00:53:16 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 00:53:16 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 00:53:16 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 00:53:16 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 00:53:16 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 00:53:16 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 00:53:16 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 00:53:16 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 00:53:16 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 00:53:16 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 00:53:16 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 00:53:16 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 00:53:16 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 00:53:16 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 00:53:16 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 00:53:16 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 00:53:16 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 00:53:16 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 00:53:16 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 00:53:16 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 00:53:16 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 00:53:16 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 00:53:16 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 00:53:16 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:53:16 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:53:16 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 00:53:16 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 00:53:19 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 00:53:19 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 00:53:23 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 00:53:23 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 00:54:15 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:54:15 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 00:54:15 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:54:15 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 00:54:15 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 00:54:15 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:54:15 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 00:54:15 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 00:54:15 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 00:54:15 - aegis_forensics - INFO -   Environment: Production
+2025-09-14 00:54:15 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 00:54:15 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 00:54:15 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 00:54:15 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 00:54:15 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 00:54:15 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 00:54:15 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 00:54:15 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 00:54:15 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 00:54:15 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 00:54:15 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 00:54:15 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 00:54:15 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 00:54:15 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 00:54:15 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 00:54:15 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 00:54:15 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 00:54:15 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 00:54:15 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 00:54:15 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 00:54:15 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 00:54:15 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 00:54:15 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 00:54:15 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:54:15 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:54:15 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 00:54:15 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 00:54:47 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:54:47 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 00:54:47 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:54:47 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 00:54:47 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 00:54:47 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:54:47 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 00:54:47 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 00:54:47 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 00:54:47 - aegis_forensics - INFO -   Environment: Production
+2025-09-14 00:54:47 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 00:54:47 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 00:54:47 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 00:54:47 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 00:54:47 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 00:54:47 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 00:54:47 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 00:54:47 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 00:54:47 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 00:54:47 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 00:54:47 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 00:54:47 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 00:54:47 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 00:54:47 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 00:54:47 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 00:54:47 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 00:54:47 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 00:54:47 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 00:54:47 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 00:54:47 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 00:54:47 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 00:54:47 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 00:54:47 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 00:54:47 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:54:47 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:54:47 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 00:54:47 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 00:55:09 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 00:55:09 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 00:55:13 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 00:55:13 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 00:55:36 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:55:36 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 00:55:36 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:55:36 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 00:55:36 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 00:55:36 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:55:36 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 00:55:36 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 00:55:36 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 00:55:36 - aegis_forensics - INFO -   Environment: Production
+2025-09-14 00:55:36 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 00:55:36 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 00:55:36 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 00:55:36 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 00:55:36 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 00:55:36 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 00:55:36 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 00:55:36 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 00:55:36 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 00:55:36 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 00:55:36 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 00:55:36 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 00:55:36 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 00:55:36 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 00:55:36 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 00:55:36 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 00:55:36 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 00:55:36 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 00:55:36 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 00:55:36 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 00:55:36 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 00:55:36 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 00:55:36 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 00:55:36 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:55:36 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:55:36 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 00:55:36 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 00:55:43 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 00:55:43 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 00:55:47 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 00:55:47 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 00:56:20 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:56:20 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 00:56:20 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:56:20 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 00:56:20 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 00:56:20 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:56:20 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 00:56:20 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 00:56:20 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 00:56:20 - aegis_forensics - INFO -   Environment: Production
+2025-09-14 00:56:20 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 00:56:20 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 00:56:20 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 00:56:20 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 00:56:20 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 00:56:20 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 00:56:20 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 00:56:20 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 00:56:20 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 00:56:20 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 00:56:20 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 00:56:20 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 00:56:20 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 00:56:20 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 00:56:20 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 00:56:20 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 00:56:20 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 00:56:20 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 00:56:20 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 00:56:20 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 00:56:20 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 00:56:20 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 00:56:20 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 00:56:20 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:56:20 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:56:20 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 00:56:20 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 00:56:45 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:56:45 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 00:56:45 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:56:45 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 00:56:45 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 00:56:45 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:56:45 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 00:56:45 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 00:56:45 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 00:56:45 - aegis_forensics - INFO -   Environment: Production
+2025-09-14 00:56:45 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 00:56:45 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 00:56:45 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 00:56:45 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 00:56:45 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 00:56:45 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 00:56:45 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 00:56:45 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 00:56:45 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 00:56:45 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 00:56:45 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 00:56:45 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 00:56:45 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 00:56:45 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 00:56:45 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 00:56:45 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 00:56:45 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 00:56:45 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 00:56:45 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 00:56:45 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 00:56:45 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 00:56:45 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 00:56:45 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 00:56:45 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:56:45 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:56:45 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 00:56:45 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 00:57:43 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:57:43 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 00:57:43 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:57:43 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 00:57:43 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 00:57:43 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:57:43 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 00:57:43 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 00:57:43 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 00:57:43 - aegis_forensics - INFO -   Environment: Production
+2025-09-14 00:57:43 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 00:57:43 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 00:57:43 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 00:57:43 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 00:57:43 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 00:57:43 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 00:57:43 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 00:57:43 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 00:57:43 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 00:57:43 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 00:57:43 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 00:57:43 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 00:57:43 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 00:57:43 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 00:57:43 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 00:57:43 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 00:57:43 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 00:57:43 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 00:57:43 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 00:57:43 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 00:57:43 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 00:57:43 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 00:57:43 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 00:57:43 - aegis_forensics - INFO - ==================================================
+2025-09-14 00:57:43 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 00:57:43 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 00:57:43 - aegis_forensics - INFO - ADK runner initialized.

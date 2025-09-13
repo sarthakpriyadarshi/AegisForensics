@@ -10,6 +10,7 @@ from datetime import datetime
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request, BackgroundTasks
 from fastapi.responses import JSONResponse, PlainTextResponse, Response
+from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 from dotenv import load_dotenv
 
@@ -20,7 +21,7 @@ load_dotenv()
 if not os.getenv('GOOGLE_API_KEY'):
     raise ValueError("GOOGLE_API_KEY environment variable is required")
 
-from database.models import init_db, SessionLocal, compute_sha256
+from database.models import init_db, SessionLocal, compute_sha256, User
 from database.utils import add_evidence_record, add_event
 from schemas.evidence import EvidenceCreate
 from schemas.script_config import ScriptGenerationRequest, ScriptGenerationResponse, OperatingSystem, AnalysisType
@@ -31,6 +32,11 @@ from google.genai import types
 
 from agents.forensic_orchestrator import ForensicOrchestrator
 from agents.memory_analyzer import memory_agent
+
+# Import new auth and system routes
+from routes.auth import router as auth_router
+from routes.system import router as system_router
+from middleware.auth_middleware import AuthMiddleware
 
 # Setup comprehensive logging
 def setup_logging():
@@ -81,7 +87,27 @@ logger = setup_logging()
 # Init DB
 init_db()
 
-app = FastAPI(title="Aegis Forensics API")
+app = FastAPI(
+    title="Aegis Forensics API",
+    description="Advanced Digital Forensics Platform with AI-powered analysis",
+    version="2.1.0"
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Configure appropriately for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Add custom auth middleware
+app.add_middleware(AuthMiddleware)
+
+# Include routers
+app.include_router(auth_router)
+app.include_router(system_router)
 
 # Initialize script generator
 script_generator = ScriptGenerator()
@@ -102,6 +128,27 @@ async def startup():
     agent_session = await session_service.create_session(app_name=AGENT_APP, user_id=AGENT_USER, session_id=AGENT_SESSION_ID, state={})
     runner = Runner(agent=ForensicOrchestrator, app_name=AGENT_APP, session_service=session_service)
     logger.info("ADK runner initialized.")
+
+@app.get("/")
+async def root():
+    """
+    Root endpoint that provides API information and setup status
+    """
+    # Check if admin user exists
+    db = SessionLocal()
+    try:
+        admin_exists = db.query(User).filter(User.is_admin == True).first() is not None
+    finally:
+        db.close()
+    
+    return {
+        "message": "Aegis Forensics API",
+        "version": "2.1.0",
+        "admin_setup_required": not admin_exists,
+        "setup_endpoint": "/auth/setup-admin" if not admin_exists else None,
+        "docs": "/docs",
+        "status": "ready" if admin_exists else "setup_required"
+    }
 
 # helper to run orchestrator with a prompt and return final response text
 async def run_orchestrator_prompt(prompt: str):

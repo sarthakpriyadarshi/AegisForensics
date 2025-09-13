@@ -1,8 +1,8 @@
 # database/models.py
 import hashlib
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import (
-    create_engine, Column, Integer, String, DateTime, ForeignKey, Text
+    create_engine, Column, Integer, String, DateTime, ForeignKey, Text, Boolean
 )
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
@@ -11,6 +11,22 @@ DB_URL = "sqlite:///aegis_forensics.db"  # file-based sqlite; change if you want
 engine = create_engine(DB_URL, connect_args={"check_same_thread": False}, echo=False)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    full_name = Column(String, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    organization = Column(String, nullable=False)
+    timezone = Column(String, default="UTC", nullable=False)
+    password_hash = Column(String, nullable=False)
+    avatar_base64 = Column(Text, nullable=True)  # Base64 encoded avatar image
+    is_admin = Column(Boolean, default=True, nullable=False)  # Only one admin user allowed
+    created_at = Column(DateTime, default=datetime.utcnow)
+    last_login = Column(DateTime, nullable=True)
+    password_changed_at = Column(DateTime, default=datetime.utcnow)
+    password_expires_at = Column(DateTime, default=lambda: datetime.utcnow() + timedelta(days=90))
+    is_active = Column(Boolean, default=True)
 
 class Case(Base):
     __tablename__ = "cases"

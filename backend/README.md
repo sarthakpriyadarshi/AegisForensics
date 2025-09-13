@@ -2,9 +2,9 @@
 
 <img src="../assets/aegis-logo.png" align="left" width="220"/>
 
-### `Aegis Forensics`
+### `Aegis Forensics
 
-**Aegis Forensics** is an Agentic AI Based digital forensics platform that provides comprehensive analysis capabilities for cybersecurity investigations. Built with cutting-edge AI agents and modern web technologies, it offers automated forensic analysis, live system monitoring, and intelligent threat detection.
+ is an Agentic AI Based digital forensics platform that provides comprehensive analysis capabilities for cybersecurity investigations. Built with cutting-edge AI agents and modern web technologies, it offers automated forensic analysis, live system monitoring, and intelligent threat detection.
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com)
@@ -20,6 +20,10 @@
 
 ### Core Capabilities
 - **AI-Powered Analysis**: Advanced AI agents specialized in different forensic domains
+- **JWT Authentication**: Secure bearer token authentication with password policies
+- **Single Admin User**: One admin user system with 90-day password rotation
+- **System Monitoring**: Real-time system information and health monitoring
+- **Automated Backups**: Manual and automatic backup functionality
 - **Multi-Platform Support**: Windows, Linux, and macOS forensic analysis
 - **Live System Monitoring**: Real-time data collection and analysis
 - **Script Generation**: Automated forensic script creation for remote deployment
@@ -113,15 +117,40 @@ python -c "from database.models import init_db; init_db()"
 
 5. **Start the Server**
 ```bash
+cd backend
+uv run main.py
+# or
 python main.py
 ```
 
-6. **Access the Platform**
+6. **Initial Setup**
+- First, create an admin user at: http://localhost:8000/auth/setup-admin
+- Then login to get JWT token: http://localhost:8000/auth/login
+- Use the JWT token for all subsequent API calls
+
+7. **Access the Platform**
+- Root Status: http://localhost:8000/
 - API Documentation: http://localhost:8000/docs
 - Health Check: http://localhost:8000/health
-- Agent Status: http://localhost:8000/api/agents/status
 
 ---
+### Basic Setups
+
+1. **Configure Environment Variables**
+```bash
+# Create .env file
+cp .env.sample .env
+
+# Edit .env and add your configuration
+GOOGLE_API_KEY=your_google_api_key_here
+SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
+```
+
+2. **Database Initialization**
+The database will be automatically created when you start the server for the first time. The system uses SQLite by default and will create the file `aegis_forensics.db` in the backend directory.
+
+3. **Start the Server**
+ <hr>
 
 ## 📡 API Reference
 
@@ -131,21 +160,169 @@ http://localhost:8000
 ```
 
 ### Authentication
+**JWT Bearer Token Required for all endpoints except initial admin setup**
+
 ```bash
-# Most endpoints require authentication
-curl -H "Authorization: Bearer your_api_key" \
+# Login to get JWT token
+curl -X POST "http://localhost:8000/auth/login" \
+     -H "Content-Type: application/json" \
+     -d '{"email": "admin@company.com", "password": "your_password"}'
+
+# Use JWT token for authenticated requests
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
      -H "Content-Type: application/json" \
      http://localhost:8000/api/endpoint
 ```
 
 ### Core Endpoints
 
+#### 0. Admin Setup (First Time Only)
+**Create the initial admin user - only available when no admin exists**
+
+```bash
+# Create admin user (first time setup)
+curl -X POST "http://localhost:8000/auth/setup-admin" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "full_name": "John Doe",
+       "email": "admin@company.com",
+       "organization": "Cybersecurity Corp",
+       "timezone": "UTC",
+       "password": "secure_password_123",
+       "avatar_base64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD..."
+     }'
+```
+
+**Expected Output:**
+```json
+```json
+{
+  "id": 1,
+  "full_name": "John Doe",
+  "email": "admin@company.com", 
+  "organization": "Cybersecurity Corp",
+  "timezone": "UTC",
+  "is_admin": true,
+  "is_active": true,
+  "last_password_change": "2024-01-01T12:00:00",
+  "avatar_base64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD..."
+}
+```
+```
+
+#### 0.1. Authentication
+**Login and user management**
+
+```bash
+# Login to get JWT token
+curl -X POST "http://localhost:8000/auth/login" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "email": "admin@company.com",
+       "password": "secure_password_123"
+     }'
+
+# Get current user info
+curl -X GET "http://localhost:8000/auth/me" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# Update user profile (including avatar)
+curl -X PUT "http://localhost:8000/auth/profile" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "full_name": "John Smith",
+       "organization": "Updated Corp",
+       "timezone": "EST",
+       "avatar_base64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD..."
+     }'
+
+# Change password
+curl -X POST "http://localhost:8000/auth/change-password" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "current_password": "old_password",
+       "new_password": "new_secure_password"
+     }'
+
+# Check password status
+curl -X GET "http://localhost:8000/auth/password-status" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**Login Response:**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer",
+  "expires_in": 86400
+}
+```
+
+#### 0.2. System Information
+**Get comprehensive system status and create backups**
+
+```bash
+# Get system information
+curl -X GET "http://localhost:8000/system/info" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# Create manual backup
+curl -X POST "http://localhost:8000/system/backup" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "backup_name": "incident_backup_2025",
+       "include_logs": true,
+       "include_database": true
+     }'
+
+# List all backups
+curl -X GET "http://localhost:8000/system/backups" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# Delete a backup
+curl -X DELETE "http://localhost:8000/system/backup/backup_name" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**System Info Response:**
+```json
+{
+  "version": "AegisForensic v2.1.0",
+  "uptime": "7 days, 14 hours",
+  "cpu_usage": "23%",
+  "memory_usage": "4.2 GB / 16 GB",
+  "disk_usage": "156 GB / 500 GB",
+  "active_connections": 47,
+  "last_update": "2025-09-14",
+  "platform": "Linux",
+  "platform_version": "5.15.0",
+  "python_version": "3.13.7",
+  "hostname": "forensics-server"
+}
+```
+
+**Backup Response:**
+```json
+{
+  "backup_id": "550e8400-e29b-41d4-a716-446655440000",
+  "backup_name": "incident_backup_2025",
+  "backup_path": "/home/user/aegis-forensics/backend/backups/incident_backup_2025.zip",
+  "created_at": "2025-09-14T10:30:00Z",
+  "size_mb": 125.4,
+  "status": "completed"
+}
+```
+
 #### 1. File Analysis
 **Upload and analyze forensic files**
 
 ```bash
-# Upload file for analysis
+# Upload file for analysis (requires authentication)
 curl -X POST "http://localhost:8000/analyze/uploadfile/" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
      -F "file=@evidence.mem" \
      -F "analysis_type=memory"
 ```
@@ -189,8 +366,9 @@ curl -X POST "http://localhost:8000/analyze/uploadfile/" \
 **Process live analysis data from generated scripts**
 
 ```bash
-# Receive live analysis data
+# Receive live analysis data (requires authentication)
 curl -X POST "http://localhost:8000/api/stream/live-analysis" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{
        "burst_id": "linux-memory-12345",
@@ -242,8 +420,9 @@ curl -X POST "http://localhost:8000/api/stream/live-analysis" \
 **Generate platform-specific forensic analysis scripts**
 
 ```bash
-# Generate forensic script
+# Generate forensic script (requires authentication)
 curl -X POST "http://localhost:8000/api/scripts/generate" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{
        "config": {
@@ -316,8 +495,9 @@ curl -X POST "http://localhost:8000/api/scripts/generate" \
 **Download ready-to-deploy forensic scripts**
 
 ```bash
-# Download script directly
+# Download script directly (requires authentication)
 curl -X POST "http://localhost:8000/api/scripts/download" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{"config": {...}}' \
      --output forensic_script.py
@@ -327,8 +507,9 @@ curl -X POST "http://localhost:8000/api/scripts/download" \
 **Check the status of all forensic agents**
 
 ```bash
-# Get agent status
-curl -X GET "http://localhost:8000/api/agents/status"
+# Get agent status (requires authentication)
+curl -X GET "http://localhost:8000/api/agents/status" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
 **Expected Output:**
@@ -358,11 +539,13 @@ curl -X GET "http://localhost:8000/api/agents/status"
 **Manage forensic cases and evidence**
 
 ```bash
-# List cases
-curl -X GET "http://localhost:8000/api/cases"
+# List cases (requires authentication)
+curl -X GET "http://localhost:8000/api/cases" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
 
-# Create new case
+# Create new case (requires authentication)
 curl -X POST "http://localhost:8000/api/cases" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{
        "case_name": "Incident-2025-001",
@@ -371,24 +554,91 @@ curl -X POST "http://localhost:8000/api/cases" \
      }'
 ```
 
-#### 7. Health Check
-**System health and status verification**
+#### 7. Health Check & Root Endpoint
+**System health and initial setup status**
 
 ```bash
-# Health check
+# Root endpoint - shows setup status (no auth required)
+curl -X GET "http://localhost:8000/"
+
+# Health check (no auth required)
 curl -X GET "http://localhost:8000/health"
 ```
 
-**Expected Output:**
+**Root Endpoint Response:**
+```json
+{
+  "message": "Aegis Forensics API",
+  "version": "2.1.0",
+  "admin_setup_required": false,
+  "setup_endpoint": null,
+  "docs": "/docs",
+  "status": "ready"
+}
+```
+
+**Health Check Response:**
 ```json
 {
   "status": "healthy",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "uptime": "2h 30m 45s",
   "database": "connected",
   "ai_agents": "operational"
 }
 ```
+
+---
+
+## 🔐 Authentication & Security
+
+### Initial Setup Flow
+1. **First Time Setup**: When no admin user exists, only the `/auth/setup-admin` endpoint is accessible
+2. **Admin Creation**: Create the single admin user with full name, email, organization, and timezone
+3. **Login**: Use `/auth/login` to get a JWT token (valid for 24 hours)
+4. **Protected Access**: All other endpoints require the JWT token in the Authorization header
+
+### Security Features
+- **Single Admin User**: Only one admin user allowed per system
+- **JWT Authentication**: Secure bearer token authentication
+- **Password Policy**: Passwords must be changed every 90 days
+- **Password Expiration**: System blocks access when password expires
+- **Secure Storage**: Passwords are hashed using bcrypt
+- **Database Security**: Automatic database file creation with integrity checks
+- **Backup System**: Manual and automatic backup capabilities
+
+### User Management
+- **Password Changes**: Admin can change password via `/auth/change-password`
+- **Password Status**: Check password expiration via `/auth/password-status`
+- **User Info**: View current user details via `/auth/me`
+- **Profile Updates**: Update user information and avatar via `/auth/profile`
+- **Avatar Support**: Profile pictures stored as base64 encoded images
+- **Session Management**: JWT tokens automatically expire after 24 hours
+
+### Avatar Functionality
+- **Format**: Base64 encoded images (JPEG, PNG, GIF supported)
+- **Storage**: Images stored directly in database as text
+- **Format Example**: `"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD..."`
+- **Size Limit**: Recommended maximum 1MB per image
+- **Usage**: Include in user creation or update via `avatar_base64` field
+- **Retrieval**: Avatar returned in all user info responses
+
+---
+
+## 📊 System Monitoring
+
+### Real-time System Information
+The `/system/info` endpoint provides comprehensive system monitoring:
+- **Performance**: CPU usage, memory usage, disk space
+- **System**: Uptime, active connections, platform info
+- **Application**: Version, last update timestamp
+- **Security**: Current user session status
+
+### Backup Management
+- **Manual Backups**: Create on-demand backups via `/system/backup`
+- **Backup Contents**: Database, logs, configuration files, schemas
+- **Backup Storage**: Compressed ZIP archives with metadata
+- **Backup Management**: List, download, and delete existing backups
 
 ---
 
@@ -445,12 +695,20 @@ Each module has detailed documentation:
 # Required
 GOOGLE_API_KEY=your_google_api_key
 
+# Authentication & Security
+SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
+
+# Database
+DATABASE_URL=sqlite:///aegis_forensics.db
+
 # Optional
 DEBUG=false
 LOG_LEVEL=INFO
-DATABASE_URL=sqlite:///aegis_forensics.db
 API_HOST=0.0.0.0
 API_PORT=8000
+
+# CORS Settings
+ALLOWED_ORIGINS=*
 ```
 
 ### Performance Tuning
@@ -464,8 +722,10 @@ API_PORT=8000
 ## 🔒 Security Considerations
 
 ### Best Practices
+- **Authentication**: All endpoints require JWT tokens after initial admin setup
+- **Password Policy**: Admin password must be changed every 90 days
 - Use HTTPS in production environments
-- Implement proper API key management
+- Implement proper API key management for external integrations
 - Regular security updates and patches
 - Secure evidence storage and handling
 - Access control and audit logging
@@ -492,6 +752,25 @@ pkill -f "python main.py"
 
 # Restart with debug mode
 DEBUG=true python main.py
+```
+
+#### Authentication Issues
+```bash
+# Check if admin user exists
+curl http://localhost:8000/
+
+# If no admin exists, create one
+curl -X POST "http://localhost:8000/auth/setup-admin" \
+     -H "Content-Type: application/json" \
+     -d '{"full_name":"Admin","email":"admin@company.com","organization":"Corp","password":"secure123"}'
+
+# Login to get JWT token
+curl -X POST "http://localhost:8000/auth/login" \
+     -H "Content-Type: application/json" \
+     -d '{"email":"admin@company.com","password":"secure123"}'
+
+# Use token in requests
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" http://localhost:8000/api/endpoint
 ```
 
 #### API Key Issues
