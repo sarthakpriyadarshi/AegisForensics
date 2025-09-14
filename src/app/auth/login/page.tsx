@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -20,6 +20,28 @@ const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
+  const [apiStatus, setApiStatus] = useState<"checking" | "online" | "offline">("checking")
+
+  // Check API status on component mount
+  useEffect(() => {
+    const checkApiStatus = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/health", {
+          method: "GET",
+        })
+        if (response.ok) {
+          setApiStatus("online")
+        } else {
+          setApiStatus("offline")
+        }
+      } catch (error) {
+        console.error("API status check failed:", error)
+        setApiStatus("offline")
+      }
+    }
+    
+    checkApiStatus()
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
@@ -110,6 +132,29 @@ const LoginPage: React.FC = () => {
             </div>
 
             <div className="glass-strong rounded-3xl p-8 animate-scale-in">
+              {/* API Status Indicator */}
+              <div className="mb-6 flex items-center justify-between p-3 rounded-2xl bg-gray-800/50 border border-gray-700/50">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-3 h-3 rounded-full ${
+                    apiStatus === "online" ? "bg-green-400 animate-pulse" : 
+                    apiStatus === "offline" ? "bg-red-400" : 
+                    "bg-yellow-400 animate-pulse"
+                  }`}></div>
+                  <span className="text-sm text-slate-300">
+                    API Status: {
+                      apiStatus === "online" ? "Connected" : 
+                      apiStatus === "offline" ? "Disconnected" : 
+                      "Checking..."
+                    }
+                  </span>
+                </div>
+                {apiStatus === "offline" && (
+                  <div className="text-xs text-red-300">
+                    Backend unavailable
+                  </div>
+                )}
+              </div>
+
               <form className="space-y-6" onSubmit={handleSubmit}>
                 {error && (
                   <div className="bg-red-500/20 border border-red-500/30 backdrop-blur-sm rounded-2xl p-4">

@@ -111,14 +111,12 @@ interface Case {
 export default function AnalysisPage() {
   const [evidence, setEvidence] = useState<Evidence[]>([])
   const [dragActive, setDragActive] = useState(false)
-  const [selectedAnalysisType, setSelectedAnalysisType] = useState("comprehensive")
   const [selectedCaseId, setSelectedCaseId] = useState<number | null>(null)
   const [cases, setCases] = useState<Case[]>([])
   const [loadingCases, setLoadingCases] = useState(false)
   const [loadingEvidence, setLoadingEvidence] = useState(false)
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
-  const [expandedReports, setExpandedReports] = useState<Set<number>>(new Set())
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Fetch evidence results
@@ -447,7 +445,7 @@ REPORT GENERATION:
       const formData = new FormData()
       formData.append("file", file)
       formData.append("case_id", selectedCaseId.toString())
-      formData.append("analysis_type", "full") // Default to full analysis
+      // Analysis type will be auto-detected by backend
 
       const response = await fetch("http://localhost:8000/analyze/uploadfile/", {
         method: "POST",
@@ -547,35 +545,41 @@ REPORT GENERATION:
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-white">Evidence Analysis</h1>
-          <p className="text-purple-200 mt-1">Upload and analyze forensic evidence using AI-powered tools</p>
+        <div className="text-center">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-3">
+            AI-Powered Evidence Analysis
+          </h1>
+          <p className="text-purple-200 text-lg max-w-2xl mx-auto leading-relaxed">
+            Upload forensic evidence and let our intelligent agents automatically detect file types and perform comprehensive analysis
+          </p>
         </div>
 
         {/* Upload Section */}
-        <div className="glass-strong rounded-3xl p-8 border border-purple-500/30 shadow-xl">
-          <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
-            <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-              />
-            </svg>
-            Upload Evidence
+        <div className="bg-gradient-to-br from-purple-900/50 to-indigo-900/40 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/30 shadow-2xl">
+          <h2 className="text-2xl font-semibold text-white mb-8 flex items-center gap-4">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
+              </svg>
+            </div>
+            Evidence Upload Center
           </h2>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
             {/* File Upload Area */}
-            <div className="space-y-4">
+            <div className="xl:col-span-2 space-y-6">
               <div
-                className={`relative border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-300 ${
+                className={`relative border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-500 ${
                   dragActive
-                    ? "border-purple-400 bg-purple-500/20 glass-strong"
-                    : "border-teal-500/50 hover:border-teal-400/70 hover:bg-teal-500/10"
+                    ? "border-purple-400 bg-purple-500/30 scale-105 shadow-2xl"
+                    : "border-purple-500/50 hover:border-purple-400/70 hover:bg-purple-500/20"
                 }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
@@ -589,10 +593,10 @@ REPORT GENERATION:
                   onChange={handleChange}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <div className="flex justify-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-green-400 rounded-3xl flex items-center justify-center shadow-xl animate-pulse-glow">
-                      <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl animate-pulse">
+                      <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -603,10 +607,20 @@ REPORT GENERATION:
                     </div>
                   </div>
                   <div>
-                    <p className="text-xl font-semibold text-white mb-2">Drop files here</p>
-                    <p className="text-sm text-slate-300">
-                      Supports memory dumps, disk images, network captures, executables, and documents
+                    <p className="text-2xl font-semibold text-white mb-3">Drop Evidence Files Here</p>
+                    <p className="text-purple-200 leading-relaxed max-w-lg mx-auto">
+                      Supports all forensic file types: memory dumps, disk images, network captures, executables, documents, and more
                     </p>
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-3 text-sm">
+                    {['Memory Dumps', 'Disk Images', 'PCAP Files', 'Executables', 'Documents'].map((type) => (
+                      <span
+                        key={type}
+                        className="px-4 py-2 bg-purple-600/40 text-purple-200 rounded-xl border border-purple-400/30"
+                      >
+                        {type}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -616,7 +630,7 @@ REPORT GENERATION:
                 disabled={!selectedCaseId}
                 className={`w-full px-8 py-4 rounded-2xl font-semibold transition-all duration-300 ${
                   selectedCaseId
-                    ? "bg-gradient-to-r from-teal-600 to-green-600 text-white hover:from-teal-700 hover:to-green-700 shadow-xl hover:shadow-teal-500/25 transform hover:scale-105 border border-teal-500/30"
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-xl hover:shadow-purple-500/25 transform hover:scale-105 border border-purple-500/30"
                     : "bg-gray-600/50 text-gray-400 cursor-not-allowed border border-gray-500/30"
                 }`}
               >
@@ -624,57 +638,84 @@ REPORT GENERATION:
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  Select Files to Upload
+                  Select Evidence Files
                 </div>
               </button>
-              {!selectedCaseId && <p className="text-xs text-red-400 mt-2 text-center">Please select a case first</p>}
+              {!selectedCaseId && (
+                <p className="text-red-400 text-sm text-center bg-red-500/20 rounded-xl p-3 border border-red-400/30">
+                  ⚠️ Please select a case first to associate evidence
+                </p>
+              )}
             </div>
 
-            {/* Case Selection and Analysis Options */}
+            {/* Case Selection */}
             <div className="space-y-6">
               {/* Case Selection */}
-              <div className="glass-subtle rounded-2xl p-6 border border-teal-500/20">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-3">
-                  <svg className="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
-                    />
-                  </svg>
-                  Select Case
+              <div className="bg-gradient-to-br from-purple-900/40 to-purple-800/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/30 shadow-2xl">
+                <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2"
+                      />
+                    </svg>
+                  </div>
+                  Select Active Case
                 </h3>
                 {loadingCases ? (
-                  <div className="glass-subtle rounded-xl p-4 border border-teal-500/20">
-                    <p className="text-slate-300">Loading cases...</p>
+                  <div className="bg-purple-500/20 backdrop-blur-sm rounded-2xl p-6 border border-purple-400/30">
+                    <div className="flex items-center gap-3">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-400"></div>
+                      <p className="text-purple-200">Loading available cases...</p>
+                    </div>
                   </div>
                 ) : cases.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <select
                       value={selectedCaseId || ""}
                       onChange={(e) => setSelectedCaseId(e.target.value ? Number(e.target.value) : null)}
-                      className="w-full p-4 bg-gray-800/50 border border-teal-500/30 rounded-xl text-white focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all"
+                      className="w-full p-4 bg-gray-900/70 border border-purple-500/40 rounded-2xl text-white focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-300 backdrop-blur-sm"
                     >
-                      <option value="">Select a case...</option>
+                      <option value="">Choose a case to associate evidence...</option>
                       {cases.map((caseItem) => (
-                        <option key={caseItem.id} value={caseItem.id}>
+                        <option key={caseItem.id} value={caseItem.id} className="bg-gray-900">
                           {caseItem.caseNumber} - {caseItem.name} ({caseItem.status.toUpperCase()})
                         </option>
                       ))}
                     </select>
                     {selectedCaseId && (
-                      <div className="glass-subtle rounded-xl p-4 border border-teal-500/20">
+                      <div className="bg-purple-500/20 backdrop-blur-sm rounded-2xl p-6 border border-purple-400/30">
                         {(() => {
                           const selectedCase = cases.find((c) => c.id === selectedCaseId)
                           return selectedCase ? (
-                            <div className="text-sm space-y-1">
-                              <p className="font-semibold text-white">{selectedCase.name}</p>
-                              <p className="text-slate-300">Investigator: {selectedCase.investigator}</p>
-                              <p className="text-slate-300">
-                                Status: <span className="text-teal-300">{selectedCase.status.toUpperCase()}</span> |
-                                Priority: <span className="text-orange-300">{selectedCase.priority.toUpperCase()}</span>
-                              </p>
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-white text-lg">{selectedCase.name}</p>
+                                  <p className="text-purple-200 text-sm">Case #{selectedCase.caseNumber}</p>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div className="bg-purple-600/20 rounded-xl p-3">
+                                  <p className="text-purple-300 font-medium">Investigator</p>
+                                  <p className="text-white">{selectedCase.investigator}</p>
+                                </div>
+                                <div className="bg-purple-600/20 rounded-xl p-3">
+                                  <p className="text-purple-300 font-medium">Status & Priority</p>
+                                  <p className="text-white">
+                                    <span className="text-purple-300">{selectedCase.status.toUpperCase()}</span> | 
+                                    <span className="text-orange-300 ml-1">{selectedCase.priority.toUpperCase()}</span>
+                                  </p>
+                                </div>
+                              </div>
                             </div>
                           ) : null
                         })()}
@@ -682,86 +723,65 @@ REPORT GENERATION:
                     )}
                   </div>
                 ) : (
-                  <div className="glass-subtle rounded-xl p-4 border border-yellow-500/30 bg-yellow-500/10">
-                    <p className="text-yellow-200 text-sm">
-                      No cases available.
-                      <a href="/cases" className="text-teal-300 hover:text-teal-200 underline ml-1">
-                        Create a case first
-                      </a>
-                    </p>
+                  <div className="bg-yellow-500/20 backdrop-blur-sm rounded-2xl p-6 border border-yellow-400/30">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-yellow-500 rounded-xl flex items-center justify-center">
+                        <svg className="w-5 h-5 text-yellow-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-yellow-200 font-medium">No Cases Available</p>
+                        <p className="text-yellow-300 text-sm">
+                          <a href="/cases" className="text-purple-300 hover:text-purple-200 underline">
+                            Create a case first
+                          </a> to start evidence analysis
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Analysis Options */}
-              <div className="glass-subtle rounded-2xl p-6 border border-teal-500/20">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-3">
-                  <svg className="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    />
-                  </svg>
-                  Analysis Type
+              {/* AI-Powered Analysis Info */}
+              <div className="bg-gradient-to-br from-indigo-900/40 to-purple-800/30 backdrop-blur-xl rounded-3xl p-8 border border-indigo-500/30 shadow-2xl">
+                <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  Intelligent Analysis Engine
                 </h3>
-                <div className="space-y-3">
-                  {[
-                    {
-                      id: "memory",
-                      label: "Memory Analysis",
-                      description: "Analyze memory dumps for processes, malware, and artifacts",
-                      icon: "🧠",
-                    },
-                    {
-                      id: "disk",
-                      label: "Disk Forensics",
-                      description: "File system analysis, deleted file recovery, timeline reconstruction",
-                      icon: "💾",
-                    },
-                    {
-                      id: "network",
-                      label: "Network Analysis",
-                      description: "PCAP analysis, traffic patterns, IoC extraction",
-                      icon: "🌐",
-                    },
-                    {
-                      id: "binary",
-                      label: "Binary Analysis",
-                      description: "Malware analysis, reverse engineering, behavioral assessment",
-                      icon: "🔍",
-                    },
-                    {
-                      id: "comprehensive",
-                      label: "Comprehensive",
-                      description: "Automatic analysis type detection and multi-modal analysis",
-                      icon: "⚡",
-                    },
-                  ].map((type) => (
-                    <label
-                      key={type.id}
-                      className="glass-subtle rounded-xl p-4 hover:glass-strong cursor-pointer transition-all duration-300 border border-teal-500/20 hover:border-teal-400/40 block"
-                    >
-                      <div className="flex items-start gap-4">
-                        <input
-                          type="radio"
-                          name="analysisType"
-                          value={type.id}
-                          checked={selectedAnalysisType === type.id}
-                          onChange={(e) => setSelectedAnalysisType(e.target.value)}
-                          className="mt-1 rounded border-teal-500/30 bg-gray-700/50 text-teal-500 focus:ring-teal-500"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className="text-xl">{type.icon}</span>
-                            <p className="font-semibold text-white">{type.label}</p>
-                          </div>
-                          <p className="text-sm text-slate-300">{type.description}</p>
-                        </div>
-                      </div>
-                    </label>
-                  ))}
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4 p-4 bg-indigo-500/20 rounded-2xl border border-indigo-400/30">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-medium text-white mb-2">Auto-Detection Technology</p>
+                      <p className="text-indigo-200 text-sm leading-relaxed">
+                        Our AI automatically identifies file types and selects the optimal analysis approach - 
+                        memory dumps, disk images, network captures, executables, and documents are all handled intelligently.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 bg-purple-500/20 rounded-2xl border border-purple-400/30">
+                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-medium text-white mb-2">Multi-Agent Forensics</p>
+                      <p className="text-purple-200 text-sm leading-relaxed">
+                        Specialized AI agents for memory analysis, disk forensics, network investigation, 
+                        binary analysis, and behavioral assessment work together for comprehensive results.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -769,14 +789,22 @@ REPORT GENERATION:
         </div>
 
         {/* Evidence Analysis Results */}
-        <div className="glass-strong rounded-2xl border border-teal-500/30 shadow-lg">
-          <div className="px-6 py-4 border-b border-teal-500/30 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-green-100">Evidence Analysis Results</h2>
-            <div className="flex items-center gap-3">
+        <div className="bg-gradient-to-br from-purple-900/50 to-indigo-900/40 backdrop-blur-xl rounded-3xl border border-purple-500/30 shadow-2xl">
+          <div className="px-8 py-6 border-b border-purple-500/30 flex items-center justify-between">
+            <h2 className="text-2xl font-semibold text-white flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17h6l-1-1V9l1-1H9l1 1v7l-1 1z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 12h.01M12 12h.01M2 12h.01M7 3h10l1 1v16l-1 1H7l-1-1V4l1-1z" />
+                </svg>
+              </div>
+              Analysis Results
+            </h2>
+            <div className="flex items-center gap-4">
               <button
                 onClick={fetchEvidenceResults}
                 disabled={loadingEvidence}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-200 hover:text-green-100 disabled:opacity-50 transition-all duration-300 border border-teal-500/30 rounded-xl hover:bg-teal-600/20 glass-subtle"
+                className="inline-flex items-center gap-3 px-6 py-3 text-sm font-medium text-purple-200 hover:text-white disabled:opacity-50 transition-all duration-300 border border-purple-500/30 rounded-2xl hover:bg-purple-600/20 bg-purple-600/10 backdrop-blur-sm"
               >
                 {loadingEvidence ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-400"></div>
@@ -790,156 +818,158 @@ REPORT GENERATION:
                     />
                   </svg>
                 )}
-                Refresh
+                Refresh Results
               </button>
-              <span className="text-sm text-green-300">
+              <div className="text-purple-200 text-sm bg-purple-600/20 px-4 py-2 rounded-xl border border-purple-400/30">
                 {evidence.length} total • {evidence.filter((e) => e.analysisStatus === "completed").length} analyzed
-              </span>
+              </div>
             </div>
           </div>
-          <div className="p-6">
+          <div className="p-8">
             {loadingEvidence && evidence.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div>
-                <p className="text-green-200">Loading evidence results...</p>
+              <div className="text-center py-16">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-pulse">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <p className="text-purple-200 text-lg">Loading evidence results...</p>
               </div>
             ) : evidence.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-gray-600 to-gray-500 rounded-2xl flex items-center justify-center">
-                    <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                  </div>
+              <div className="text-center py-16">
+                <div className="w-20 h-20 bg-gradient-to-br from-gray-600 to-gray-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
                 </div>
-                <h3 className="text-lg font-medium text-green-100 mb-2">No Evidence Found</h3>
-                <p className="text-green-200 mb-4">Upload files above to start forensic analysis</p>
-                <p className="text-sm text-green-300">Results will appear here once files are uploaded and analyzed</p>
+                <h3 className="text-xl font-semibold text-white mb-3">No Evidence Analysis Found</h3>
+                <p className="text-purple-200 mb-6 max-w-md mx-auto">
+                  Upload evidence files above to start AI-powered forensic analysis
+                </p>
+                <p className="text-sm text-purple-300">
+                  Results will appear here once files are uploaded and analyzed by our intelligent agents
+                </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {evidence.map((item) => (
                   <div
                     key={item.id}
-                    className="border border-teal-500/30 rounded-xl p-4 hover:bg-teal-500/10 transition-all duration-300 glass-subtle"
+                    className="bg-gradient-to-r from-purple-900/30 to-indigo-900/20 backdrop-blur-sm border border-purple-500/30 rounded-2xl p-6 hover:bg-purple-500/10 transition-all duration-300"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-medium text-green-100">{item.filename}</h3>
-                          <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(item.analysisStatus)}`}
-                          >
-                            {item.analysisStatus.toUpperCase()}
-                          </span>
-                          {item.analysisResults && (
-                            <span
-                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getVerdictColor(item.analysisResults.verdict)}`}
-                            >
-                              {item.analysisResults.verdict.toUpperCase()}
-                            </span>
-                          )}
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-white text-lg">{item.filename}</h3>
+                            <div className="flex items-center gap-3 mt-1">
+                              <span
+                                className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium border ${getStatusColor(item.analysisStatus)}`}
+                              >
+                                {item.analysisStatus.toUpperCase()}
+                              </span>
+                              {item.analysisResults && (
+                                <span
+                                  className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium border ${getVerdictColor(item.analysisResults.verdict)}`}
+                                >
+                                  {item.analysisResults.verdict.toUpperCase()}
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-green-300 mb-2">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-purple-200 mb-4">
                           {item.fileSize && (
-                            <span className="flex items-center gap-1">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
-                                />
+                            <div className="flex items-center gap-2 bg-purple-600/20 rounded-xl p-3">
+                              <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2" />
                               </svg>
-                              {formatFileSize(item.fileSize)}
-                            </span>
+                              <span>{formatFileSize(item.fileSize)}</span>
+                            </div>
                           )}
-                          <span className="flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v10a2 2 0 002 2h4a2 2 0 002-2V11m-6 0h6"
-                              />
+                          <div className="flex items-center gap-2 bg-purple-600/20 rounded-xl p-3">
+                            <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            {formatDate(item.uploadedAt)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                              />
+                            <span>{formatDate(item.uploadedAt)}</span>
+                          </div>
+                          <div className="flex items-center gap-2 bg-purple-600/20 rounded-xl p-3">
+                            <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2" />
                             </svg>
-                            Case: {item.caseId}
-                          </span>
+                            <span>Case: {item.caseId}</span>
+                          </div>
+                          <div className="flex items-center gap-2 bg-purple-600/20 rounded-xl p-3">
+                            <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span>{item.report_count || 0} Reports</span>
+                          </div>
                         </div>
-                        <p className="text-xs text-green-400 font-mono bg-gray-800/50 p-2 rounded-lg border border-teal-500/20">
-                          SHA256: {item.sha256Hash}
-                        </p>
+                        <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-4 border border-purple-500/20">
+                          <p className="text-xs text-purple-300 font-mono break-all">
+                            SHA256: {item.sha256Hash}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex gap-3">
+                      <div className="flex gap-3 ml-6">
                         <button
                           onClick={() => viewEvidenceDetails(item)}
-                          className="px-4 py-2 text-sm font-medium transition-all duration-300 rounded-xl glass-subtle text-teal-300 hover:text-teal-100 hover:bg-teal-600/20 border border-teal-500/30 flex items-center gap-2"
+                          className="px-6 py-3 text-sm font-medium transition-all duration-300 rounded-2xl bg-purple-600/20 text-purple-300 hover:text-white hover:bg-purple-600/30 border border-purple-500/30 flex items-center gap-2"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                           </svg>
                           View Details
                         </button>
                         <button
                           onClick={() => generatePDFReport(item)}
-                          className="px-4 py-2 text-sm font-medium transition-all duration-300 rounded-xl glass-subtle text-green-300 hover:text-green-100 hover:bg-green-600/20 border border-green-500/30 flex items-center gap-2"
+                          className="px-6 py-3 text-sm font-medium transition-all duration-300 rounded-2xl bg-indigo-600/20 text-indigo-300 hover:text-white hover:bg-indigo-600/30 border border-indigo-500/30 flex items-center gap-2"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
                           Generate Report
                         </button>
                       </div>
                     </div>
 
-                    {/* Analysis Summary - Always shown */}
-                    <div className="mt-4 pt-4 border-t border-teal-500/30">
+                    {/* Analysis Summary */}
+                    <div className="mt-6 pt-6 border-t border-purple-500/30">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h4 className="font-medium text-green-100 mb-2">Analysis Summary</h4>
-                          <p className="text-sm text-green-300 mb-3">
-                            {item.analysisResults?.summary || "Analysis completed successfully"}
+                          <h4 className="font-semibold text-white mb-3 flex items-center gap-2">
+                            <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            Analysis Summary
+                          </h4>
+                          <p className="text-purple-200 mb-4 leading-relaxed">
+                            {item.analysisResults?.summary || "Analysis completed successfully with AI-powered detection"}
                           </p>
                           <div className="flex items-center gap-4 text-sm">
                             <span
-                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getSeverityColor(item.analysisResults?.severity || "low")}`}
+                              className={`inline-flex items-center px-4 py-2 rounded-xl text-xs font-medium border ${getSeverityColor(item.analysisResults?.severity || "low")}`}
                             >
-                              {(item.analysisResults?.severity || "low").toUpperCase()} severity
+                              {(item.analysisResults?.severity || "low").toUpperCase()} SEVERITY
                             </span>
-                            <span className="text-green-300">{item.analysisResults?.confidence || 0}% confidence</span>
-                            <span className="text-green-300">Report Count: {item.report_count || 0}</span>
+                            <span className="text-purple-300 bg-purple-600/20 px-4 py-2 rounded-xl border border-purple-400/30">
+                              {item.analysisResults?.confidence || 0}% confidence
+                            </span>
+                            <span className="text-purple-300 bg-indigo-600/20 px-4 py-2 rounded-xl border border-indigo-400/30">
+                              {item.report_count || 0} agent reports
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -953,31 +983,33 @@ REPORT GENERATION:
 
         {/* Analysis Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="glass-strong rounded-2xl p-6 border border-teal-500/30 shadow-lg">
+          <div className="bg-gradient-to-br from-emerald-900/50 to-green-800/40 backdrop-blur-xl rounded-2xl p-6 border border-emerald-500/30 shadow-xl">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-300">Total Analyzed</p>
-                <p className="text-2xl font-bold text-green-100">
+                <p className="text-sm font-medium text-emerald-300 mb-1">Successfully Analyzed</p>
+                <p className="text-3xl font-bold text-white">
                   {evidence.filter((e) => e.analysisStatus === "completed").length}
                 </p>
+                <p className="text-xs text-emerald-400 mt-1">Files processed</p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-400 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-400 rounded-2xl flex items-center justify-center">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
             </div>
           </div>
-          <div className="glass-strong rounded-2xl p-6 border border-teal-500/30 shadow-lg">
+          <div className="bg-gradient-to-br from-red-900/50 to-orange-800/40 backdrop-blur-xl rounded-2xl p-6 border border-red-500/30 shadow-xl">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-300">Threats Detected</p>
-                <p className="text-2xl font-bold text-green-100">
+                <p className="text-sm font-medium text-red-300 mb-1">Threats Detected</p>
+                <p className="text-3xl font-bold text-white">
                   {evidence.filter((e) => e.analysisResults?.verdict === "malicious").length}
                 </p>
+                <p className="text-xs text-red-400 mt-1">Malicious files</p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-400 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-orange-400 rounded-2xl flex items-center justify-center">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -988,16 +1020,17 @@ REPORT GENERATION:
               </div>
             </div>
           </div>
-          <div className="glass-strong rounded-2xl p-6 border border-teal-500/30 shadow-lg">
+          <div className="bg-gradient-to-br from-amber-900/50 to-yellow-800/40 backdrop-blur-xl rounded-2xl p-6 border border-amber-500/30 shadow-xl">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-300">In Queue</p>
-                <p className="text-2xl font-bold text-green-100">
+                <p className="text-sm font-medium text-amber-300 mb-1">In Processing Queue</p>
+                <p className="text-3xl font-bold text-white">
                   {evidence.filter((e) => e.analysisStatus === "pending" || e.analysisStatus === "processing").length}
                 </p>
+                <p className="text-xs text-amber-400 mt-1">Awaiting analysis</p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-400 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-yellow-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-yellow-400 rounded-2xl flex items-center justify-center">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -1013,13 +1046,20 @@ REPORT GENERATION:
 
       {/* Detailed Evidence View Modal */}
       {showDetailModal && selectedEvidence && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="glass-strong rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-teal-500/30">
-            <div className="sticky top-0 glass-strong border-b border-teal-500/30 px-6 py-4 flex items-center justify-between rounded-t-2xl">
-              <h2 className="text-xl font-semibold text-green-100">Evidence Analysis Details</h2>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-purple-900/95 to-indigo-900/90 backdrop-blur-xl rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-purple-500/30">
+            <div className="sticky top-0 bg-gradient-to-r from-purple-900/95 to-indigo-900/90 backdrop-blur-xl border-b border-purple-500/30 px-8 py-6 flex items-center justify-between rounded-t-3xl">
+              <h2 className="text-2xl font-semibold text-white flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                Evidence Analysis Details
+              </h2>
               <button
                 onClick={() => setShowDetailModal(false)}
-                className="text-green-300 hover:text-green-100 text-2xl transition-colors p-2 hover:bg-teal-600/20 rounded-xl"
+                className="text-purple-300 hover:text-white text-2xl transition-colors p-3 hover:bg-purple-600/20 rounded-2xl"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1027,122 +1067,149 @@ REPORT GENERATION:
               </button>
             </div>
 
-            <div className="p-6">
+            <div className="p-8">
               {/* Evidence Information */}
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-green-100 mb-4">Evidence Information</h3>
-                <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
-                  <p className="text-sm text-green-300">Filename: {selectedEvidence.filename}</p>
-                  <p className="text-sm text-green-300">File Size: {formatFileSize(selectedEvidence.fileSize)}</p>
-                  <p className="text-sm text-green-300">MIME Type: {selectedEvidence.mimeType || "Unknown"}</p>
-                  <p className="text-sm text-green-300">SHA256 Hash: {selectedEvidence.sha256Hash}</p>
-                  <p className="text-sm text-green-300">Upload Date: {formatDate(selectedEvidence.uploadedAt)}</p>
-                  <p className="text-sm text-green-300">
-                    Analysis Status: {selectedEvidence.analysisStatus.toUpperCase()}
-                  </p>
-                  <p className="text-sm text-green-300">Case ID: {selectedEvidence.caseId}</p>
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
+                  <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  Evidence Information
+                </h3>
+                <div className="bg-purple-900/40 backdrop-blur-sm rounded-2xl p-6 space-y-4 border border-purple-500/30">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <p className="text-sm font-medium text-purple-300 mb-1">Filename</p>
+                      <p className="text-white font-medium">{selectedEvidence.filename}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-purple-300 mb-1">File Size</p>
+                      <p className="text-white">{selectedEvidence.fileSize ? formatFileSize(selectedEvidence.fileSize) : "Unknown"}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-purple-300 mb-1">MIME Type</p>
+                      <p className="text-white">{selectedEvidence.mimeType || "Unknown"}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-purple-300 mb-1">Upload Date</p>
+                      <p className="text-white">{formatDate(selectedEvidence.uploadedAt)}</p>
+                    </div>
+                  </div>
+                  <div className="pt-4 border-t border-purple-500/30">
+                    <p className="text-sm font-medium text-purple-300 mb-2">SHA256 Hash</p>
+                    <p className="text-xs text-purple-200 font-mono bg-gray-900/50 p-3 rounded-xl border border-purple-500/20 break-all">
+                      {selectedEvidence.sha256Hash}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-purple-300 mb-1">Analysis Status</p>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium border ${getStatusColor(selectedEvidence.analysisStatus)}`}>
+                        {selectedEvidence.analysisStatus.toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-purple-300 mb-1">Case ID</p>
+                      <p className="text-white">{selectedEvidence.caseId}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Analysis Summary */}
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-green-100 mb-4">Analysis Summary</h3>
-                <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
-                  <p className="text-sm text-green-300">
-                    Verdict: {selectedEvidence.analysisResults?.verdict?.toUpperCase() || "UNKNOWN"}
-                  </p>
-                  <p className="text-sm text-green-300">
-                    Severity: {selectedEvidence.analysisResults?.severity?.toUpperCase() || "LOW"}
-                  </p>
-                  <p className="text-sm text-green-300">
-                    Confidence: {selectedEvidence.analysisResults?.confidence || 0}%
-                  </p>
-                  <p className="text-sm text-green-300">
-                    Summary: {selectedEvidence.analysisResults?.summary || "No summary available"}
-                  </p>
-                </div>
-              </div>
-
-              {/* Detailed Findings */}
-              {selectedEvidence.analysisResults?.findings && selectedEvidence.analysisResults.findings.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-medium text-green-100 mb-4">Detailed Findings</h3>
-                  <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
-                    {selectedEvidence.analysisResults.findings.map((finding, index) => (
-                      <div key={index} className="space-y-2">
-                        <p className="text-sm text-green-300">
-                          Finding {index + 1}: {finding.description}
-                        </p>
-                        <p className="text-sm text-green-300">Category: {finding.category || "General"}</p>
-                        <p className="text-sm text-green-300">Severity: {finding.severity}</p>
-                        <p className="text-sm text-green-300">Confidence: {finding.confidence || 0}%</p>
-                      </div>
-                    ))}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
+                  <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  Analysis Summary
+                </h3>
+                <div className="bg-purple-900/40 backdrop-blur-sm rounded-2xl p-6 space-y-4 border border-purple-500/30">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-purple-300 mb-2">Verdict</p>
+                      <span className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium border ${getVerdictColor(selectedEvidence.analysisResults?.verdict || "unknown")}`}>
+                        {(selectedEvidence.analysisResults?.verdict || "unknown").toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-purple-300 mb-2">Severity</p>
+                      <span className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium border ${getSeverityColor(selectedEvidence.analysisResults?.severity || "low")}`}>
+                        {(selectedEvidence.analysisResults?.severity || "low").toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-purple-300 mb-2">Confidence</p>
+                      <p className="text-white text-lg font-semibold">{selectedEvidence.analysisResults?.confidence || 0}%</p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-purple-300 mb-2">Summary</p>
+                    <p className="text-purple-200 leading-relaxed">
+                      {selectedEvidence.analysisResults?.summary || "Analysis completed successfully"}
+                    </p>
                   </div>
                 </div>
-              )}
+              </div>
 
               {/* Detailed Agent Reports */}
               {selectedEvidence.analysis_results && selectedEvidence.analysis_results.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-medium text-green-100 mb-4">Detailed Agent Reports</h3>
-                  {selectedEvidence.analysis_results.map((report, index) => (
-                    <div key={report.id} className="mb-4">
-                      <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
-                        <p className="text-sm text-green-300">Agent Name: {report.agent_name}</p>
-                        <p className="text-sm text-green-300">Analysis Type: {report.analysis_type}</p>
-                        <p className="text-sm text-green-300">Analysis Date: {formatDate(report.created_at)}</p>
-                        <p className="text-sm text-green-300">Execution Time: {report.execution_time || 0} seconds</p>
-                        <p className="text-sm text-green-300">Verdict: {report.verdict?.toUpperCase() || "UNKNOWN"}</p>
-                        <p className="text-sm text-green-300">Severity: {report.severity?.toUpperCase() || "LOW"}</p>
-                        <p className="text-sm text-green-300">Confidence: {report.confidence || 0}%</p>
-                        <p className="text-sm text-green-300">Summary: {report.summary || "No summary available"}</p>
-                      </div>
-
-                      {/* Agent-Specific Findings */}
-                      {report.findings && report.findings.length > 0 && (
-                        <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
-                          {report.findings.map((finding, findingIndex) => (
-                            <div key={findingIndex} className="space-y-2">
-                              <p className="text-sm text-green-300">
-                                Finding {findingIndex + 1}: {finding.description}
-                              </p>
-                              <p className="text-sm text-green-300">Category: {finding.category || "General"}</p>
-                              <p className="text-sm text-green-300">Severity: {finding.severity}</p>
-                              <p className="text-sm text-green-300">Confidence: {finding.confidence || 0}%</p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Technical Details */}
-                      {report.technical_details && Object.keys(report.technical_details).length > 0 && (
-                        <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
-                          <p className="text-sm text-green-300">Technical Details:</p>
-                          <pre className="text-sm text-green-300 bg-gray-800/50 p-2 rounded-lg border border-teal-500/20">
-                            {Object.entries(report.technical_details)
-                              .map(
-                                ([key, value]) =>
-                                  `    ${key}: ${typeof value === "object" ? JSON.stringify(value, null, 2) : value}`,
-                              )
-                              .join("\n")}
-                          </pre>
-                        </div>
-                      )}
-
-                      {/* Recommendations */}
-                      {report.recommendations && report.recommendations.length > 0 && (
-                        <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
-                          <p className="text-sm text-green-300">Recommendations:</p>
-                          <ul className="list-disc list-inside text-sm text-green-300">
-                            {report.recommendations.map((rec, index) => (
-                              <li key={index}>{typeof rec === "object" ? JSON.stringify(rec) : rec}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                  <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
+                    <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2" />
+                      </svg>
                     </div>
-                  ))}
+                    Detailed Agent Reports ({selectedEvidence.analysis_results.length})
+                  </h3>
+                  <div className="space-y-4">
+                    {selectedEvidence.analysis_results.map((report) => (
+                      <div key={report.id} className="bg-indigo-900/40 backdrop-blur-sm rounded-2xl p-6 border border-indigo-500/30">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <h4 className="font-semibold text-white text-lg">{report.agent_name}</h4>
+                            <p className="text-sm text-indigo-300">Analysis Type: {report.analysis_type}</p>
+                            <p className="text-sm text-indigo-300">Execution Time: {report.execution_time || 0}s</p>
+                          </div>
+                          <div className="text-right">
+                            <span className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium border ${getVerdictColor(report.verdict)}`}>
+                              {report.verdict.toUpperCase()}
+                            </span>
+                            <p className="text-sm text-indigo-300 mt-1">{report.confidence || 0}% confidence</p>
+                          </div>
+                        </div>
+                        <div className="mb-4">
+                          <p className="text-sm font-medium text-indigo-300 mb-2">Summary</p>
+                          <p className="text-indigo-200 leading-relaxed">{report.summary}</p>
+                        </div>
+                        {report.findings && report.findings.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium text-indigo-300 mb-3">Findings ({report.findings.length})</p>
+                            <div className="space-y-2">
+                              {report.findings.map((finding, findingIndex) => (
+                                <div key={findingIndex} className="bg-purple-600/20 rounded-xl p-3">
+                                  <p className="text-sm text-white">{finding.description}</p>
+                                  <div className="flex items-center gap-2 mt-2">
+                                    <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium border ${getSeverityColor(finding.severity)}`}>
+                                      {finding.severity.toUpperCase()}
+                                    </span>
+                                    {finding.confidence && (
+                                      <span className="text-xs text-purple-300">{finding.confidence}% confidence</span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

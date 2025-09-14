@@ -21,7 +21,7 @@ load_dotenv()
 if not os.getenv('GOOGLE_API_KEY'):
     raise ValueError("GOOGLE_API_KEY environment variable is required")
 
-from database.models import init_db, SessionLocal, compute_sha256, User
+from database.models import init_db, SessionLocal, compute_sha256, User, Event, Case
 from database.utils import add_evidence_record, add_event
 from schemas.evidence import EvidenceCreate
 from schemas.script_config import ScriptGenerationRequest, ScriptGenerationResponse, OperatingSystem, AnalysisType
@@ -1993,6 +1993,223 @@ async def validate_script_config(request: ScriptGenerationRequest):
     except Exception as e:
         logger.error(f"Config validation failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Validation failed: {str(e)}")
+
+@app.post("/api/events/start-recording")
+async def start_event_recording():
+    """
+    Start recording system events dynamically
+    
+    This endpoint initiates live event monitoring and recording
+    """
+    try:
+        # Create a new event recording session
+        session_id = f"live_session_{int(datetime.now().timestamp())}"
+        
+        # Log the start of recording
+        add_event(
+            "live_events",
+            f"Started live event recording session: {session_id}",
+            json.dumps({
+                "session_id": session_id,
+                "start_time": datetime.now().isoformat(),
+                "status": "active"
+            })
+        )
+        
+        # Generate some initial system events to populate the stream
+        import psutil
+        import os
+        
+        initial_events = []
+        
+        # System process events
+        for proc in psutil.process_iter(['pid', 'name', 'create_time']):
+            try:
+                proc_info = proc.info
+                initial_events.append({
+                    "event_type": "process",
+                    "source": "system_monitor",
+                    "severity": "low",
+                    "message": f"Process {proc_info['name']} (PID: {proc_info['pid']}) detected",
+                    "timestamp": datetime.now().isoformat(),
+                    "details": {
+                        "pid": proc_info['pid'],
+                        "name": proc_info['name'],
+                        "create_time": proc_info['create_time']
+                    }
+                })
+                if len(initial_events) >= 10:  # Limit initial events
+                    break
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+        
+        # Network connection events
+        try:
+            connections = psutil.net_connections()
+            for conn in connections[:5]:  # Limit to 5 connections
+                if conn.status == 'ESTABLISHED':
+                    initial_events.append({
+                        "event_type": "network",
+                        "source": "network_monitor",
+                        "severity": "medium",
+                        "message": f"Active connection to {conn.raddr.ip if conn.raddr else 'unknown'}:{conn.raddr.port if conn.raddr else 'unknown'}",
+                        "timestamp": datetime.now().isoformat(),
+                        "details": {
+                            "local_addr": f"{conn.laddr.ip}:{conn.laddr.port}" if conn.laddr else None,
+                            "remote_addr": f"{conn.raddr.ip}:{conn.raddr.port}" if conn.raddr else None,
+                            "status": conn.status,
+                            "pid": conn.pid
+                        }
+                    })
+        except psutil.AccessDenied:
+            pass
+        
+        # File system events
+        import tempfile
+        temp_files = []
+        try:
+            for root, dirs, files in os.walk(tempfile.gettempdir()):
+                for file in files[:3]:  # Limit to 3 files
+                    file_path = os.path.join(root, file)
+                    stat_info = os.stat(file_path)
+                    temp_files.append({
+                        "event_type": "file",
+                        "source": "file_monitor", 
+                        "severity": "low",
+                        "message": f"Temporary file detected: {file}",
+                        "timestamp": datetime.now().isoformat(),
+                        "details": {
+                            "path": file_path,
+                            "size": stat_info.st_size,
+                            "modified": datetime.fromtimestamp(stat_info.st_mtime).isoformat()
+                        }
+                    })
+                break  # Only check temp directory
+        except (PermissionError, FileNotFoundError):
+            pass
+        
+        initial_events.extend(temp_files)
+        
+        # Memory usage events
+        memory = psutil.virtual_memory()
+        if memory.percent > 50:  # If memory usage is above 50%
+            initial_events.append({
+                "event_type": "memory",
+                "source": "memory_monitor",
+                "severity": "medium" if memory.percent > 80 else "low",
+                "message": f"Memory usage at {memory.percent:.1f}%",
+                "timestamp": datetime.now().isoformat(),
+                "details": {
+                    "total": memory.total,
+                    "available": memory.available,
+                    "percent": memory.percent,
+                    "used": memory.used
+                }
+            })
+        
+        # Store events in database
+        for event in initial_events:
+            add_event(
+                "live_events",
+                event["message"],
+                json.dumps(event)
+            )
+        
+        return {
+            "status": "started",
+            "session_id": session_id,
+            "message": f"Live event recording started with {len(initial_events)} initial events",
+            "initial_events": initial_events[:10]  # Return first 10 for preview
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to start event recording: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to start event recording: {str(e)}")
+
+@app.post("/api/events/stop-recording/{session_id}")
+async def stop_event_recording(session_id: str):
+    """
+    Stop recording system events for a specific session
+    """
+    try:
+        # Log the stop of recording
+        add_event(
+            "live_events",
+            f"Stopped live event recording session: {session_id}",
+            json.dumps({
+                "session_id": session_id,
+                "stop_time": datetime.now().isoformat(),
+                "status": "stopped"
+            })
+        )
+        
+        return {
+            "status": "stopped",
+            "session_id": session_id,
+            "message": "Live event recording stopped successfully"
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to stop event recording: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to stop event recording: {str(e)}")
+
+@app.get("/api/events/live-stream")
+async def get_live_events(limit: int = 50, session_id: str = None):
+    """
+    Get live events stream
+    
+    Returns recent events from the live event recording system
+    """
+    try:
+        db = SessionLocal()
+        
+        # Base query for events
+        query = db.query(Event).order_by(Event.timestamp.desc())
+        
+        # Filter by live events case if specified
+        if session_id:
+            query = query.filter(Event.extra.contains(session_id))
+        else:
+            # Get events from live_events case
+            live_case = db.query(Case).filter_by(name="live_events").first()
+            if live_case:
+                query = query.filter(Event.case_id == live_case.id)
+        
+        events = query.limit(limit).all()
+        
+        # Transform events for frontend
+        event_list = []
+        for event in events:
+            event_data = {}
+            if event.extra:
+                try:
+                    event_data = json.loads(event.extra)
+                except json.JSONDecodeError:
+                    event_data = {"raw_data": event.extra}
+            
+            event_list.append({
+                "id": event.id,
+                "timestamp": event.timestamp.isoformat(),
+                "type": event_data.get("event_type", event.event_type),
+                "source": event_data.get("source", event.source),
+                "severity": event_data.get("severity", event.severity),
+                "message": event.description,
+                "details": event_data.get("details", {}),
+                "agent": event_data.get("source", "System Monitor")
+            })
+        
+        db.close()
+        
+        return {
+            "events": event_list,
+            "total_count": len(event_list),
+            "events_per_second": len(event_list) / 60 if event_list else 0,  # Rough estimate
+            "session_active": True
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to get live events: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get live events: {str(e)}")
 
 @app.post("/api/stream/live-analysis")
 async def receive_live_analysis_data(request: Request):
