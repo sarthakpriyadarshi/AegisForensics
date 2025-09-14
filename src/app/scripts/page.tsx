@@ -22,6 +22,9 @@ import {
   Settings,
   CheckCircle,
   Info,
+  Laptop,
+  Apple,
+  Terminal,
 } from "lucide-react"
 
 interface ScriptConfig {
@@ -309,9 +312,9 @@ export default function ScriptsPageRevamped() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
-                  { value: "windows", label: "Windows", icon: "🪟", desc: "PowerShell-based collection" },
-                  { value: "linux", label: "Linux", icon: "🐧", desc: "Bash/Python collection" },
-                  { value: "macos", label: "macOS", icon: "🍎", desc: "Unix-based collection" },
+                  { value: "windows", label: "Windows", icon: Laptop, desc: "PowerShell-based collection" },
+                  { value: "linux", label: "Linux", icon: Terminal, desc: "Bash/Python collection" },
+                  { value: "macos", label: "macOS", icon: Apple, desc: "Unix-based collection" },
                 ].map((os) => (
                   <Card
                     key={os.value}
@@ -321,7 +324,9 @@ export default function ScriptsPageRevamped() {
                     onClick={() => updateSimpleConfig("operatingSystem", os.value)}
                   >
                     <CardContent className="p-6 text-center space-y-3">
-                      <div className="text-4xl">{os.icon}</div>
+                      <div className="flex justify-center">
+                        <os.icon className="w-12 h-12 text-primary" />
+                      </div>
                       <div className="font-semibold">{os.label}</div>
                       <div className="text-sm text-muted-foreground">{os.desc}</div>
                       {config.operatingSystem === os.value && (
