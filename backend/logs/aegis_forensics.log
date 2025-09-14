@@ -59116,3 +59116,61 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2025-09-14 23:27:11 - aegis_forensics - INFO - ✅ Database connection verified
 2025-09-14 23:27:11 - aegis_forensics - INFO - Starting Aegis Forensics server...
 2025-09-14 23:27:11 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 23:31:06 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:31:06 - aegis_forensics - INFO - Database file not found. Creating new database...
+2025-09-14 23:31:06 - aegis_forensics - INFO - Database will be created at: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:31:07 - aegis_forensics - INFO - ✅ Database created successfully!
+2025-09-14 23:31:07 - aegis_forensics - INFO - 📝 Sample cases and admin user have been created
+2025-09-14 23:31:07 - aegis_forensics - INFO - 👤 Default login: admin@aegisforensics.com / admin123
+2025-09-14 23:31:07 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 23:31:07 - aegis_forensics - INFO - ==================================================
+2025-09-14 23:31:07 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 23:31:07 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 23:31:07 - aegis_forensics - INFO - ==================================================
+2025-09-14 23:31:07 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 23:31:07 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 23:31:07 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 23:31:07 - aegis_forensics - INFO -   Environment: Development
+2025-09-14 23:31:07 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 23:31:07 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 23:31:07 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 23:31:07 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 23:31:07 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 23:31:07 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 23:31:07 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 23:31:07 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 23:31:07 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 23:31:07 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 23:31:07 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 23:31:07 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 23:31:07 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 23:31:07 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 23:31:07 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 23:31:07 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 23:31:07 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 23:31:07 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 23:31:07 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 23:31:07 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 23:31:07 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 23:31:07 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 23:31:07 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 23:31:07 - aegis_forensics - INFO - ==================================================
+2025-09-14 23:31:09 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:31:09 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:31:09 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:31:09 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:31:09 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:31:09 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:31:09 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 23:31:09 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 23:33:59 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:33:59 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:33:59 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:33:59 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:33:59 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:33:59 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:33:59 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 23:33:59 - aegis_forensics - INFO - ADK runner initialized.
