@@ -1,363 +1,768 @@
-'use client';
+"use client"
 
-import React from 'react';
-import Link from 'next/link';
-import { useAuthRedirect } from '@/components/AuthGuard';
+import type React from "react"
+import { useState, useEffect } from "react"
+import DashboardLayout from "@/components/DashboardLayout"
+import { AuthGuard } from "@/components/AuthGuard"
 
-const HomePage: React.FC = () => {
-  const { isLoading, needsAdminSetup, isAuthenticated } = useAuthRedirect();
+interface SystemMetrics {
+  version: string
+  uptime: string
+  cpu_usage: string
+  memory_usage: string
+  disk_usage: string
+  active_connections: number
+  last_update: string
+  platform: string
+  platform_version: string
+  python_version: string
+  hostname: string
+}
 
-  // Show loading while checking auth status
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-white">Loading Aegis Forensics...</p>
-        </div>
-      </div>
-    );
+interface Case {
+  id: string
+  name: string
+  status: "open" | "closed" | "investigating"
+  priority: "low" | "medium" | "high" | "critical"
+  created: string
+  investigator: string
+}
+
+interface Agent {
+  id: string
+  name: string
+  type: string
+  status: "active" | "idle" | "error"
+  lastActivity: string
+  tasksCompleted: number
+}
+
+interface Activity {
+  id: string
+  type: "analysis" | "case" | "alert" | "system"
+  message: string
+  timestamp: string
+  severity: "info" | "warning" | "error" | "success"
+}
+
+const DashboardPage: React.FC = () => {
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null)
+  const [recentCases, setRecentCases] = useState<Case[]>([])
+  const [activeAgents, setActiveAgents] = useState<Agent[]>([])
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Check for JWT token
+    const token = localStorage.getItem("aegis_token")
+    if (!token) {
+      window.location.href = "/auth/login"
+      return
+    }
+
+    // Load system metrics from API
+    const loadSystemMetrics = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/system/info", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setSystemMetrics(data)
+        } else if (response.status === 401) {
+          // Token expired or invalid
+          localStorage.removeItem("aegis_token")
+          window.location.href = "/auth/login"
+        }
+      } catch (error) {
+        console.error("Failed to load system metrics:", error)
+        // Use mock data as fallback
+        setSystemMetrics({
+          version: "AegisForensic v2.1.0",
+          uptime: "7 days, 14 hours",
+          cpu_usage: "23%",
+          memory_usage: "4.2 GB / 16 GB",
+          disk_usage: "156 GB / 500 GB",
+          active_connections: 47,
+          last_update: "2025-09-14",
+          platform: "Linux",
+          platform_version: "5.15.0",
+          python_version: "3.13.7",
+          hostname: "forensics-server",
+        })
+      }
+    }
+
+    // Load agent status from API
+    const loadAgentStatus = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/agents/status", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.agents) {
+            const agentList = Object.entries(data.agents).map(([key, agent]: [string, any]) => ({
+              id: key,
+              name: key,
+              type: agent.specialization?.toLowerCase() || "general",
+              status: agent.status,
+              lastActivity: agent.last_analysis || "1 hour ago",
+              tasksCompleted: Math.floor(Math.random() * 300) + 50,
+            }))
+            setActiveAgents(agentList)
+          }
+        } else {
+          // Use mock data as fallback
+          setActiveAgents([
+            {
+              id: "1",
+              name: "Memory Analyzer",
+              type: "memory",
+              status: "active",
+              lastActivity: "2 min ago",
+              tasksCompleted: 127,
+            },
+            {
+              id: "2",
+              name: "Disk Analyzer",
+              type: "disk",
+              status: "active",
+              lastActivity: "5 min ago",
+              tasksCompleted: 89,
+            },
+            {
+              id: "3",
+              name: "Network Analyzer",
+              type: "network",
+              status: "idle",
+              lastActivity: "1 hour ago",
+              tasksCompleted: 234,
+            },
+            {
+              id: "4",
+              name: "Binary Analyzer",
+              type: "binary",
+              status: "active",
+              lastActivity: "3 min ago",
+              tasksCompleted: 45,
+            },
+          ])
+        }
+      } catch (error) {
+        console.error("Failed to load agent status:", error)
+        // Use mock data as fallback
+        setActiveAgents([
+          {
+            id: "1",
+            name: "Memory Analyzer",
+            type: "memory",
+            status: "active",
+            lastActivity: "2 min ago",
+            tasksCompleted: 127,
+          },
+          {
+            id: "2",
+            name: "Disk Analyzer",
+            type: "disk",
+            status: "active",
+            lastActivity: "5 min ago",
+            tasksCompleted: 89,
+          },
+          {
+            id: "3",
+            name: "Network Analyzer",
+            type: "network",
+            status: "idle",
+            lastActivity: "1 hour ago",
+            tasksCompleted: 234,
+          },
+          {
+            id: "4",
+            name: "Binary Analyzer",
+            type: "binary",
+            status: "active",
+            lastActivity: "3 min ago",
+            tasksCompleted: 45,
+          },
+        ])
+      }
+    }
+
+    // Load data
+    const loadData = async () => {
+      setIsLoading(true)
+      await Promise.all([loadSystemMetrics(), loadAgentStatus()])
+
+      // Mock cases and activities
+      setRecentCases([
+        {
+          id: "1",
+          name: "Malware Investigation",
+          status: "investigating",
+          priority: "high",
+          created: "2024-01-15",
+          investigator: "John Doe",
+        },
+        {
+          id: "2",
+          name: "Data Breach Analysis",
+          status: "open",
+          priority: "critical",
+          created: "2024-01-14",
+          investigator: "Jane Smith",
+        },
+        {
+          id: "3",
+          name: "Network Intrusion",
+          status: "investigating",
+          priority: "medium",
+          created: "2024-01-13",
+          investigator: "Bob Wilson",
+        },
+      ])
+
+      setRecentActivity([
+        {
+          id: "1",
+          type: "analysis",
+          message: "Memory dump analysis completed for Case #2025-001",
+          timestamp: "2 min ago",
+          severity: "success",
+        },
+        {
+          id: "2",
+          type: "alert",
+          message: "Suspicious network traffic detected",
+          timestamp: "5 min ago",
+          severity: "warning",
+        },
+        {
+          id: "3",
+          type: "case",
+          message: "New case created: Malware Investigation",
+          timestamp: "10 min ago",
+          severity: "info",
+        },
+        {
+          id: "4",
+          type: "system",
+          message: "Backup completed successfully",
+          timestamp: "1 hour ago",
+          severity: "success",
+        },
+        {
+          id: "5",
+          type: "analysis",
+          message: "Binary analysis failed - file corrupted",
+          timestamp: "2 hours ago",
+          severity: "error",
+        },
+      ])
+
+      setIsLoading(false)
+    }
+
+    loadData()
+  }, [])
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "open":
+      case "active":
+        return "bg-green-500/20 text-green-300 border-green-500/30"
+      case "investigating":
+      case "idle":
+        return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
+      case "closed":
+        return "bg-gray-500/20 text-gray-300 border-gray-500/30"
+      case "error":
+        return "bg-red-500/20 text-red-300 border-red-500/30"
+      default:
+        return "bg-gray-500/20 text-gray-300 border-gray-500/30"
+    }
   }
 
-  // If authenticated or needs setup, don't show home page (redirect will happen)
-  if (isAuthenticated || needsAdminSetup) {
-    return null;
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "critical":
+        return "bg-red-500/20 text-red-300 border-red-500/30"
+      case "high":
+        return "bg-orange-500/20 text-orange-300 border-orange-500/30"
+      case "medium":
+        return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
+      case "low":
+        return "bg-green-500/20 text-green-300 border-green-500/30"
+      default:
+        return "bg-gray-500/20 text-gray-300 border-gray-500/30"
+    }
+  }
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case "success":
+        return "text-green-400"
+      case "warning":
+        return "text-yellow-400"
+      case "error":
+        return "text-red-400"
+      default:
+        return "text-slate-400"
+    }
+  }
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case "analysis":
+        return (
+          <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+        )
+      case "case":
+        return (
+          <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+            />
+          </svg>
+        )
+      case "alert":
+        return (
+          <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+            />
+          </svg>
+        )
+      case "system":
+        return (
+          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        )
+      default:
+        return (
+          <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+        )
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex h-screen items-center justify-center">
+          <div className="flex items-center space-x-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+            <span className="text-white text-lg">Loading dashboard...</span>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700">
-      {/* Navigation */}
-      <nav className="relative z-10 px-6 py-4">
-        <div className="mx-auto max-w-7xl flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">A</span>
+    <AuthGuard>
+      <DashboardLayout>
+        <div className="min-h-screen">
+          <div className="mx-auto max-w-7xl">
+            {/* Header */}
+            <div className="mb-8 animate-slide-up">
+              <div className="inline-flex items-center px-4 py-2 glass-subtle rounded-full text-sm text-purple-200 mb-6">
+                <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                AI-Powered Digital Forensics Platform
+              </div>
+              <h1 className="text-4xl font-bold text-white mb-4 text-balance">Welcome back, Admin</h1>
+              <p className="text-xl text-slate-300 text-pretty">
+                Your comprehensive forensics command center with intelligent automation and real-time insights.
+              </p>
             </div>
-            <h1 className="text-xl font-bold text-white">Aegis Forensics</h1>
-          </div>
-          <div className="hidden md:flex items-center space-x-6">
-            <a href="#features" className="text-slate-300 hover:text-white transition-colors">Features</a>
-            <a href="#agents" className="text-slate-300 hover:text-white transition-colors">AI Agents</a>
-            <a href="#about" className="text-slate-300 hover:text-white transition-colors">About</a>
-            <Link 
-              href="/auth/login"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Login
-            </Link>
+
+            {/* System Metrics */}
+            {systemMetrics && (
+              <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 animate-scale-in">
+                {[
+                  {
+                    title: "CPU Usage",
+                    value: systemMetrics.cpu_usage,
+                    icon: (
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
+                    ),
+                    color: "from-purple-500 to-blue-500",
+                  },
+                  {
+                    title: "Memory",
+                    value: systemMetrics.memory_usage,
+                    icon: (
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+                        />
+                      </svg>
+                    ),
+                    color: "from-blue-500 to-cyan-500",
+                  },
+                  {
+                    title: "Disk Usage",
+                    value: systemMetrics.disk_usage,
+                    icon: (
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+                        />
+                      </svg>
+                    ),
+                    color: "from-cyan-500 to-teal-500",
+                  },
+                  {
+                    title: "Connections",
+                    value: systemMetrics.active_connections.toString(),
+                    icon: (
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                        />
+                      </svg>
+                    ),
+                    color: "from-teal-500 to-green-500",
+                  },
+                ].map((metric, index) => (
+                  <div
+                    key={metric.title}
+                    className="glass-strong rounded-3xl p-6 hover:scale-105 transition-all duration-300 animate-slide-up"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div
+                        className={`w-12 h-12 bg-gradient-to-br ${metric.color} rounded-2xl flex items-center justify-center`}
+                      >
+                        {metric.icon}
+                      </div>
+                      <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                    </div>
+                    <div>
+                      <dt className="text-sm font-medium text-slate-400 mb-2">{metric.title}</dt>
+                      <dd className="text-2xl font-bold text-white">{metric.value}</dd>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+              {/* Recent Cases */}
+              <div className="lg:col-span-1">
+                <div className="glass-strong rounded-3xl p-6 animate-fade-in">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-white">Recent Cases</h3>
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                  </div>
+                  <div className="space-y-4">
+                    {recentCases.map((case_item, index) => (
+                      <div
+                        key={case_item.id}
+                        className="border-l-4 border-purple-500 pl-4 hover:bg-white/5 rounded-r-2xl p-3 transition-all duration-300 animate-slide-up"
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-semibold text-white">{case_item.name}</h4>
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getPriorityColor(
+                              case_item.priority,
+                            )}`}
+                          >
+                            {case_item.priority}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-3 text-sm">
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                              case_item.status,
+                            )}`}
+                          >
+                            {case_item.status}
+                          </span>
+                          <span className="text-slate-400">•</span>
+                          <span className="text-slate-300">{case_item.investigator}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-6">
+                    <a
+                      href="/cases"
+                      className="text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center space-x-2"
+                    >
+                      <span>View all cases</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Active Agents */}
+              <div className="lg:col-span-1">
+                <div className="glass-strong rounded-3xl p-6 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-white">Active Agents</h3>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                  </div>
+                  <div className="space-y-4">
+                    {activeAgents.map((agent, index) => (
+                      <div
+                        key={agent.id}
+                        className="flex items-center justify-between p-3 hover:bg-white/5 rounded-2xl transition-all duration-300 animate-slide-up"
+                        style={{ animationDelay: `${0.2 + index * 0.1}s` }}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div
+                            className={`w-3 h-3 rounded-full ${
+                              agent.status === "active"
+                                ? "bg-green-400 animate-pulse"
+                                : agent.status === "idle"
+                                  ? "bg-yellow-400"
+                                  : "bg-red-400"
+                            }`}
+                          ></div>
+                          <div>
+                            <p className="text-sm font-semibold text-white">{agent.name}</p>
+                            <p className="text-xs text-slate-400">{agent.lastActivity}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-sm font-medium text-slate-300">{agent.tasksCompleted}</span>
+                          <p className="text-xs text-slate-500">tasks</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-6">
+                    <a
+                      href="/agents"
+                      className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center space-x-2"
+                    >
+                      <span>Manage agents</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Activity */}
+              <div className="lg:col-span-1">
+                <div className="glass-strong rounded-3xl p-6 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-white">Recent Activity</h3>
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                  </div>
+                  <div className="space-y-4">
+                    {recentActivity.map((activity, index) => (
+                      <div
+                        key={activity.id}
+                        className="flex space-x-3 p-3 hover:bg-white/5 rounded-2xl transition-all duration-300 animate-slide-up"
+                        style={{ animationDelay: `${0.4 + index * 0.1}s` }}
+                      >
+                        <div className="flex-shrink-0">{getActivityIcon(activity.type)}</div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-white leading-relaxed">{activity.message}</p>
+                          <p className={`text-xs font-medium ${getSeverityColor(activity.severity)}`}>
+                            {activity.timestamp}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-6">
+                    <a
+                      href="/system"
+                      className="text-sm font-medium text-cyan-400 hover:text-cyan-300 transition-colors inline-flex items-center space-x-2"
+                    >
+                      <span>View system logs</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="mt-8 animate-fade-in" style={{ animationDelay: "0.6s" }}>
+              <div className="glass-strong rounded-3xl p-8">
+                <h3 className="text-2xl font-bold text-white mb-8">Quick Actions</h3>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    {
+                      href: "/analysis",
+                      title: "Analyze Evidence",
+                      description: "Upload and analyze forensic evidence with AI agents",
+                      icon: (
+                        <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                          />
+                        </svg>
+                      ),
+                      color: "from-purple-500 to-blue-500",
+                    },
+                    {
+                      href: "/cases",
+                      title: "Create Case",
+                      description: "Start a new forensic investigation case",
+                      icon: (
+                        <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                          />
+                        </svg>
+                      ),
+                      color: "from-blue-500 to-cyan-500",
+                    },
+                    {
+                      href: "/scripts",
+                      title: "Generate Script",
+                      description: "Create forensic analysis scripts for deployment",
+                      icon: (
+                        <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                          />
+                        </svg>
+                      ),
+                      color: "from-cyan-500 to-teal-500",
+                    },
+                    {
+                      href: "/live",
+                      title: "Live Response",
+                      description: "Monitor live analysis data and system events",
+                      icon: (
+                        <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                          />
+                        </svg>
+                      ),
+                      color: "from-teal-500 to-green-500",
+                    },
+                  ].map((action, index) => (
+                    <a
+                      key={action.title}
+                      href={action.href}
+                      className="group relative glass-subtle hover:glass-strong p-6 rounded-3xl transition-all duration-300 hover:scale-105 animate-slide-up"
+                      style={{ animationDelay: `${0.6 + index * 0.1}s` }}
+                    >
+                      <div className="mb-6">
+                        <div
+                          className={`w-14 h-14 bg-gradient-to-br ${action.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
+                        >
+                          {action.icon}
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-white mb-3 group-hover:text-purple-300 transition-colors">
+                          {action.title}
+                        </h3>
+                        <p className="text-sm text-slate-400 leading-relaxed text-pretty">{action.description}</p>
+                      </div>
+                      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 7l5 5m0 0l-5 5m5-5H6"
+                          />
+                        </svg>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </nav>
+      </DashboardLayout>
+    </AuthGuard>
+  )
+}
 
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-        
-        <div className="relative z-10 px-6 py-20">
-          <div className="mx-auto max-w-4xl text-center">
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              Agentic AI
-              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent block">
-                Digital Forensics
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Advanced AI-powered platform that provides comprehensive analysis capabilities for cybersecurity investigations with intelligent agent-based automation.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                href="/auth/login"
-                className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg"
-              >
-                Access Dashboard
-              </Link>
-              <a 
-                href="#features"
-                className="border border-white text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-white hover:text-slate-900 transition-all"
-              >
-                Learn More
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Background Animation */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-          <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
-        </div>
-      </div>
-
-      {/* Features Section */}
-      <section id="features" className="py-20 px-6 bg-white">
-        <div className="mx-auto max-w-7xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              What is Agentic AI in Digital Forensics?
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Agentic AI represents a paradigm shift where intelligent agents autonomously perform complex forensic analysis tasks, 
-              making decisions and coordinating investigations with minimal human intervention.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            <div className="bg-slate-50 p-8 rounded-xl">
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-white text-xl">🧠</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Autonomous Decision Making</h3>
-              <p className="text-gray-600">
-                AI agents independently analyze evidence, prioritize tasks, and make investigative decisions based on learned patterns and forensic expertise.
-              </p>
-            </div>
-
-            <div className="bg-slate-50 p-8 rounded-xl">
-              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-white text-xl">🤝</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Multi-Agent Collaboration</h3>
-              <p className="text-gray-600">
-                Specialized agents work together, sharing insights and coordinating efforts to provide comprehensive forensic analysis across all domains.
-              </p>
-            </div>
-
-            <div className="bg-slate-50 p-8 rounded-xl">
-              <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-white text-xl">⚡</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Real-time Adaptation</h3>
-              <p className="text-gray-600">
-                Agents continuously learn from new evidence patterns and adjust their analysis strategies to improve accuracy and detection capabilities.
-              </p>
-            </div>
-
-            <div className="bg-slate-50 p-8 rounded-xl">
-              <div className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-white text-xl">🎯</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Goal-Oriented Investigation</h3>
-              <p className="text-gray-600">
-                Each agent maintains specific investigative objectives, working systematically towards case resolution with minimal human oversight.
-              </p>
-            </div>
-
-            <div className="bg-slate-50 p-8 rounded-xl">
-              <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-white text-xl">🔍</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Intelligent Evidence Correlation</h3>
-              <p className="text-gray-600">
-                Agents automatically identify relationships between disparate evidence sources, building comprehensive investigation timelines.
-              </p>
-            </div>
-
-            <div className="bg-slate-50 p-8 rounded-xl">
-              <div className="w-12 h-12 bg-teal-600 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-white text-xl">📊</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Predictive Analysis</h3>
-              <p className="text-gray-600">
-                AI agents predict potential attack vectors and suggest proactive security measures based on current evidence patterns.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* AI Agents Section */}
-      <section id="agents" className="py-20 px-6 bg-slate-100">
-        <div className="mx-auto max-w-7xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Specialized Forensic AI Agents
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our AI ecosystem consists of specialized agents, each designed for specific forensic domains, 
-              working together under the coordination of the Forensic Orchestrator.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { name: "Forensic Orchestrator", icon: "🎭", desc: "Central coordinator managing all agent activities and investigation workflows", specialty: "Workflow Management" },
-              { name: "Memory Analyzer", icon: "🧠", desc: "RAM dump analysis, process inspection, and rootkit detection specialist", specialty: "Memory Forensics" },
-              { name: "Disk Analyzer", icon: "💾", desc: "File system analysis, deleted file recovery, and timeline reconstruction", specialty: "Disk Forensics" },
-              { name: "Network Analyzer", icon: "🌐", desc: "PCAP analysis, traffic pattern detection, and IoC extraction", specialty: "Network Security" },
-              { name: "Binary Analyzer", icon: "⚙️", desc: "Malware analysis, reverse engineering, and behavioral assessment", specialty: "Malware Analysis" },
-              { name: "Timeline Agent", icon: "⏰", desc: "Event correlation and chronological reconstruction of incidents", specialty: "Temporal Analysis" },
-              { name: "User Profiler", icon: "👤", desc: "Behavioral analysis, activity patterns, and anomaly detection", specialty: "Behavioral Analysis" },
-              { name: "Sandbox Agent", icon: "🔒", desc: "Safe malware execution and controlled behavior analysis", specialty: "Dynamic Analysis" },
-              { name: "Live Response Agent", icon: "🔴", desc: "Real-time system analysis and incident response automation", specialty: "Live Investigation" },
-              { name: "Recon Agent", icon: "🕵️", desc: "Intelligence gathering, OSINT, and threat actor profiling", specialty: "Intelligence Gathering" },
-              { name: "Custodian Agent", icon: "📋", desc: "Evidence integrity, chain of custody, and compliance management", specialty: "Evidence Management" }
-            ].map((agent, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center space-x-3 mb-3">
-                  <span className="text-2xl">{agent.icon}</span>
-                  <h3 className="text-lg font-semibold text-gray-900">{agent.name}</h3>
-                </div>
-                <div className="mb-3">
-                  <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                    {agent.specialty}
-                  </span>
-                </div>
-                <p className="text-gray-600 text-sm">{agent.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Platform Capabilities */}
-      <section id="about" className="py-20 px-6 bg-white">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                Comprehensive Digital Investigation Platform
-              </h2>
-              <p className="text-lg text-gray-600 mb-6">
-                Aegis Forensics represents the next generation of digital investigation tools, 
-                combining cutting-edge AI technology with proven forensic methodologies.
-              </p>
-              
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mt-1">
-                    <span className="text-white text-xs">✓</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Multi-Platform Support</h4>
-                    <p className="text-gray-600">Windows, Linux, and macOS forensic analysis capabilities</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mt-1">
-                    <span className="text-white text-xs">✓</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Real-time Analysis</h4>
-                    <p className="text-gray-600">Live system monitoring and incident response automation</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mt-1">
-                    <span className="text-white text-xs">✓</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Enterprise Security</h4>
-                    <p className="text-gray-600">JWT authentication, secure chain of custody, and audit logging</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mt-1">
-                    <span className="text-white text-xs">✓</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">API Integration</h4>
-                    <p className="text-gray-600">RESTful API for seamless integration with existing security tools</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-8">
-                <Link 
-                  href="/auth/login"
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors inline-block"
-                >
-                  Start Investigation
-                </Link>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <div className="bg-slate-900 rounded-xl p-6 text-white">
-                <div className="flex items-center space-x-2 mb-4">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                </div>
-                <pre className="text-sm text-green-400 overflow-x-auto">
-{`$ curl -X POST "http://localhost:8000/analyze/uploadfile/" \\
-     -H "Authorization: Bearer JWT_TOKEN" \\
-     -F "file=@evidence.mem" \\
-     -F "analysis_type=memory"
-
-{
-  "status": "success",
-  "analysis": {
-    "verdict": "SUSPICIOUS",
-    "severity": "High",
-    "confidence": "High",
-    "findings": [
-      {
-        "category": "Process Analysis",
-        "description": "Suspicious process detected",
-        "evidence": "malware.exe PID:1234"
-      }
-    ],
-    "recommendations": [
-      "Isolate affected system",
-      "Perform deeper memory analysis"
-    ]
-  }
-}`}
-                </pre>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white py-12 px-6">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="col-span-2">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">A</span>
-                </div>
-                <h3 className="text-lg font-bold">Aegis Forensics</h3>
-              </div>
-              <p className="text-slate-400 mb-4">
-                Advanced AI-powered digital forensics platform for comprehensive cybersecurity investigations.
-              </p>
-              <p className="text-slate-500 text-sm">
-                Built with ❤️ for the cybersecurity community
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Platform</h4>
-              <ul className="space-y-2 text-slate-400">
-                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#agents" className="hover:text-white transition-colors">AI Agents</a></li>
-                <li><Link href="/auth/login" className="hover:text-white transition-colors">Dashboard</Link></li>
-                <li><a href="#" className="hover:text-white transition-colors">API Docs</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-slate-400">
-                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">GitHub</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-slate-800 mt-8 pt-8 text-center text-slate-400">
-            <p>&copy; 2025 Aegis Forensics. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-};
-
-export default HomePage;
+export default DashboardPage

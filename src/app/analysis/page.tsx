@@ -1,239 +1,245 @@
-'use client';
+"use client"
 
-import DashboardLayout from '@/components/DashboardLayout';
-import { useState, useRef, useEffect } from 'react';
+import type React from "react"
+
+import DashboardLayout from "@/components/DashboardLayout"
+import { useState, useRef, useEffect } from "react"
 
 interface EvidenceAPIResponse {
-  id: number;
-  filename: string;
-  file_path: string;
-  file_hash: string;
-  file_size: number;
-  file_type: string;
-  collected_at: string;
-  metadata: Record<string, unknown>;
+  id: number
+  filename: string
+  file_path: string
+  file_hash: string
+  file_size: number
+  file_type: string
+  collected_at: string
+  metadata: Record<string, unknown>
   case: {
-    id: number;
-    case_number: string;
-    name: string;
-  };
-  analysis_status: string;
-  latest_verdict: string;
-  latest_severity: string;
-  latest_confidence: number;
+    id: number
+    case_number: string
+    name: string
+  }
+  analysis_status: string
+  latest_verdict: string
+  latest_severity: string
+  latest_confidence: number
   analysis_results: Array<{
-    id: number;
-    agent_name: string;
-    analysis_type: string;
-    verdict: string;
-    severity: string;
-    confidence: number;
-    summary: string;
+    id: number
+    agent_name: string
+    analysis_type: string
+    verdict: string
+    severity: string
+    confidence: number
+    summary: string
     findings: Array<{
-      description: string;
-      severity: string;
-    }>;
-    technical_details: Record<string, unknown>;
-    recommendations: Array<Record<string, unknown>>;
-    execution_time: number;
-    created_at: string;
-  }>;
-  report_count: number;
+      description: string
+      severity: string
+    }>
+    technical_details: Record<string, unknown>
+    recommendations: Array<Record<string, unknown>>
+    execution_time: number
+    created_at: string
+  }>
+  report_count: number
 }
 
 interface Evidence {
-  id: number;
-  filename: string;
-  fileSize: number;
-  mimeType?: string;
-  sha256Hash: string;
-  analysisStatus: 'pending' | 'processing' | 'completed' | 'failed';
-  uploadedAt: string;
-  caseId: string;
-  analysisResults?: AnalysisResult;
+  id: number
+  filename: string
+  fileSize: number
+  mimeType?: string
+  sha256Hash: string
+  analysisStatus: "pending" | "processing" | "completed" | "failed"
+  uploadedAt: string
+  caseId: string
+  analysisResults?: AnalysisResult
   case?: {
-    id: number;
-    case_number: string;
-    name: string;
-  };
-  latest_verdict?: string;
-  latest_severity?: string;
-  latest_confidence?: number;
-  analysis_results?: AnalysisReport[];
-  report_count?: number;
+    id: number
+    case_number: string
+    name: string
+  }
+  latest_verdict?: string
+  latest_severity?: string
+  latest_confidence?: number
+  analysis_results?: AnalysisReport[]
+  report_count?: number
 }
 
 interface AnalysisReport {
-  id: number;
-  agent_name: string;
-  analysis_type: string;
-  verdict: string;
-  severity: string;
-  confidence: number;
-  summary: string;
-  findings: Finding[];
-  technical_details: Record<string, string | number | boolean>;
-  recommendations: string[];
-  execution_time: number;
-  created_at: string;
+  id: number
+  agent_name: string
+  analysis_type: string
+  verdict: string
+  severity: string
+  confidence: number
+  summary: string
+  findings: Finding[]
+  technical_details: Record<string, string | number | boolean>
+  recommendations: string[]
+  execution_time: number
+  created_at: string
 }
 
 interface AnalysisResult {
-  verdict: 'clean' | 'suspicious' | 'malicious' | 'unknown';
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  confidence: number;
-  summary: string;
-  findings: Finding[];
-  executionTime: number;
+  verdict: "clean" | "suspicious" | "malicious" | "unknown"
+  severity: "low" | "medium" | "high" | "critical"
+  confidence: number
+  summary: string
+  findings: Finding[]
+  executionTime: number
 }
 
 interface Finding {
-  category: string;
-  description: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  confidence: number;
+  category: string
+  description: string
+  severity: "low" | "medium" | "high" | "critical"
+  confidence: number
 }
 
 interface Case {
-  id: number;
-  caseNumber: string;
-  name: string;
-  description: string;
-  investigator: string;
-  status: 'OPEN' | 'ANALYZING' | 'CLOSED' | 'SUSPENDED';
-  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  createdAt: string;
-  updatedAt: string;
+  id: number
+  caseNumber: string
+  name: string
+  description: string
+  investigator: string
+  status: "OPEN" | "ANALYZING" | "CLOSED" | "SUSPENDED"
+  priority: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"
+  createdAt: string
+  updatedAt: string
 }
 
 export default function AnalysisPage() {
-  const [evidence, setEvidence] = useState<Evidence[]>([]);
-  const [dragActive, setDragActive] = useState(false);
-  const [selectedAnalysisType, setSelectedAnalysisType] = useState('comprehensive');
-  const [selectedCaseId, setSelectedCaseId] = useState<number | null>(null);
-  const [cases, setCases] = useState<Case[]>([]);
-  const [loadingCases, setLoadingCases] = useState(false);
-  const [loadingEvidence, setLoadingEvidence] = useState(false);
-  const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null);
-  const [showDetailModal, setShowDetailModal] = useState(false);
-  const [expandedReports, setExpandedReports] = useState<Set<number>>(new Set());
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [evidence, setEvidence] = useState<Evidence[]>([])
+  const [dragActive, setDragActive] = useState(false)
+  const [selectedAnalysisType, setSelectedAnalysisType] = useState("comprehensive")
+  const [selectedCaseId, setSelectedCaseId] = useState<number | null>(null)
+  const [cases, setCases] = useState<Case[]>([])
+  const [loadingCases, setLoadingCases] = useState(false)
+  const [loadingEvidence, setLoadingEvidence] = useState(false)
+  const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null)
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [expandedReports, setExpandedReports] = useState<Set<number>>(new Set())
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Fetch evidence results
   const fetchEvidenceResults = async () => {
     try {
-      setLoadingEvidence(true);
-      const token = localStorage.getItem('aegis_token');
-      if (!token) return;
+      setLoadingEvidence(true)
+      const token = localStorage.getItem("aegis_token")
+      if (!token) return
 
-      const response = await fetch('http://localhost:8000/api/evidence-results', {
+      const response = await fetch("http://localhost:8000/api/evidence-results", {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
 
       if (response.ok) {
-        const data = await response.json();
-        if (data.status === 'success') {
+        const data = await response.json()
+        if (data.status === "success") {
           const mappedEvidence = data.evidence_results.map((item: EvidenceAPIResponse) => ({
             id: item.id,
             filename: item.filename,
             filePath: item.file_path,
             fileSize: item.file_size,
             sha256Hash: item.file_hash,
-            analysisStatus: 'completed', // Always show completed
+            analysisStatus: "completed", // Always show completed
             uploadedAt: item.collected_at,
-            caseId: item.case?.case_number || 'Unknown',
+            caseId: item.case?.case_number || "Unknown",
             case: item.case,
             latest_verdict: item.latest_verdict,
             latest_severity: item.latest_severity,
             latest_confidence: item.latest_confidence,
             analysis_results: item.analysis_results,
             report_count: item.report_count,
-            analysisResults: item.analysis_results?.length > 0 ? {
-              verdict: (item.latest_verdict || 'unknown') as 'clean' | 'suspicious' | 'malicious' | 'unknown',
-              severity: (item.latest_severity || 'low') as 'low' | 'medium' | 'high' | 'critical',
-              confidence: item.latest_confidence || 0,
-              summary: item.analysis_results[0]?.summary || 'Analysis completed successfully',
-              findings: typeof item.analysis_results[0]?.findings === 'string' 
-                ? JSON.parse(item.analysis_results[0].findings || '[]')
-                : (item.analysis_results[0]?.findings || []),
-              executionTime: item.analysis_results[0]?.execution_time || 0
-            } : {
-              verdict: 'unknown' as 'clean' | 'suspicious' | 'malicious' | 'unknown',
-              severity: 'low' as 'low' | 'medium' | 'high' | 'critical',
-              confidence: 0,
-              summary: 'Analysis completed successfully',
-              findings: [],
-              executionTime: 0
-            }
-          }));
-          setEvidence(mappedEvidence);
+            analysisResults:
+              item.analysis_results?.length > 0
+                ? {
+                    verdict: (item.latest_verdict || "unknown") as "clean" | "suspicious" | "malicious" | "unknown",
+                    severity: (item.latest_severity || "low") as "low" | "medium" | "high" | "critical",
+                    confidence: item.latest_confidence || 0,
+                    summary: item.analysis_results[0]?.summary || "Analysis completed successfully",
+                    findings:
+                      typeof item.analysis_results[0]?.findings === "string"
+                        ? JSON.parse(item.analysis_results[0].findings || "[]")
+                        : item.analysis_results[0]?.findings || [],
+                    executionTime: item.analysis_results[0]?.execution_time || 0,
+                  }
+                : {
+                    verdict: "unknown" as "clean" | "suspicious" | "malicious" | "unknown",
+                    severity: "low" as "low" | "medium" | "high" | "critical",
+                    confidence: 0,
+                    summary: "Analysis completed successfully",
+                    findings: [],
+                    executionTime: 0,
+                  },
+          }))
+          setEvidence(mappedEvidence)
         }
       }
     } catch (error) {
-      console.error('Error fetching evidence results:', error);
+      console.error("Error fetching evidence results:", error)
     } finally {
-      setLoadingEvidence(false);
+      setLoadingEvidence(false)
     }
-  };
+  }
 
   // Fetch available cases
   useEffect(() => {
     const fetchCases = async () => {
       try {
-        setLoadingCases(true);
-        const token = localStorage.getItem('aegis_token');
-        if (!token) return;
+        setLoadingCases(true)
+        const token = localStorage.getItem("aegis_token")
+        if (!token) return
 
-        const response = await fetch('http://localhost:8000/api/cases', {
+        const response = await fetch("http://localhost:8000/api/cases", {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
 
         if (response.ok) {
-          const data = await response.json();
-          if (data.status === 'success') {
-            setCases(data.cases || []);
+          const data = await response.json()
+          if (data.status === "success") {
+            setCases(data.cases || [])
             // Auto-select the first open case if available
-            const openCases = data.cases.filter((c: Case) => c.status === 'OPEN');
+            const openCases = data.cases.filter((c: Case) => c.status === "OPEN")
             if (openCases.length > 0) {
-              setSelectedCaseId(openCases[0].id);
+              setSelectedCaseId(openCases[0].id)
             }
           }
         }
       } catch (error) {
-        console.error('Error fetching cases:', error);
+        console.error("Error fetching cases:", error)
       } finally {
-        setLoadingCases(false);
+        setLoadingCases(false)
       }
-    };
+    }
 
-    fetchCases();
-    fetchEvidenceResults();
-  }, []);
+    fetchCases()
+    fetchEvidenceResults()
+  }, [])
 
   // Refresh evidence results when a new file is uploaded
   useEffect(() => {
-    fetchEvidenceResults();
-  }, []);
+    fetchEvidenceResults()
+  }, [])
 
   // Function to generate PDF report
   const generatePDFReport = (evidence: Evidence) => {
     const formatTechnicalDetails = (details: Record<string, string | number | boolean>) => {
-      return Object.entries(details).map(([key, value]) => 
-        `    ${key}: ${typeof value === 'object' ? JSON.stringify(value, null, 2) : value}`
-      ).join('\n');
-    };
+      return Object.entries(details)
+        .map(([key, value]) => `    ${key}: ${typeof value === "object" ? JSON.stringify(value, null, 2) : value}`)
+        .join("\n")
+    }
 
     const formatRecommendations = (recommendations: string[]) => {
-      return recommendations.map((rec, index) => 
-        `  ${index + 1}. ${typeof rec === 'object' ? JSON.stringify(rec) : rec}`
-      ).join('\n');
-    };
+      return recommendations
+        .map((rec, index) => `  ${index + 1}. ${typeof rec === "object" ? JSON.stringify(rec) : rec}`)
+        .join("\n")
+    }
 
     let content = `
 ═══════════════════════════════════════════════════════════════════
@@ -242,36 +248,39 @@ export default function AnalysisPage() {
 
 CASE INFORMATION:
   Case ID: ${evidence.caseId}
-  Case Name: ${evidence.case?.name || 'Unknown'}
+  Case Name: ${evidence.case?.name || "Unknown"}
 
 EVIDENCE INFORMATION:
   Filename: ${evidence.filename}
-  File Size: ${evidence.fileSize ? `${(evidence.fileSize / 1024).toFixed(2)} KB` : 'Unknown'}
-  MIME Type: ${evidence.mimeType || 'Unknown'}
+  File Size: ${evidence.fileSize ? `${(evidence.fileSize / 1024).toFixed(2)} KB` : "Unknown"}
+  MIME Type: ${evidence.mimeType || "Unknown"}
   SHA256 Hash: ${evidence.sha256Hash}
   Upload Date: ${formatDate(evidence.uploadedAt)}
   Analysis Status: ${evidence.analysisStatus}
 
 OVERALL ANALYSIS SUMMARY:
-  Verdict: ${evidence.analysisResults?.verdict?.toUpperCase() || 'UNKNOWN'}
-  Severity: ${evidence.analysisResults?.severity?.toUpperCase() || 'LOW'}
+  Verdict: ${evidence.analysisResults?.verdict?.toUpperCase() || "UNKNOWN"}
+  Severity: ${evidence.analysisResults?.severity?.toUpperCase() || "LOW"}
   Confidence: ${evidence.analysisResults?.confidence || 0}%
-  Summary: ${evidence.analysisResults?.summary || 'No summary available'}
+  Summary: ${evidence.analysisResults?.summary || "No summary available"}
 
-`;
+`
 
     // Add detailed findings if available
     if (evidence.analysisResults?.findings && evidence.analysisResults.findings.length > 0) {
       content += `
 OVERALL FINDINGS (${evidence.analysisResults.findings.length}):
-${evidence.analysisResults.findings.map((finding, index) => 
-  `  ${index + 1}. ${finding.description}
-     Category: ${finding.category || 'General'}
+${evidence.analysisResults.findings
+  .map(
+    (finding, index) =>
+      `  ${index + 1}. ${finding.description}
+     Category: ${finding.category || "General"}
      Severity: ${finding.severity}
-     Confidence: ${finding.confidence || 0}%`
-).join('\n')}
+     Confidence: ${finding.confidence || 0}%`,
+  )
+  .join("\n")}
 
-`;
+`
     }
 
     // Add detailed agent reports
@@ -281,7 +290,7 @@ ${evidence.analysisResults.findings.map((finding, index) =>
                             DETAILED AGENT REPORTS
 ═══════════════════════════════════════════════════════════════════
 
-`;
+`
 
       evidence.analysis_results.forEach((report, index) => {
         content += `
@@ -294,26 +303,29 @@ Analysis Date: ${formatDate(report.created_at)}
 Execution Time: ${report.execution_time || 0} seconds
 
 VERDICT & METRICS:
-  Verdict: ${report.verdict?.toUpperCase() || 'UNKNOWN'}
-  Severity: ${report.severity?.toUpperCase() || 'LOW'}
+  Verdict: ${report.verdict?.toUpperCase() || "UNKNOWN"}
+  Severity: ${report.severity?.toUpperCase() || "LOW"}
   Confidence: ${report.confidence || 0}%
 
 SUMMARY:
-${report.summary || 'No summary available'}
+${report.summary || "No summary available"}
 
-`;
+`
 
         // Add agent-specific findings
         if (report.findings && report.findings.length > 0) {
           content += `DETAILED FINDINGS (${report.findings.length}):
-${report.findings.map((finding, findingIndex) => 
-  `  ${findingIndex + 1}. ${finding.description}
-     Category: ${finding.category || 'General'}
+${report.findings
+  .map(
+    (finding, findingIndex) =>
+      `  ${findingIndex + 1}. ${finding.description}
+     Category: ${finding.category || "General"}
      Severity: ${finding.severity}
-     Confidence: ${finding.confidence || 0}%`
-).join('\n')}
+     Confidence: ${finding.confidence || 0}%`,
+  )
+  .join("\n")}
 
-`;
+`
         }
 
         // Add technical details
@@ -321,7 +333,7 @@ ${report.findings.map((finding, findingIndex) =>
           content += `TECHNICAL DETAILS:
 ${formatTechnicalDetails(report.technical_details)}
 
-`;
+`
         }
 
         // Add recommendations
@@ -329,9 +341,9 @@ ${formatTechnicalDetails(report.technical_details)}
           content += `RECOMMENDATIONS (${report.recommendations.length}):
 ${formatRecommendations(report.recommendations)}
 
-`;
+`
         }
-      });
+      })
     }
 
     content += `
@@ -344,78 +356,78 @@ REPORT GENERATION:
   Total Agent Reports: ${evidence.analysis_results?.length || 0}
 
 ═══════════════════════════════════════════════════════════════════
-`;
+`
 
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `aegis-comprehensive-report-${evidence.filename.replace(/[^a-z0-9]/gi, '_')}-${Date.now()}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+    const blob = new Blob([content], { type: "text/plain" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `aegis-comprehensive-report-${evidence.filename.replace(/[^a-z0-9]/gi, "_")}-${Date.now()}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
 
   // Function to view evidence details
   const viewEvidenceDetails = (evidence: Evidence) => {
-    setSelectedEvidence(evidence);
-    setShowDetailModal(true);
-  };
+    setSelectedEvidence(evidence)
+    setShowDetailModal(true)
+  }
 
   // Refresh evidence results when a new file is uploaded
   useEffect(() => {
     if (selectedCaseId) {
-      fetchEvidenceResults();
+      fetchEvidenceResults()
     }
-  }, [selectedCaseId]);
+  }, [selectedCaseId])
 
   const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
-    } else if (e.type === 'dragleave') {
-      setDragActive(false);
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true)
+    } else if (e.type === "dragleave") {
+      setDragActive(false)
     }
-  };
+  }
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFiles(e.dataTransfer.files);
+      handleFiles(e.dataTransfer.files)
     }
-  };
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
+    e.preventDefault()
     if (e.target.files && e.target.files[0]) {
-      handleFiles(e.target.files);
+      handleFiles(e.target.files)
     }
-  };
+  }
 
   const handleFiles = async (files: FileList) => {
-    const file = files[0];
-    if (!file) return;
+    const file = files[0]
+    if (!file) return
 
-    const token = localStorage.getItem('aegis_token');
+    const token = localStorage.getItem("aegis_token")
     if (!token) {
-      alert('Please login to upload files');
-      window.location.href = '/auth/login';
-      return;
+      alert("Please login to upload files")
+      window.location.href = "/auth/login"
+      return
     }
 
     if (!selectedCaseId) {
-      alert('Please select a case to associate this evidence with');
-      return;
+      alert("Please select a case to associate this evidence with")
+      return
     }
 
     // Find the selected case for display
-    const selectedCase = cases.find(c => c.id === selectedCaseId);
-    const caseNumber = selectedCase ? selectedCase.caseNumber : 'Unknown';
+    const selectedCase = cases.find((c) => c.id === selectedCaseId)
+    const caseNumber = selectedCase ? selectedCase.caseNumber : "Unknown"
 
     // Create a new evidence entry for immediate feedback
     const newEvidence: Evidence = {
@@ -423,145 +435,147 @@ REPORT GENERATION:
       filename: file.name,
       fileSize: file.size,
       mimeType: file.type,
-      sha256Hash: 'calculating...',
-      analysisStatus: 'pending',
+      sha256Hash: "calculating...",
+      analysisStatus: "pending",
       uploadedAt: new Date().toISOString(),
-      caseId: caseNumber
-    };
+      caseId: caseNumber,
+    }
 
-    setEvidence(prev => [...prev, newEvidence]);
+    setEvidence((prev) => [...prev, newEvidence])
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('case_id', selectedCaseId.toString());
-      formData.append('analysis_type', 'full'); // Default to full analysis
+      const formData = new FormData()
+      formData.append("file", file)
+      formData.append("case_id", selectedCaseId.toString())
+      formData.append("analysis_type", "full") // Default to full analysis
 
-      const response = await fetch('http://localhost:8000/analyze/uploadfile/', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8000/analyze/uploadfile/", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
-      });
+      })
 
       if (response.ok) {
-        const result = await response.json();
-        
-        console.log('File uploaded and analyzed successfully:', result);
-        
+        const result = await response.json()
+
+        console.log("File uploaded and analyzed successfully:", result)
+
         // Refresh the evidence list to get the latest data
-        await fetchEvidenceResults();
+        await fetchEvidenceResults()
       } else if (response.status === 401) {
-        localStorage.removeItem('aegis_token');
-        window.location.href = '/auth/login';
+        localStorage.removeItem("aegis_token")
+        window.location.href = "/auth/login"
       } else {
-        const errorData = await response.json();
-        setEvidence(prev => prev.map(e => 
-          e.id === newEvidence.id 
-            ? { ...e, analysisStatus: 'failed' }
-            : e
-        ));
-        alert(`Upload failed: ${errorData.detail || 'Unknown error'}`);
+        const errorData = await response.json()
+        setEvidence((prev) => prev.map((e) => (e.id === newEvidence.id ? { ...e, analysisStatus: "failed" } : e)))
+        alert(`Upload failed: ${errorData.detail || "Unknown error"}`)
       }
     } catch (error) {
-      console.error('Upload error:', error);
-      setEvidence(prev => prev.map(e => 
-        e.id === newEvidence.id 
-          ? { ...e, analysisStatus: 'failed' }
-          : e
-      ));
-      alert('Upload failed. Please check your connection and try again.');
+      console.error("Upload error:", error)
+      setEvidence((prev) => prev.map((e) => (e.id === newEvidence.id ? { ...e, analysisStatus: "failed" } : e)))
+      alert("Upload failed. Please check your connection and try again.")
     }
-  };
+  }
 
   const onButtonClick = () => {
-    fileInputRef.current?.click();
-  };
+    fileInputRef.current?.click()
+  }
 
   const formatFileSize = (bytes: number) => {
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    if (bytes === 0) return '0 Bytes';
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
-  };
+    const sizes = ["Bytes", "KB", "MB", "GB"]
+    if (bytes === 0) return "0 Bytes"
+    const i = Math.floor(Math.log(bytes) / Math.log(1024))
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i]
+  }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'processing':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'pending':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'failed':
-        return 'bg-red-100 text-red-800 border-red-200';
+      case "completed":
+        return "bg-green-100 text-green-800 border-green-200"
+      case "processing":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+      case "pending":
+        return "bg-blue-100 text-blue-800 border-blue-200"
+      case "failed":
+        return "bg-red-100 text-red-800 border-red-200"
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return "bg-gray-100 text-gray-800 border-gray-200"
     }
-  };
+  }
 
   const getVerdictColor = (verdict: string) => {
     switch (verdict) {
-      case 'clean':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'suspicious':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'malicious':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'unknown':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+      case "clean":
+        return "bg-green-100 text-green-800 border-green-200"
+      case "suspicious":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+      case "malicious":
+        return "bg-red-100 text-red-800 border-red-200"
+      case "unknown":
+        return "bg-gray-100 text-gray-800 border-gray-200"
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return "bg-gray-100 text-gray-800 border-gray-200"
     }
-  };
+  }
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'high':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case "critical":
+        return "bg-red-100 text-red-800 border-red-200"
+      case "high":
+        return "bg-orange-100 text-orange-800 border-orange-200"
+      case "medium":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+      case "low":
+        return "bg-blue-100 text-blue-800 border-blue-200"
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return "bg-gray-100 text-gray-800 border-gray-200"
     }
-  };
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Evidence Analysis</h1>
-          <p className="text-slate-600 mt-1">Upload and analyze forensic evidence using AI-powered tools</p>
+          <h1 className="text-2xl font-bold text-green-100">Evidence Analysis</h1>
+          <p className="text-green-200 mt-1">Upload and analyze forensic evidence using AI-powered tools</p>
         </div>
 
         {/* Upload Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 border border-slate-200">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Upload Evidence</h2>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="glass-strong rounded-3xl p-8 border border-teal-500/30 shadow-xl">
+          <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
+            <svg className="w-6 h-6 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              />
+            </svg>
+            Upload Evidence
+          </h2>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* File Upload Area */}
-            <div>
+            <div className="space-y-4">
               <div
-                className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                  dragActive 
-                    ? 'border-blue-400 bg-blue-50' 
-                    : 'border-slate-300 hover:border-slate-400'
+                className={`relative border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-300 ${
+                  dragActive
+                    ? "border-teal-400 bg-teal-500/20 glass-strong"
+                    : "border-teal-500/50 hover:border-teal-400/70 hover:bg-teal-500/10"
                 }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
@@ -575,75 +589,103 @@ REPORT GENERATION:
                   onChange={handleChange}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
-                <div className="space-y-4">
-                  <div className="text-4xl">📤</div>
+                <div className="space-y-6">
+                  <div className="flex justify-center">
+                    <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-green-400 rounded-3xl flex items-center justify-center shadow-xl animate-pulse-glow">
+                      <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        />
+                      </svg>
+                    </div>
+                  </div>
                   <div>
-                    <p className="text-lg font-medium text-slate-900">Drop files here or click to upload</p>
-                    <p className="text-sm text-slate-500 mt-1">
+                    <p className="text-xl font-semibold text-white mb-2">Drop files here</p>
+                    <p className="text-sm text-slate-300">
                       Supports memory dumps, disk images, network captures, executables, and documents
                     </p>
                   </div>
-                  <button
-                    onClick={onButtonClick}
-                    disabled={!selectedCaseId}
-                    className={`px-6 py-2 rounded-lg transition-colors ${
-                      selectedCaseId 
-                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
-                  >
-                    Select Files
-                  </button>
-                  {!selectedCaseId && (
-                    <p className="text-xs text-red-500 mt-2">Please select a case first</p>
-                  )}
                 </div>
               </div>
+
+              <button
+                onClick={onButtonClick}
+                disabled={!selectedCaseId}
+                className={`w-full px-8 py-4 rounded-2xl font-semibold transition-all duration-300 ${
+                  selectedCaseId
+                    ? "bg-gradient-to-r from-teal-600 to-green-600 text-white hover:from-teal-700 hover:to-green-700 shadow-xl hover:shadow-teal-500/25 transform hover:scale-105 border border-teal-500/30"
+                    : "bg-gray-600/50 text-gray-400 cursor-not-allowed border border-gray-500/30"
+                }`}
+              >
+                <div className="flex items-center justify-center gap-3">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Select Files to Upload
+                </div>
+              </button>
+              {!selectedCaseId && <p className="text-xs text-red-400 mt-2 text-center">Please select a case first</p>}
             </div>
 
             {/* Case Selection and Analysis Options */}
             <div className="space-y-6">
               {/* Case Selection */}
-              <div>
-                <h3 className="text-md font-medium text-slate-900 mb-3">Select Case</h3>
+              <div className="glass-subtle rounded-2xl p-6 border border-teal-500/20">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-3">
+                  <svg className="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
+                    />
+                  </svg>
+                  Select Case
+                </h3>
                 {loadingCases ? (
-                  <div className="p-3 border border-slate-200 rounded-lg">
-                    <p className="text-slate-600">Loading cases...</p>
+                  <div className="glass-subtle rounded-xl p-4 border border-teal-500/20">
+                    <p className="text-slate-300">Loading cases...</p>
                   </div>
                 ) : cases.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <select
-                      value={selectedCaseId || ''}
+                      value={selectedCaseId || ""}
                       onChange={(e) => setSelectedCaseId(e.target.value ? Number(e.target.value) : null)}
-                      className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full p-4 bg-gray-800/50 border border-teal-500/30 rounded-xl text-white focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all"
                     >
                       <option value="">Select a case...</option>
                       {cases.map((caseItem) => (
                         <option key={caseItem.id} value={caseItem.id}>
-                          {caseItem.caseNumber} - {caseItem.name} ({caseItem.status})
+                          {caseItem.caseNumber} - {caseItem.name} ({caseItem.status.toUpperCase()})
                         </option>
                       ))}
                     </select>
                     {selectedCaseId && (
-                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="glass-subtle rounded-xl p-4 border border-teal-500/20">
                         {(() => {
-                          const selectedCase = cases.find(c => c.id === selectedCaseId);
+                          const selectedCase = cases.find((c) => c.id === selectedCaseId)
                           return selectedCase ? (
-                            <div className="text-sm">
-                              <p className="font-medium text-blue-900">{selectedCase.name}</p>
-                              <p className="text-blue-700">Investigator: {selectedCase.investigator}</p>
-                              <p className="text-blue-700">Status: {selectedCase.status} | Priority: {selectedCase.priority}</p>
+                            <div className="text-sm space-y-1">
+                              <p className="font-semibold text-white">{selectedCase.name}</p>
+                              <p className="text-slate-300">Investigator: {selectedCase.investigator}</p>
+                              <p className="text-slate-300">
+                                Status: <span className="text-teal-300">{selectedCase.status.toUpperCase()}</span> |
+                                Priority: <span className="text-orange-300">{selectedCase.priority.toUpperCase()}</span>
+                              </p>
                             </div>
-                          ) : null;
+                          ) : null
                         })()}
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="p-3 border border-slate-200 rounded-lg bg-yellow-50">
-                    <p className="text-yellow-800 text-sm">
-                      No cases available. 
-                      <a href="/cases" className="text-blue-600 hover:text-blue-800 underline ml-1">
+                  <div className="glass-subtle rounded-xl p-4 border border-yellow-500/30 bg-yellow-500/10">
+                    <p className="text-yellow-200 text-sm">
+                      No cases available.
+                      <a href="/cases" className="text-teal-300 hover:text-teal-200 underline ml-1">
                         Create a case first
                       </a>
                     </p>
@@ -652,31 +694,74 @@ REPORT GENERATION:
               </div>
 
               {/* Analysis Options */}
-              <div>
-                <h3 className="text-md font-medium text-slate-900 mb-3">Analysis Type</h3>
-                <div className="space-y-3">
-                {[
-                  { id: 'memory', label: 'Memory Analysis', description: 'Analyze memory dumps for processes, malware, and artifacts' },
-                  { id: 'disk', label: 'Disk Forensics', description: 'File system analysis, deleted file recovery, timeline reconstruction' },
-                  { id: 'network', label: 'Network Analysis', description: 'PCAP analysis, traffic patterns, IoC extraction' },
-                  { id: 'binary', label: 'Binary Analysis', description: 'Malware analysis, reverse engineering, behavioral assessment' },
-                  { id: 'comprehensive', label: 'Comprehensive', description: 'Automatic analysis type detection and multi-modal analysis' }
-                ].map((type) => (
-                  <label key={type.id} className="flex items-start gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="analysisType"
-                      value={type.id}
-                      checked={selectedAnalysisType === type.id}
-                      onChange={(e) => setSelectedAnalysisType(e.target.value)}
-                      className="mt-1"
+              <div className="glass-subtle rounded-2xl p-6 border border-teal-500/20">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-3">
+                  <svg className="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                     />
-                    <div>
-                      <p className="font-medium text-slate-900">{type.label}</p>
-                      <p className="text-sm text-slate-600">{type.description}</p>
-                    </div>
-                  </label>
-                ))}
+                  </svg>
+                  Analysis Type
+                </h3>
+                <div className="space-y-3">
+                  {[
+                    {
+                      id: "memory",
+                      label: "Memory Analysis",
+                      description: "Analyze memory dumps for processes, malware, and artifacts",
+                      icon: "🧠",
+                    },
+                    {
+                      id: "disk",
+                      label: "Disk Forensics",
+                      description: "File system analysis, deleted file recovery, timeline reconstruction",
+                      icon: "💾",
+                    },
+                    {
+                      id: "network",
+                      label: "Network Analysis",
+                      description: "PCAP analysis, traffic patterns, IoC extraction",
+                      icon: "🌐",
+                    },
+                    {
+                      id: "binary",
+                      label: "Binary Analysis",
+                      description: "Malware analysis, reverse engineering, behavioral assessment",
+                      icon: "🔍",
+                    },
+                    {
+                      id: "comprehensive",
+                      label: "Comprehensive",
+                      description: "Automatic analysis type detection and multi-modal analysis",
+                      icon: "⚡",
+                    },
+                  ].map((type) => (
+                    <label
+                      key={type.id}
+                      className="glass-subtle rounded-xl p-4 hover:glass-strong cursor-pointer transition-all duration-300 border border-teal-500/20 hover:border-teal-400/40 block"
+                    >
+                      <div className="flex items-start gap-4">
+                        <input
+                          type="radio"
+                          name="analysisType"
+                          value={type.id}
+                          checked={selectedAnalysisType === type.id}
+                          onChange={(e) => setSelectedAnalysisType(e.target.value)}
+                          className="mt-1 rounded border-teal-500/30 bg-gray-700/50 text-teal-500 focus:ring-teal-500"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-xl">{type.icon}</span>
+                            <p className="font-semibold text-white">{type.label}</p>
+                          </div>
+                          <p className="text-sm text-slate-300">{type.description}</p>
+                        </div>
+                      </div>
+                    </label>
+                  ))}
                 </div>
               </div>
             </div>
@@ -684,106 +769,183 @@ REPORT GENERATION:
         </div>
 
         {/* Evidence Analysis Results */}
-        <div className="bg-white rounded-lg shadow-md border border-slate-200">
-          <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">Evidence Analysis Results</h2>
+        <div className="glass-strong rounded-2xl border border-teal-500/30 shadow-lg">
+          <div className="px-6 py-4 border-b border-teal-500/30 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-green-100">Evidence Analysis Results</h2>
             <div className="flex items-center gap-3">
               <button
                 onClick={fetchEvidenceResults}
                 disabled={loadingEvidence}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 disabled:opacity-50 transition-colors border border-slate-200 rounded-md hover:bg-slate-50"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-200 hover:text-green-100 disabled:opacity-50 transition-all duration-300 border border-teal-500/30 rounded-xl hover:bg-teal-600/20 glass-subtle"
               >
                 {loadingEvidence ? (
-                  <div className="animate-spin rounded-full h-3 w-3 border-b border-slate-600"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-400"></div>
                 ) : (
-                  <span>🔄</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
                 )}
                 Refresh
               </button>
-              <span className="text-sm text-slate-500">
-                {evidence.length} total • {evidence.filter(e => e.analysisStatus === 'completed').length} analyzed
+              <span className="text-sm text-green-300">
+                {evidence.length} total • {evidence.filter((e) => e.analysisStatus === "completed").length} analyzed
               </span>
             </div>
           </div>
           <div className="p-6">
             {loadingEvidence && evidence.length === 0 ? (
               <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-slate-600">Loading evidence results...</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-400 mx-auto mb-4"></div>
+                <p className="text-green-200">Loading evidence results...</p>
               </div>
             ) : evidence.length === 0 ? (
               <div className="text-center py-12">
-                <div className="text-6xl mb-4">📋</div>
-                <h3 className="text-lg font-medium text-slate-900 mb-2">No Evidence Found</h3>
-                <p className="text-slate-600 mb-4">Upload files above to start forensic analysis</p>
-                <p className="text-sm text-slate-500">Results will appear here once files are uploaded and analyzed</p>
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-gray-600 to-gray-500 rounded-2xl flex items-center justify-center">
+                    <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <h3 className="text-lg font-medium text-green-100 mb-2">No Evidence Found</h3>
+                <p className="text-green-200 mb-4">Upload files above to start forensic analysis</p>
+                <p className="text-sm text-green-300">Results will appear here once files are uploaded and analyzed</p>
               </div>
             ) : (
               <div className="space-y-4">
-              {evidence.map((item) => (
-                <div key={item.id} className="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-medium text-slate-900">{item.filename}</h3>
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(item.analysisStatus)}`}>
-                          {item.analysisStatus}
-                        </span>
-                        {item.analysisResults && (
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getVerdictColor(item.analysisResults.verdict)}`}>
-                            {item.analysisResults.verdict}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-slate-600 mb-2">
-                        {item.fileSize && (
-                          <span>📁 {formatFileSize(item.fileSize)}</span>
-                        )}
-                        <span>📅 {formatDate(item.uploadedAt)}</span>
-                        <span>🔗 Case: {item.caseId}</span>
-                      </div>
-                      <p className="text-xs text-slate-500 font-mono bg-slate-100 p-2 rounded">
-                        SHA256: {item.sha256Hash}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => viewEvidenceDetails(item)}
-                        className="bg-blue-50 text-blue-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-blue-100 transition-colors"
-                      >
-                        View Details
-                      </button>
-                      <button 
-                        onClick={() => generatePDFReport(item)}
-                        className="bg-green-50 text-green-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-green-100 transition-colors"
-                      >
-                        📄 Generate Report
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Analysis Summary - Always shown */}
-                  <div className="mt-4 pt-4 border-t border-slate-200">
+                {evidence.map((item) => (
+                  <div
+                    key={item.id}
+                    className="border border-teal-500/30 rounded-xl p-4 hover:bg-teal-500/10 transition-all duration-300 glass-subtle"
+                  >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h4 className="font-medium text-slate-900 mb-2">Analysis Summary</h4>
-                        <p className="text-sm text-slate-700 mb-3">{item.analysisResults?.summary || 'Analysis completed successfully'}</p>
-                        <div className="flex items-center gap-4 text-sm">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getSeverityColor(item.analysisResults?.severity || 'low')}`}>
-                            {(item.analysisResults?.severity || 'low')} severity
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="font-medium text-green-100">{item.filename}</h3>
+                          <span
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(item.analysisStatus)}`}
+                          >
+                            {item.analysisStatus.toUpperCase()}
                           </span>
-                          <span className="text-slate-600">
-                            {item.analysisResults?.confidence || 0}% confidence
+                          {item.analysisResults && (
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getVerdictColor(item.analysisResults.verdict)}`}
+                            >
+                              {item.analysisResults.verdict.toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-green-300 mb-2">
+                          {item.fileSize && (
+                            <span className="flex items-center gap-1">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
+                                />
+                              </svg>
+                              {formatFileSize(item.fileSize)}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v10a2 2 0 002 2h4a2 2 0 002-2V11m-6 0h6"
+                              />
+                            </svg>
+                            {formatDate(item.uploadedAt)}
                           </span>
-                          <span className="text-slate-600">
-                            Report Count: {item.report_count || 0}
+                          <span className="flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                              />
+                            </svg>
+                            Case: {item.caseId}
                           </span>
+                        </div>
+                        <p className="text-xs text-green-400 font-mono bg-gray-800/50 p-2 rounded-lg border border-teal-500/20">
+                          SHA256: {item.sha256Hash}
+                        </p>
+                      </div>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => viewEvidenceDetails(item)}
+                          className="px-4 py-2 text-sm font-medium transition-all duration-300 rounded-xl glass-subtle text-teal-300 hover:text-teal-100 hover:bg-teal-600/20 border border-teal-500/30 flex items-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                          View Details
+                        </button>
+                        <button
+                          onClick={() => generatePDFReport(item)}
+                          className="px-4 py-2 text-sm font-medium transition-all duration-300 rounded-xl glass-subtle text-green-300 hover:text-green-100 hover:bg-green-600/20 border border-green-500/30 flex items-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
+                          </svg>
+                          Generate Report
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Analysis Summary - Always shown */}
+                    <div className="mt-4 pt-4 border-t border-teal-500/30">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-green-100 mb-2">Analysis Summary</h4>
+                          <p className="text-sm text-green-300 mb-3">
+                            {item.analysisResults?.summary || "Analysis completed successfully"}
+                          </p>
+                          <div className="flex items-center gap-4 text-sm">
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getSeverityColor(item.analysisResults?.severity || "low")}`}
+                            >
+                              {(item.analysisResults?.severity || "low").toUpperCase()} severity
+                            </span>
+                            <span className="text-green-300">{item.analysisResults?.confidence || 0}% confidence</span>
+                            <span className="text-green-300">Report Count: {item.report_count || 0}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
               </div>
             )}
           </div>
@@ -791,37 +953,59 @@ REPORT GENERATION:
 
         {/* Analysis Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg shadow-md p-6 border border-slate-200">
+          <div className="glass-strong rounded-2xl p-6 border border-teal-500/30 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Total Analyzed</p>
-                <p className="text-2xl font-bold text-slate-900">
-                  {evidence.filter(e => e.analysisStatus === 'completed').length}
+                <p className="text-sm font-medium text-green-300">Total Analyzed</p>
+                <p className="text-2xl font-bold text-green-100">
+                  {evidence.filter((e) => e.analysisStatus === "completed").length}
                 </p>
               </div>
-              <div className="text-3xl">✅</div>
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-400 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-green-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6 border border-slate-200">
+          <div className="glass-strong rounded-2xl p-6 border border-teal-500/30 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Threats Detected</p>
-                <p className="text-2xl font-bold text-slate-900">
-                  {evidence.filter(e => e.analysisResults?.verdict === 'malicious').length}
+                <p className="text-sm font-medium text-green-300">Threats Detected</p>
+                <p className="text-2xl font-bold text-green-100">
+                  {evidence.filter((e) => e.analysisResults?.verdict === "malicious").length}
                 </p>
               </div>
-              <div className="text-3xl">🚨</div>
+              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-400 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-red-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6 border border-slate-200">
+          <div className="glass-strong rounded-2xl p-6 border border-teal-500/30 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">In Queue</p>
-                <p className="text-2xl font-bold text-slate-900">
-                  {evidence.filter(e => e.analysisStatus === 'pending' || e.analysisStatus === 'processing').length}
+                <p className="text-sm font-medium text-green-300">In Queue</p>
+                <p className="text-2xl font-bold text-green-100">
+                  {evidence.filter((e) => e.analysisStatus === "pending" || e.analysisStatus === "processing").length}
                 </p>
               </div>
-              <div className="text-3xl">⏳</div>
+              <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-400 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-yellow-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
@@ -829,298 +1013,142 @@ REPORT GENERATION:
 
       {/* Detailed Evidence View Modal */}
       {showDetailModal && selectedEvidence && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-slate-900">Evidence Analysis Details</h2>
-              <button 
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="glass-strong rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-teal-500/30">
+            <div className="sticky top-0 glass-strong border-b border-teal-500/30 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <h2 className="text-xl font-semibold text-green-100">Evidence Analysis Details</h2>
+              <button
                 onClick={() => setShowDetailModal(false)}
-                className="text-slate-400 hover:text-slate-600 text-2xl"
+                className="text-green-300 hover:text-green-100 text-2xl transition-colors p-2 hover:bg-teal-600/20 rounded-xl"
               >
-                ×
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
-            
+
             <div className="p-6">
               {/* Evidence Information */}
               <div className="mb-6">
-                <h3 className="text-lg font-medium text-slate-900 mb-4">Evidence Information</h3>
-                <div className="bg-slate-50 rounded-lg p-4 space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <span className="text-sm font-medium text-slate-600">Filename:</span>
-                      <p className="text-slate-900">{selectedEvidence.filename}</p>
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-slate-600">Case:</span>
-                      <p className="text-slate-900">{selectedEvidence.caseId}</p>
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-slate-600">File Size:</span>
-                      <p className="text-slate-900">{selectedEvidence.fileSize ? formatFileSize(selectedEvidence.fileSize) : 'Unknown'}</p>
-                    </div>
-                    <div className="col-span-2">
-                      <span className="text-sm font-medium text-slate-600">SHA256 Hash:</span>
-                      <p className="text-slate-900 font-mono text-xs break-all">{selectedEvidence.sha256Hash}</p>
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-slate-600">Upload Date:</span>
-                      <p className="text-slate-900">{formatDate(selectedEvidence.uploadedAt)}</p>
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-slate-600">Analysis Status:</span>
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(selectedEvidence.analysisStatus)}`}>
-                        {selectedEvidence.analysisStatus}
-                      </span>
-                    </div>
-                  </div>
+                <h3 className="text-lg font-medium text-green-100 mb-4">Evidence Information</h3>
+                <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
+                  <p className="text-sm text-green-300">Filename: {selectedEvidence.filename}</p>
+                  <p className="text-sm text-green-300">File Size: {formatFileSize(selectedEvidence.fileSize)}</p>
+                  <p className="text-sm text-green-300">MIME Type: {selectedEvidence.mimeType || "Unknown"}</p>
+                  <p className="text-sm text-green-300">SHA256 Hash: {selectedEvidence.sha256Hash}</p>
+                  <p className="text-sm text-green-300">Upload Date: {formatDate(selectedEvidence.uploadedAt)}</p>
+                  <p className="text-sm text-green-300">
+                    Analysis Status: {selectedEvidence.analysisStatus.toUpperCase()}
+                  </p>
+                  <p className="text-sm text-green-300">Case ID: {selectedEvidence.caseId}</p>
                 </div>
               </div>
 
-              {/* Analysis Results */}
+              {/* Analysis Summary */}
               <div className="mb-6">
-                <h3 className="text-lg font-medium text-slate-900 mb-4">Analysis Results</h3>
-                <div className="bg-slate-50 rounded-lg p-4">
-                  <div className="grid grid-cols-3 gap-4 mb-4">
-                    <div className="text-center">
-                      <span className="text-sm font-medium text-slate-600">Verdict</span>
-                      <div className={`mt-1 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getVerdictColor(selectedEvidence.analysisResults?.verdict || 'unknown')}`}>
-                        {(selectedEvidence.analysisResults?.verdict || 'unknown').toUpperCase()}
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <span className="text-sm font-medium text-slate-600">Severity</span>
-                      <div className={`mt-1 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getSeverityColor(selectedEvidence.analysisResults?.severity || 'low')}`}>
-                        {(selectedEvidence.analysisResults?.severity || 'low').toUpperCase()}
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <span className="text-sm font-medium text-slate-600">Confidence</span>
-                      <div className="mt-1 text-2xl font-bold text-slate-900">
-                        {selectedEvidence.analysisResults?.confidence || 0}%
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <span className="text-sm font-medium text-slate-600">Summary:</span>
-                    <p className="text-slate-900 mt-1">{selectedEvidence.analysisResults?.summary || 'Analysis completed successfully'}</p>
-                  </div>
+                <h3 className="text-lg font-medium text-green-100 mb-4">Analysis Summary</h3>
+                <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
+                  <p className="text-sm text-green-300">
+                    Verdict: {selectedEvidence.analysisResults?.verdict?.toUpperCase() || "UNKNOWN"}
+                  </p>
+                  <p className="text-sm text-green-300">
+                    Severity: {selectedEvidence.analysisResults?.severity?.toUpperCase() || "LOW"}
+                  </p>
+                  <p className="text-sm text-green-300">
+                    Confidence: {selectedEvidence.analysisResults?.confidence || 0}%
+                  </p>
+                  <p className="text-sm text-green-300">
+                    Summary: {selectedEvidence.analysisResults?.summary || "No summary available"}
+                  </p>
                 </div>
               </div>
 
               {/* Detailed Findings */}
               {selectedEvidence.analysisResults?.findings && selectedEvidence.analysisResults.findings.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-medium text-slate-900 mb-4">Detailed Findings</h3>
-                  <div className="space-y-3">
+                  <h3 className="text-lg font-medium text-green-100 mb-4">Detailed Findings</h3>
+                  <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
                     {selectedEvidence.analysisResults.findings.map((finding, index) => (
-                      <div key={index} className="bg-slate-50 rounded-lg p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <p className="text-slate-900 mb-2">{finding.description}</p>
-                            <div className="flex items-center gap-3">
-                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getSeverityColor(finding.severity)}`}>
-                                {finding.severity} severity
-                              </span>
-                              {finding.confidence && (
-                                <span className="text-sm text-slate-600">
-                                  {finding.confidence}% confidence
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
+                      <div key={index} className="space-y-2">
+                        <p className="text-sm text-green-300">
+                          Finding {index + 1}: {finding.description}
+                        </p>
+                        <p className="text-sm text-green-300">Category: {finding.category || "General"}</p>
+                        <p className="text-sm text-green-300">Severity: {finding.severity}</p>
+                        <p className="text-sm text-green-300">Confidence: {finding.confidence || 0}%</p>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Agent Reports */}
+              {/* Detailed Agent Reports */}
               {selectedEvidence.analysis_results && selectedEvidence.analysis_results.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-medium text-slate-900 mb-4">
-                    Agent Analysis Reports ({selectedEvidence.analysis_results.length})
-                  </h3>
-                  <div className="space-y-6">
-                    {selectedEvidence.analysis_results.map((report, index) => (
-                      <div key={index} className="bg-slate-50 rounded-lg p-6 border border-slate-200">
-                        {/* Report Header */}
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <h4 className="text-lg font-semibold text-slate-900">{report.agent_name}</h4>
-                            <span className="text-sm text-slate-500 bg-slate-200 px-2 py-1 rounded">
-                              {report.analysis_type}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm text-slate-500">{formatDate(report.created_at)}</span>
-                            <button
-                              onClick={() => {
-                                const newExpanded = new Set(expandedReports);
-                                if (newExpanded.has(index)) {
-                                  newExpanded.delete(index);
-                                } else {
-                                  newExpanded.add(index);
-                                }
-                                setExpandedReports(newExpanded);
-                              }}
-                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                            >
-                              {expandedReports.has(index) ? 'Collapse' : 'Expand Details'}
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Report Metrics */}
-                        <div className="grid grid-cols-4 gap-4 mb-4">
-                          <div className="text-center">
-                            <span className="text-xs font-medium text-slate-600">Verdict</span>
-                            {report.verdict && (
-                              <div className={`mt-1 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getVerdictColor(report.verdict)}`}>
-                                {report.verdict.toUpperCase()}
-                              </div>
-                            )}
-                          </div>
-                          <div className="text-center">
-                            <span className="text-xs font-medium text-slate-600">Severity</span>
-                            {report.severity && (
-                              <div className={`mt-1 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getSeverityColor(report.severity)}`}>
-                                {report.severity.toUpperCase()}
-                              </div>
-                            )}
-                          </div>
-                          <div className="text-center">
-                            <span className="text-xs font-medium text-slate-600">Confidence</span>
-                            <div className="mt-1 text-lg font-bold text-slate-900">
-                              {report.confidence || 0}%
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <span className="text-xs font-medium text-slate-600">Execution Time</span>
-                            <div className="mt-1 text-lg font-bold text-slate-900">
-                              {report.execution_time || 0}s
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Report Summary */}
-                        <div className="mb-4">
-                          <h5 className="font-medium text-slate-900 mb-2">Summary</h5>
-                          <div className="bg-white p-3 rounded border">
-                            <p className="text-slate-700">{report.summary || 'No summary available'}</p>
-                          </div>
-                        </div>
-
-                        {/* Always show findings count, expand for details */}
-                        {report.findings && report.findings.length > 0 && (
-                          <div className="mb-4">
-                            <h5 className="font-medium text-slate-900 mb-2">
-                              Findings ({report.findings.length}) 
-                              {!expandedReports.has(index) && (
-                                <span className="text-sm font-normal text-slate-500 ml-2">
-                                  - Click &quot;Expand Details&quot; to view all findings
-                                </span>
-                              )}
-                            </h5>
-                            <div className="space-y-2">
-                              {/* Show first 2 findings when collapsed, all when expanded */}
-                              {(expandedReports.has(index) ? report.findings : report.findings.slice(0, 2)).map((finding, findingIndex) => (
-                                <div key={findingIndex} className="bg-white p-3 rounded border flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <p className="text-slate-700 text-sm">{finding.description}</p>
-                                    {finding.category && (
-                                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1">
-                                        {finding.category}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="ml-3 flex flex-col items-end gap-1">
-                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getSeverityColor(finding.severity)}`}>
-                                      {finding.severity}
-                                    </span>
-                                    {finding.confidence && (
-                                      <span className="text-xs text-slate-600">
-                                        {finding.confidence}% conf.
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                              {!expandedReports.has(index) && report.findings.length > 2 && (
-                                <div className="bg-slate-100 p-2 rounded text-center">
-                                  <span className="text-slate-600 text-sm">
-                                    +{report.findings.length - 2} more findings - Expand to view all
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Technical Details - Collapsible */}
-                        {expandedReports.has(index) && report.technical_details && Object.keys(report.technical_details).length > 0 && (
-                          <div className="mb-4">
-                            <h5 className="font-medium text-slate-900 mb-2">Technical Details</h5>
-                            <div className="bg-white p-3 rounded border max-h-48 overflow-y-auto">
-                              <div className="grid grid-cols-1 gap-2 text-sm">
-                                {Object.entries(report.technical_details).map(([key, value]) => (
-                                  <div key={key} className="flex flex-col border-b border-slate-100 pb-2">
-                                    <span className="font-medium text-slate-600">{key}:</span>
-                                    <span className="text-slate-900 font-mono text-xs bg-slate-50 p-1 rounded mt-1 break-all">
-                                      {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Recommendations - Collapsible */}
-                        {expandedReports.has(index) && report.recommendations && report.recommendations.length > 0 && (
-                          <div className="mb-4">
-                            <h5 className="font-medium text-slate-900 mb-2">
-                              Recommendations ({report.recommendations.length})
-                            </h5>
-                            <div className="bg-white p-3 rounded border">
-                              <ul className="space-y-1">
-                                {report.recommendations.map((rec, recIndex) => (
-                                  <li key={recIndex} className="text-sm text-slate-700 flex items-start">
-                                    <span className="text-blue-600 mr-2">•</span>
-                                    <span>{typeof rec === 'object' ? JSON.stringify(rec) : rec}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        )}
+                  <h3 className="text-lg font-medium text-green-100 mb-4">Detailed Agent Reports</h3>
+                  {selectedEvidence.analysis_results.map((report, index) => (
+                    <div key={report.id} className="mb-4">
+                      <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
+                        <p className="text-sm text-green-300">Agent Name: {report.agent_name}</p>
+                        <p className="text-sm text-green-300">Analysis Type: {report.analysis_type}</p>
+                        <p className="text-sm text-green-300">Analysis Date: {formatDate(report.created_at)}</p>
+                        <p className="text-sm text-green-300">Execution Time: {report.execution_time || 0} seconds</p>
+                        <p className="text-sm text-green-300">Verdict: {report.verdict?.toUpperCase() || "UNKNOWN"}</p>
+                        <p className="text-sm text-green-300">Severity: {report.severity?.toUpperCase() || "LOW"}</p>
+                        <p className="text-sm text-green-300">Confidence: {report.confidence || 0}%</p>
+                        <p className="text-sm text-green-300">Summary: {report.summary || "No summary available"}</p>
                       </div>
-                    ))}
-                  </div>
+
+                      {/* Agent-Specific Findings */}
+                      {report.findings && report.findings.length > 0 && (
+                        <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
+                          {report.findings.map((finding, findingIndex) => (
+                            <div key={findingIndex} className="space-y-2">
+                              <p className="text-sm text-green-300">
+                                Finding {findingIndex + 1}: {finding.description}
+                              </p>
+                              <p className="text-sm text-green-300">Category: {finding.category || "General"}</p>
+                              <p className="text-sm text-green-300">Severity: {finding.severity}</p>
+                              <p className="text-sm text-green-300">Confidence: {finding.confidence || 0}%</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Technical Details */}
+                      {report.technical_details && Object.keys(report.technical_details).length > 0 && (
+                        <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
+                          <p className="text-sm text-green-300">Technical Details:</p>
+                          <pre className="text-sm text-green-300 bg-gray-800/50 p-2 rounded-lg border border-teal-500/20">
+                            {Object.entries(report.technical_details)
+                              .map(
+                                ([key, value]) =>
+                                  `    ${key}: ${typeof value === "object" ? JSON.stringify(value, null, 2) : value}`,
+                              )
+                              .join("\n")}
+                          </pre>
+                        </div>
+                      )}
+
+                      {/* Recommendations */}
+                      {report.recommendations && report.recommendations.length > 0 && (
+                        <div className="glass-subtle rounded-xl p-4 space-y-3 border border-teal-500/20">
+                          <p className="text-sm text-green-300">Recommendations:</p>
+                          <ul className="list-disc list-inside text-sm text-green-300">
+                            {report.recommendations.map((rec, index) => (
+                              <li key={index}>{typeof rec === "object" ? JSON.stringify(rec) : rec}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
-
-              {/* Action Buttons */}
-              <div className="flex justify-end gap-3">
-                <button 
-                  onClick={() => generatePDFReport(selectedEvidence)}
-                  className="bg-green-600 text-white px-4 py-2 rounded-md font-medium hover:bg-green-700 transition-colors"
-                >
-                  📄 Generate Full Report
-                </button>
-                <button 
-                  onClick={() => setShowDetailModal(false)}
-                  className="bg-slate-600 text-white px-4 py-2 rounded-md font-medium hover:bg-slate-700 transition-colors"
-                >
-                  Close
-                </button>
-              </div>
             </div>
           </div>
         </div>
       )}
     </DashboardLayout>
-  );
+  )
 }
