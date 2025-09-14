@@ -114,7 +114,7 @@ def compute_sha256(data: str) -> str:
 
 # create tables
 def init_db():
-    """Initialize database with tables and sample data if needed"""
+    """Initialize database with tables only (no sample data)"""
     import os
     
     # Ensure the database file exists before creating tables
@@ -131,9 +131,8 @@ def init_db():
     # Create all tables
     Base.metadata.create_all(bind=engine)
     
-    # If this is a new database, add some sample data
-    if not db_exists:
-        create_sample_data()
+    # Note: Removed automatic sample data creation
+    # Sample data should be created manually using create_sample_data() or the setup process
 
 def create_sample_data():
     """Create sample cases and users for a new database"""

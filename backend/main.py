@@ -211,8 +211,8 @@ def initialize_database():
         # Verify database was created successfully
         if not db_exists and os.path.exists(db_path):
             logger.info("✅ Database created successfully!")
-            logger.info("📝 Sample cases and admin user have been created")
-            logger.info("👤 Default login: admin@aegisforensics.com / admin123")
+            logger.info("📝 Database structure initialized - ready for admin setup")
+            logger.info("� Please create an admin user via /auth/setup-admin endpoint")
         elif db_exists:
             logger.info("✅ Database connection verified")
         
@@ -1070,8 +1070,8 @@ async def create_case(case_data: dict):
             name=case_data.get("name", f"Case {case_number}"),
             description=case_data.get("description", ""),
             investigator=case_data.get("investigator", "Unknown"),
-            status=CaseStatus(case_data.get("status", "open")),
-            priority=CasePriority(case_data.get("priority", "medium")),
+            status=CaseStatus(case_data.get("status", "open").upper()),
+            priority=CasePriority(case_data.get("priority", "medium").upper()),
             tags=json.dumps(case_data.get("tags", []))
         )
         db.add(new_case)

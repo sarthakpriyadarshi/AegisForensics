@@ -56,48 +56,6 @@ def force_recreate_database():
     print("Database recreated successfully!")
     return True
 
-def add_sample_user():
-    """Add a sample admin user interactively"""
-    session = SessionLocal()
-    try:
-        print("\n=== Creating Admin User ===")
-        full_name = input("Full Name (Admin User): ").strip() or "Admin User"
-        email = input("Email (admin@aegisforensics.com): ").strip() or "admin@aegisforensics.com"
-        organization = input("Organization (Aegis Forensics): ").strip() or "Aegis Forensics"
-        
-        # Check if user already exists
-        existing_user = session.query(User).filter(User.email == email).first()
-        if existing_user:
-            print(f"User with email {email} already exists!")
-            return
-        
-        password = input("Password (admin123): ").strip() or "admin123"
-        
-        # Hash password
-        password_bytes = password.encode('utf-8')
-        salt = bcrypt.gensalt()
-        password_hash = bcrypt.hashpw(password_bytes, salt).decode('utf-8')
-        
-        user = User(
-            full_name=full_name,
-            email=email,
-            organization=organization,
-            timezone="UTC",
-            password_hash=password_hash,
-            is_admin=True
-        )
-        
-        session.add(user)
-        session.commit()
-        print(f"Admin user created successfully!")
-        print(f"Email: {email}")
-        print(f"Password: {password}")
-        
-    except Exception as e:
-        print(f"Error creating user: {e}")
-        session.rollback()
-    finally:
-        session.close()
 
 def main():
     """Main function"""
@@ -108,7 +66,7 @@ def main():
         print("1. Check database status")
         print("2. Initialize database (create if not exists)")
         print("3. Force recreate database (WARNING: Deletes all data)")
-        print("4. Add admin user")
+        print("4. Create sample data (including default admin user)")
         print("5. Exit")
         
         choice = input("\nEnter your choice (1-5): ").strip()
@@ -125,7 +83,10 @@ def main():
             force_recreate_database()
         
         elif choice == '4':
-            add_sample_user()
+            print("Creating sample data (including default admin user)...")
+            from models import create_sample_data
+            create_sample_data()
+            print("Sample data created successfully!")
         
         elif choice == '5':
             print("Goodbye!")
