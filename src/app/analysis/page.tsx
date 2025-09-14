@@ -5,6 +5,38 @@ import type React from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 import { useState, useRef, useEffect } from "react"
 
+interface AnalysisResult {
+  verdict: string
+  severity: string
+  criticality: string
+  confidence: string
+  summary: string
+  findings: Array<{
+    category: string
+    description: string
+    severity: string
+    evidence: string
+  }>
+  technical_details: {
+    raw_response: string
+  }
+  recommendations: string[]
+}
+
+interface UploadAnalysisResponse {
+  status: string
+  message: string
+  analysis?: AnalysisResult
+  evidence_id: number
+  file_info: {
+    filename: string
+    file_hash: string
+    file_type: string
+    file_size: number
+    file_path: string
+  }
+}
+
 interface EvidenceAPIResponse {
   id: number
   filename: string
@@ -40,6 +72,7 @@ interface EvidenceAPIResponse {
     execution_time: number
     created_at: string
   }>
+  analysisResults?: any  // Add this field for the new analysis results
   report_count: number
 }
 
@@ -151,8 +184,8 @@ export default function AnalysisPage() {
             latest_confidence: item.latest_confidence,
             analysis_results: item.analysis_results,
             report_count: item.report_count,
-            analysisResults:
-              item.analysis_results?.length > 0
+            analysisResults: item.analysisResults || // Use the new analysisResults field from backend
+              (item.analysis_results?.length > 0
                 ? {
                     verdict: (item.latest_verdict || "unknown") as "clean" | "suspicious" | "malicious" | "unknown",
                     severity: (item.latest_severity || "low") as "low" | "medium" | "high" | "critical",
@@ -171,7 +204,7 @@ export default function AnalysisPage() {
                     summary: "Analysis completed successfully",
                     findings: [],
                     executionTime: 0,
-                  },
+                  }),
           }))
           setEvidence(mappedEvidence)
         }
@@ -459,6 +492,35 @@ REPORT GENERATION:
         const result = await response.json()
 
         console.log("File uploaded and analyzed successfully:", result)
+
+        // Display detailed analysis results if available
+        if (result.analysis) {
+          const analysis = result.analysis as AnalysisResult
+          let alertMessage = `Analysis Complete!\n\n`
+          alertMessage += `Verdict: ${analysis.verdict}\n`
+          alertMessage += `Severity: ${analysis.severity}\n`
+          alertMessage += `Confidence: ${analysis.confidence}\n\n`
+          alertMessage += `Summary: ${analysis.summary}\n\n`
+          
+          if (analysis.findings && analysis.findings.length > 0) {
+            alertMessage += `Key Findings:\n`
+            analysis.findings.forEach((finding, index: number) => {
+              alertMessage += `${index + 1}. ${finding.category}: ${finding.description}\n`
+            })
+            alertMessage += `\n`
+          }
+          
+          if (analysis.recommendations && analysis.recommendations.length > 0) {
+            alertMessage += `Recommendations:\n`
+            analysis.recommendations.forEach((rec: string, index: number) => {
+              alertMessage += `${index + 1}. ${rec}\n`
+            })
+          }
+          
+          alert(alertMessage)
+        } else {
+          alert("File uploaded and analysis completed successfully!")
+        }
 
         // Refresh the evidence list to get the latest data
         await fetchEvidenceResults()

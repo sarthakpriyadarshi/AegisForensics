@@ -1,7 +1,7 @@
 # Aegis Forensics
 
 <div align="center">
-  <img src="assets/aegis-logo.png" alt="Aegis Forensics Logo" width="200"/>
+  <img src="assets/aegis-logo.svg" alt="Aegis Forensics Logo" width="200"/>
   <h3>AI-Powered Digital Forensics Platform</h3>
   <p><em>Advanced Cybersecurity Investigation & Analysis</em></p>
   
@@ -243,19 +243,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 Support
 
-- **Documentation**: Complete guides in `/docs`
-- **Issues**: GitHub Issues for bug reports
-- **Discussions**: GitHub Discussions for questions
-- **Email**: support@aegisforensics.com
+- **Documentation**: Complete guides in `/backend`
 
-## 🗺️ Roadmap
-
-- [ ] **Advanced AI Models**: Integration with latest forensic AI models
-- [ ] **Cloud Support**: AWS/Azure deployment options
-- [ ] **Mobile App**: iOS/Android companion application
-- [ ] **Advanced Reporting**: Automated forensic report generation
-- [ ] **Multi-tenancy**: Support for multiple organizations
-- [ ] **Real-time Collaboration**: Team investigation features
 
 ---
 

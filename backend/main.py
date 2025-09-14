@@ -595,7 +595,7 @@ def parse_agent_response(response_text: str):
     }
 
 @app.post("/analyze/uploadfile/")
-async def analyze_uploadfile(background_tasks: BackgroundTasks, file: UploadFile = File(...), case_id: str = Form(None)):
+async def analyze_uploadfile(file: UploadFile = File(...), case_id: str = Form(None)):
     """
     Upload static file (binary, pcap, image) for analysis.
     Now supports background processing for large files to prevent timeouts.
@@ -626,26 +626,39 @@ async def analyze_uploadfile(background_tasks: BackgroundTasks, file: UploadFile
         evidence_metadata=f"uploaded_at:{datetime.utcnow().isoformat()},file_size:{file_size}"
     )
     
-    # Check if this is a large file (>10MB) or PCAP file that might take time
-    is_large_file = file_size > 10 * 1024 * 1024  # 10MB
-    is_pcap = ext in [".pcap", ".pcapng"]
-    
-    if is_large_file or is_pcap:
-        # For large files or PCAP files, process in background
-        background_tasks.add_task(
-            process_evidence_background,
-            evidence_rec.id,
-            tmp_path,
-            filename,
-            ext,
-            file_hash,
-            case_identifier
+    # Process all files immediately and wait for completion
+    # Update evidence status to processing
+    try:
+        from database.models import SessionLocal, Evidence
+        db = SessionLocal()
+        evidence = db.query(Evidence).filter(Evidence.id == evidence_rec.id).first()
+        if evidence:
+            evidence.analysis_status = "processing"
+            db.commit()
+        db.close()
+        
+        logger.info(f"Starting analysis for evidence {evidence_rec.id}: {filename}")
+        
+        # Perform the analysis and wait for completion
+        analysis_result = await process_evidence_immediate(
+            tmp_path, filename, ext, file_hash, case_identifier
         )
         
-        # Return immediate response with processing status
+        # Update evidence with completed results in database
+        db = SessionLocal()
+        evidence = db.query(Evidence).filter(Evidence.id == evidence_rec.id).first()
+        if evidence:
+            evidence.analysis_status = "completed"
+            evidence.analysis_result = json.dumps(analysis_result) if isinstance(analysis_result, dict) else str(analysis_result)
+            db.commit()
+        db.close()
+        
+        logger.info(f"Analysis completed for evidence {evidence_rec.id}")
+        
         return JSONResponse(content={
-            "status": "processing",
-            "message": "File uploaded successfully. Analysis is running in background.",
+            "status": "completed",
+            "message": "File uploaded and analysis completed successfully.",
+            "analysis": analysis_result,
             "evidence_id": evidence_rec.id,
             "file_info": {
                 "filename": filename,
@@ -653,34 +666,28 @@ async def analyze_uploadfile(background_tasks: BackgroundTasks, file: UploadFile
                 "file_type": ext,
                 "file_size": file_size,
                 "file_path": tmp_path
-            },
-            "estimated_completion": "2-5 minutes for large files"
+            }
         })
-    else:
-        # For smaller files, process immediately
+        
+    except Exception as e:
+        logger.error(f"Error processing evidence {evidence_rec.id}: {e}")
+        
+        # Update evidence status to error in database
         try:
-            analysis_result = await process_evidence_immediate(
-                tmp_path, filename, ext, file_hash, case_identifier
-            )
-            
-            return JSONResponse(content={
-                "status": "success",
-                "analysis": analysis_result,
-                "evidence_id": evidence_rec.id,
-                "file_info": {
-                    "filename": filename,
-                    "file_hash": file_hash,
-                    "file_type": ext,
-                    "file_size": file_size,
-                    "file_path": tmp_path
-                }
-            })
-        except Exception as e:
-            logger.error(f"Error processing evidence: {e}")
-            return JSONResponse(
-                content={"status": "error", "error": f"Analysis failed: {str(e)}"},
-                status_code=500
-            )
+            db = SessionLocal()
+            evidence = db.query(Evidence).filter(Evidence.id == evidence_rec.id).first()
+            if evidence:
+                evidence.analysis_status = "error"
+                evidence.analysis_result = f"Error: {str(e)}"
+                db.commit()
+            db.close()
+        except Exception as db_e:
+            logger.error(f"Failed to update error status in database: {db_e}")
+        
+        return JSONResponse(
+            content={"status": "error", "error": f"Analysis failed: {str(e)}"},
+            status_code=500
+        )
 
     # Set appropriate state keys for the orchestrator
     state = agent_session.state
@@ -764,14 +771,29 @@ Based on this technical data, provide your forensic assessment following the exa
                         "http_hosts_count": str(len(raw_data.get('http_hosts', [])))
                     })
                 
+                # Update evidence record with analysis results
+                try:
+                    db = SessionLocal()
+                    evidence = db.query(Evidence).filter(Evidence.id == evidence_rec.id).first()
+                    if evidence:
+                        evidence.analysis_status = "completed"
+                        evidence.analysis_result = json.dumps(parsed_response)
+                        db.commit()
+                        logger.info(f"Updated evidence {evidence_rec.id} with PCAP analysis results")
+                    db.close()
+                except Exception as e:
+                    logger.error(f"Failed to update evidence with PCAP analysis results: {e}")
+                
                 return JSONResponse(content={
-                    "status": "success", 
+                    "status": "completed", 
+                    "message": "File uploaded and analysis completed successfully.",
                     "analysis": parsed_response,
                     "evidence_id": evidence_rec.id,
                     "file_info": {
                         "filename": filename,
                         "file_hash": file_hash,
                         "file_type": ext,
+                        "file_size": file_size,
                         "file_path": tmp_path
                     }
                 })
@@ -862,16 +884,29 @@ Based on this technical data, provide your forensic assessment following the exa
     except Exception as e:
         logger.error(f"Failed to save agent report: {e}")
     
+    # Update evidence record with analysis results
+    try:
+        db = SessionLocal()
+        evidence = db.query(Evidence).filter(Evidence.id == evidence_rec.id).first()
+        if evidence:
+            evidence.analysis_status = "completed"
+            evidence.analysis_result = json.dumps(parsed_response)
+            db.commit()
+            logger.info(f"Updated evidence {evidence_rec.id} with analysis results")
+        db.close()
+    except Exception as e:
+        logger.error(f"Failed to update evidence with analysis results: {e}")
+    
     return JSONResponse(content={
-        "status": "success", 
+        "status": "completed", 
+        "message": "File uploaded and analysis completed successfully.",
         "analysis": parsed_response,
         "evidence_id": evidence_rec.id,
-        "agent_name": agent_name,
-        "analysis_type": analysis_type,
         "file_info": {
             "filename": filename,
             "file_hash": file_hash,
             "file_type": ext,
+            "file_size": file_size,
             "file_path": tmp_path
         }
     })
@@ -1782,6 +1817,14 @@ async def get_evidence_results():
                 "name": evidence.case.name if evidence.case else "Unknown Case"
             }
             
+            # Parse analysis_result field if available
+            analysisResults = None
+            if evidence.analysis_result:
+                try:
+                    analysisResults = json.loads(evidence.analysis_result)
+                except Exception as e:
+                    logger.error(f"Error parsing analysis_result for evidence {evidence.id}: {e}")
+            
             results.append({
                 "id": evidence.id,
                 "filename": evidence.filename,
@@ -1792,11 +1835,12 @@ async def get_evidence_results():
                 "collected_at": evidence.collected_at.isoformat(),
                 "metadata": evidence.evidence_metadata,
                 "case": case_info,
-                "analysis_status": "completed" if analysis_results else "pending",
+                "analysis_status": evidence.analysis_status or ("completed" if analysis_results else "pending"),
                 "latest_verdict": latest_verdict,
                 "latest_severity": latest_severity,
                 "latest_confidence": latest_confidence,
                 "analysis_results": analysis_results,
+                "analysisResults": analysisResults,  # Add the parsed analysis_result field
                 "report_count": len(analysis_results)
             })
         

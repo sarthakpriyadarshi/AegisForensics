@@ -58934,3 +58934,185 @@ Traceback (most recent call last):
     version = _bcrypt.__about__.__version__
               ^^^^^^^^^^^^^^^^^
 AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-09-14 23:17:18 - aegis_forensics - INFO - Starting background processing for evidence 11
+2025-09-14 23:17:18 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 23:17:18 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 23:17:18 - aegis_forensics - INFO - Starting background processing for evidence 12
+2025-09-14 23:17:18 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 23:17:18 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 23:17:22 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 23:17:22 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 23:17:22 - aegis_forensics - INFO - Background processing completed for evidence 11
+2025-09-14 23:17:27 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 23:17:27 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 23:17:27 - aegis_forensics - INFO - Background processing completed for evidence 12
+2025-09-14 23:18:46 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:18:46 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:18:46 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:18:46 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:18:46 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:18:46 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:18:46 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 23:18:46 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 23:18:59 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:18:59 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:18:59 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:18:59 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:18:59 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:18:59 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:18:59 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 23:18:59 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 23:20:04 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:20:04 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:20:04 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:20:04 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 23:20:04 - aegis_forensics - INFO - ==================================================
+2025-09-14 23:20:04 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 23:20:04 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 23:20:04 - aegis_forensics - INFO - ==================================================
+2025-09-14 23:20:04 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 23:20:04 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 23:20:04 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 23:20:04 - aegis_forensics - INFO -   Environment: Development
+2025-09-14 23:20:04 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 23:20:04 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 23:20:04 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 23:20:04 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 23:20:04 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 23:20:04 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 23:20:04 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 23:20:04 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 23:20:04 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 23:20:04 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 23:20:04 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 23:20:04 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 23:20:04 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 23:20:04 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 23:20:04 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 23:20:04 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 23:20:04 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 23:20:04 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 23:20:04 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 23:20:04 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 23:20:04 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 23:20:04 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 23:20:04 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 23:20:04 - aegis_forensics - INFO - ==================================================
+2025-09-14 23:20:07 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:20:07 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:20:07 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:20:07 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:20:07 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:20:07 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:20:07 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 23:20:07 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 23:21:10 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:21:10 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:21:10 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:21:10 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 23:21:10 - aegis_forensics - INFO - ==================================================
+2025-09-14 23:21:10 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 23:21:10 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 23:21:10 - aegis_forensics - INFO - ==================================================
+2025-09-14 23:21:10 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 23:21:10 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 23:21:10 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 23:21:10 - aegis_forensics - INFO -   Environment: Development
+2025-09-14 23:21:10 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 23:21:10 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 23:21:10 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 23:21:10 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 23:21:10 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 23:21:10 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 23:21:10 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 23:21:10 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 23:21:10 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 23:21:10 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 23:21:10 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 23:21:10 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 23:21:10 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 23:21:10 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 23:21:10 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 23:21:10 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 23:21:10 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 23:21:10 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 23:21:10 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 23:21:10 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 23:21:10 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 23:21:10 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 23:21:10 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 23:21:10 - aegis_forensics - INFO - ==================================================
+2025-09-14 23:21:12 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:21:12 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:21:12 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:21:12 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:21:12 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:21:12 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:21:12 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 23:21:12 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 23:21:15 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/sarthak/Documents/Projects/aegis-forensics/backend/.venv/lib/python3.13/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-09-14 23:21:28 - aegis_forensics - INFO - Starting analysis for evidence 13: 1.pcap
+2025-09-14 23:21:28 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 23:21:28 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 23:21:31 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 23:21:31 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 23:21:31 - aegis_forensics - INFO - Analysis completed for evidence 13
+2025-09-14 23:21:48 - aegis_forensics - INFO - Starting analysis for evidence 14: 1.exe
+2025-09-14 23:21:48 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 23:21:48 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 23:21:50 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 23:21:50 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 23:21:50 - aegis_forensics - INFO - Analysis completed for evidence 14
+2025-09-14 23:22:10 - aegis_forensics - INFO - Starting analysis for evidence 15: 1.pcap
+2025-09-14 23:22:10 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 23:22:10 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 23:22:12 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 23:22:12 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 23:22:12 - aegis_forensics - INFO - Analysis completed for evidence 15
+2025-09-14 23:22:38 - aegis_forensics - INFO - Starting analysis for evidence 16: 1.pcap
+2025-09-14 23:22:38 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 23:22:38 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 23:22:41 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 23:22:41 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 23:22:41 - aegis_forensics - INFO - Analysis completed for evidence 16
+2025-09-14 23:24:36 - aegis_forensics - INFO - Starting analysis for evidence 17: 1.pcap
+2025-09-14 23:24:36 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-14 23:24:36 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-14 23:24:39 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-14 23:24:39 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-14 23:24:39 - aegis_forensics - INFO - Analysis completed for evidence 17
+2025-09-14 23:26:23 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:26:23 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:26:23 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:26:24 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:26:24 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:26:24 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:26:24 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 23:26:24 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 23:26:40 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:26:40 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:26:40 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:26:40 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:26:40 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:26:40 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:26:40 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 23:26:40 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 23:27:11 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:27:11 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:27:11 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:27:11 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 23:27:11 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-14 23:27:11 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-14 23:27:11 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 23:27:11 - aegis_forensics - INFO - ADK runner initialized.
