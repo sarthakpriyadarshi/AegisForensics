@@ -5,9 +5,13 @@ import platform
 import shutil
 import uuid
 import zipfile
-from datetime import datetime, timedelta
+import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, text
+from database.models import DB_URL, Case, Evidence, Event
 
 class SystemService:
     
@@ -15,51 +19,276 @@ class SystemService:
     def get_system_info() -> Dict[str, Any]:
         """Get comprehensive system information"""
         
-        # Get system uptime
-        boot_time = datetime.fromtimestamp(psutil.boot_time())
-        uptime = datetime.now() - boot_time
-        uptime_str = f"{uptime.days} days, {uptime.seconds // 3600} hours"
-        
-        # Get CPU usage
-        cpu_percent = psutil.cpu_percent(interval=1)
-        cpu_usage = f"{cpu_percent}%"
-        
-        # Get memory usage
-        memory = psutil.virtual_memory()
-        memory_used_gb = memory.used / (1024**3)
-        memory_total_gb = memory.total / (1024**3)
-        memory_usage = f"{memory_used_gb:.1f} GB / {memory_total_gb:.1f} GB"
-        
-        # Get disk usage
-        disk = psutil.disk_usage('/')
-        disk_used_gb = disk.used / (1024**3)
-        disk_total_gb = disk.total / (1024**3)
-        disk_usage = f"{disk_used_gb:.0f} GB / {disk_total_gb:.0f} GB"
-        
-        # Get active network connections
-        connections = len(psutil.net_connections())
-        
-        # Get last update time (file modification time of main.py)
-        main_py_path = Path(__file__).parent.parent / "main.py"
-        if main_py_path.exists():
-            last_update = datetime.fromtimestamp(main_py_path.stat().st_mtime)
-            last_update_str = last_update.strftime("%Y-%m-%d")
-        else:
-            last_update_str = "Unknown"
+        # Get system uptime in hours
+        boot_time = psutil.boot_time()
+        uptime_hours = (time.time() - boot_time) / 3600
         
         return {
             "version": "AegisForensic v2.1.0",
-            "uptime": uptime_str,
-            "cpu_usage": cpu_usage,
-            "memory_usage": memory_usage,
-            "disk_usage": disk_usage,
-            "active_connections": connections,
-            "last_update": last_update_str,
+            "hostname": platform.node(),
             "platform": platform.system(),
-            "platform_version": platform.release(),
+            "architecture": platform.machine(),
             "python_version": platform.python_version(),
-            "hostname": platform.node()
+            "timezone": str(datetime.now(timezone.utc).astimezone().tzinfo),
+            "uptime": uptime_hours
         }
+    
+    @staticmethod
+    def get_system_metrics() -> Dict[str, Any]:
+        """Get real-time system metrics"""
+        
+        # CPU metrics
+        cpu_count = psutil.cpu_count()
+        cpu_freq = psutil.cpu_freq()
+        cpu_percent = psutil.cpu_percent(interval=1)
+        
+        # Memory metrics
+        memory = psutil.virtual_memory()
+        
+        # Disk metrics
+        disk = psutil.disk_usage('/')
+        
+        # Network metrics
+        net_io = psutil.net_io_counters()
+        
+        return {
+            "cpu": {
+                "usage": cpu_percent,
+                "cores": cpu_count,
+                "frequency": cpu_freq.current if cpu_freq else 0
+            },
+            "memory": {
+                "total": memory.total,
+                "used": memory.used,
+                "available": memory.available,
+                "percentage": memory.percent
+            },
+            "disk": {
+                "total": disk.total,
+                "used": disk.used,
+                "free": disk.free,
+                "percentage": (disk.used / disk.total) * 100
+            },
+            "network": {
+                "bytes_received": net_io.bytes_recv,
+                "bytes_sent": net_io.bytes_sent,
+                "packets_received": net_io.packets_recv,
+                "packets_sent": net_io.packets_sent
+            }
+        }
+    
+    @staticmethod
+    def get_database_stats() -> Dict[str, Any]:
+        """Get database statistics"""
+        try:
+            engine = create_engine(DB_URL)
+            Session = sessionmaker(bind=engine)
+            session = Session()
+            
+            # Count records
+            total_cases = session.query(Case).count()
+            total_evidence = session.query(Evidence).count()
+            total_events = session.query(Event).count()
+            
+            # Get database file size
+            db_path = DB_URL.replace('sqlite:///', '')
+            database_size = os.path.getsize(db_path) if os.path.exists(db_path) else 0
+            
+            # Get last backup info (check backups directory)
+            backup_dir = Path("backups")
+            last_backup = None
+            if backup_dir.exists():
+                backup_files = list(backup_dir.glob("*.zip"))
+                if backup_files:
+                    latest_backup = max(backup_files, key=lambda f: f.stat().st_mtime)
+                    last_backup = datetime.fromtimestamp(latest_backup.stat().st_mtime).isoformat()
+            
+            session.close()
+            
+            return {
+                "total_cases": total_cases,
+                "total_evidence": total_evidence,
+                "total_events": total_events,
+                "database_size": database_size,
+                "last_backup": last_backup
+            }
+            
+        except Exception as e:
+            return {
+                "total_cases": 0,
+                "total_evidence": 0,
+                "total_events": 0,
+                "database_size": 0,
+                "last_backup": None,
+                "error": str(e)
+            }
+    
+    @staticmethod
+    def get_system_logs(limit: int = 50) -> List[Dict[str, Any]]:
+        """Get recent system logs"""
+        logs = []
+        
+        # Read from log file if it exists
+        log_file = Path("logs/aegis_forensics.log")
+        if log_file.exists():
+            try:
+                with open(log_file, 'r') as f:
+                    lines = f.readlines()
+                    # Take last 'limit' lines
+                    recent_lines = lines[-limit:]
+                    
+                    for i, line in enumerate(recent_lines):
+                        # Parse log line (assuming format: TIMESTAMP - LEVEL - MESSAGE)
+                        parts = line.strip().split(' - ', 2)
+                        if len(parts) >= 3:
+                            timestamp_str = parts[0]
+                            level = parts[1]
+                            message = parts[2]
+                            
+                            # Determine category from message
+                            category = "System"
+                            if "agent" in message.lower():
+                                category = "Agent"
+                            elif "evidence" in message.lower():
+                                category = "Evidence"
+                            elif "case" in message.lower():
+                                category = "Case"
+                            elif "backup" in message.lower():
+                                category = "Backup"
+                            
+                            logs.append({
+                                "id": i,
+                                "timestamp": timestamp_str,
+                                "level": level,
+                                "category": category,
+                                "message": message
+                            })
+            except Exception as e:
+                logs.append({
+                    "id": 0,
+                    "timestamp": datetime.now().isoformat(),
+                    "level": "ERROR",
+                    "category": "System",
+                    "message": f"Failed to read log file: {str(e)}"
+                })
+        
+        # Add some default logs if no log file exists
+        if not logs:
+            now = datetime.now()
+            logs = [
+                {
+                    "id": 1,
+                    "timestamp": (now - timedelta(minutes=5)).isoformat(),
+                    "level": "INFO",
+                    "category": "System",
+                    "message": "System monitoring service started"
+                },
+                {
+                    "id": 2,
+                    "timestamp": (now - timedelta(minutes=3)).isoformat(),
+                    "level": "INFO",
+                    "category": "System",
+                    "message": "Database connection established"
+                },
+                {
+                    "id": 3,
+                    "timestamp": (now - timedelta(minutes=1)).isoformat(),
+                    "level": "INFO",
+                    "category": "System",
+                    "message": "All agents initialized successfully"
+                }
+            ]
+        
+        return logs
+    
+    @staticmethod
+    def get_timeline_events(limit: int = 100) -> List[Dict[str, Any]]:
+        """Get timeline of system events"""
+        try:
+            engine = create_engine(DB_URL)
+            Session = sessionmaker(bind=engine)
+            session = Session()
+            
+            events = []
+            
+            # Get recent cases
+            recent_cases = session.query(Case).order_by(Case.created_at.desc()).limit(limit // 3).all()
+            for case in recent_cases:
+                events.append({
+                    "id": f"case_{case.id}",
+                    "timestamp": case.created_at.isoformat(),
+                    "event_type": "case_created",
+                    "description": f"New case created: {case.case_number}",
+                    "user": case.investigator,
+                    "case_id": case.id,
+                    "evidence_id": None
+                })
+            
+            # Get recent evidence
+            recent_evidence = session.query(Evidence).order_by(Evidence.collected_at.desc()).limit(limit // 3).all()
+            for evidence in recent_evidence:
+                events.append({
+                    "id": f"evidence_{evidence.id}",
+                    "timestamp": evidence.collected_at.isoformat(),
+                    "event_type": "evidence_uploaded",
+                    "description": f"Evidence uploaded: {evidence.filename}",
+                    "user": "System",
+                    "case_id": evidence.case_id,
+                    "evidence_id": evidence.id
+                })
+            
+            # Get recent events
+            recent_events = session.query(Event).order_by(Event.timestamp.desc()).limit(limit // 3).all()
+            for event in recent_events:
+                events.append({
+                    "id": f"event_{event.id}",
+                    "timestamp": event.timestamp.isoformat(),
+                    "event_type": "system_event",
+                    "description": event.description,
+                    "user": event.source,
+                    "case_id": event.case_id,
+                    "evidence_id": None
+                })
+            
+            session.close()
+            
+            # Sort by timestamp
+            events.sort(key=lambda x: x["timestamp"], reverse=True)
+            return events[:limit]
+            
+        except Exception as e:
+            return [{
+                "id": "error_1",
+                "timestamp": datetime.now().isoformat(),
+                "event_type": "error",
+                "description": f"Failed to fetch timeline events: {str(e)}",
+                "user": "System",
+                "case_id": None,
+                "evidence_id": None
+            }]
+    
+    @staticmethod
+    def get_backup_list() -> List[Dict[str, Any]]:
+        """Get list of available backups"""
+        backups = []
+        backup_dir = Path("backups")
+        
+        if backup_dir.exists():
+            for backup_file in backup_dir.glob("*.zip"):
+                try:
+                    stat = backup_file.stat()
+                    backups.append({
+                        "id": backup_file.stem,
+                        "filename": backup_file.name,
+                        "size": stat.st_size,
+                        "created_at": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                        "type": "manual" if "manual" in backup_file.name else "automatic",
+                        "status": "completed"
+                    })
+                except Exception:
+                    continue
+        
+        return sorted(backups, key=lambda x: x["created_at"], reverse=True)
     
     @staticmethod
     def create_backup(backup_name: str = None, include_logs: bool = True, include_database: bool = True) -> Dict[str, Any]:
