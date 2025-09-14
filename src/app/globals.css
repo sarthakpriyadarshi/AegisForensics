@@ -3,7 +3,7 @@
 :root {
   /* Updated to use the new gradient color scheme: #113320, #268d7c, #c2ffb4 */
   /* Modern AI Platform Color Palette - Light Mode */
-  --background: #f0fdf4; /* Very light green instead of white */
+  --background: #020617; /* Updated to dark slate background */
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -37,15 +37,16 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
-  /* New custom gradient colors based on user requirements */
-  --color-dark-green: #113320;
-  --color-teal: #268d7c;
-  --color-light-green: #c2ffb4;
-  --gradient-primary: linear-gradient(135deg, #113320 0%, #268d7c 50%, #c2ffb4 100%);
-  --gradient-secondary: linear-gradient(45deg, #268d7c 0%, #c2ffb4 100%);
-  --gradient-accent: linear-gradient(90deg, #113320 0%, #268d7c 100%);
-  --glass-bg: rgba(17, 51, 32, 0.15);
-  --glass-border: rgba(38, 141, 124, 0.3);
+  /* New custom gradient colors - Updated to Purple/Blue Theme */
+  --color-primary-purple: #7c3aed;   /* purple-600 */
+  --color-secondary-blue: #3b82f6;   /* blue-500 */
+  --color-accent-purple: #a855f7;    /* purple-500 */
+  --color-dark-bg: #020617;          /* slate-950 */
+  --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #3b82f6 50%, #a855f7 100%);
+  --gradient-secondary: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);
+  --gradient-accent: linear-gradient(90deg, #7c3aed 0%, #3b82f6 100%);
+  --glass-bg: rgba(124, 58, 237, 0.15);
+  --glass-border: rgba(59, 130, 246, 0.3);
 }
 
 .dark {
@@ -138,7 +139,7 @@
 }
 
 body {
-  background: #f0fdf4; /* Light green background for better contrast */
+  background: #020617; /* Updated to dark slate background for purple/blue theme */
   color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;
@@ -182,10 +183,10 @@ body {
 @keyframes glow {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
   }
   50% {
-    box-shadow: 0 0 40px rgba(194, 255, 180, 0.6), 0 0 60px rgba(38, 141, 124, 0.4);
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.6), 0 0 60px rgba(59, 130, 246, 0.4);
   }
 }
 
@@ -279,10 +280,10 @@ body {
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(38, 141, 124, 0.3);
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
   }
   50% {
-    box-shadow: 0 0 40px rgba(194, 255, 180, 0.6), 0 0 60px rgba(38, 141, 124, 0.4);
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.6), 0 0 60px rgba(59, 130, 246, 0.4);
   }
 }
 
@@ -336,17 +337,17 @@ body {
 }
 
 .glass-strong {
-  background: rgba(17, 51, 32, 0.25);
+  background: rgba(124, 58, 237, 0.15);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(38, 141, 124, 0.5);
+  border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
 .glass-subtle {
-  background: rgba(17, 51, 32, 0.1);
+  background: rgba(124, 58, 237, 0.08);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(38, 141, 124, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 /* Gradient text utilities */
@@ -381,7 +382,7 @@ body {
 
 .btn-gradient:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(38, 141, 124, 0.3);
+  box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
 }
 
 .btn-glass {

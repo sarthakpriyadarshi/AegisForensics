@@ -142,9 +142,10 @@ export default function SystemPage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-screen">
-          <div className="flex items-center space-x-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-            <span className="text-white text-lg">Loading system information...</span>
+          <div className="text-center glass-strong rounded-3xl p-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+            <p className="text-green-100 font-medium text-lg">Initializing Aegis Forensics...</p>
+            <p className="text-purple-400 text-sm mt-2">Connecting to secure systems</p>
           </div>
         </div>
       </DashboardLayout>
@@ -178,7 +179,7 @@ export default function SystemPage() {
             {/* Header */}
             <div className="mb-8 animate-slide-up">
               <div className="inline-flex items-center px-4 py-2 glass-subtle rounded-full text-sm text-purple-200 mb-6">
-                <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                <span className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse"></span>
                 Real-time System Monitoring
               </div>
               <div className="flex justify-between items-start">
@@ -265,7 +266,7 @@ export default function SystemPage() {
                         systemMetrics?.disk.total || 0,
                       )}`,
                       icon: "💾",
-                      color: "from-cyan-500 to-teal-500",
+                      color: "from-purple-500 to-blue-500",
                       progress: systemMetrics?.disk.percentage,
                     },
                     {
@@ -273,7 +274,7 @@ export default function SystemPage() {
                       value: formatBytes(systemMetrics?.network.bytes_received || 0),
                       subtitle: `↑ ${formatBytes(systemMetrics?.network.bytes_sent || 0)}`,
                       icon: "🌐",
-                      color: "from-teal-500 to-green-500",
+                      color: "from-blue-500 to-purple-500",
                       progress: 0,
                     },
                   ].map((metric, index) => (
@@ -288,7 +289,7 @@ export default function SystemPage() {
                         >
                           <span className="text-2xl">{metric.icon}</span>
                         </div>
-                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                        <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-slate-400 mb-2">{metric.title}</h3>
@@ -386,7 +387,7 @@ export default function SystemPage() {
                               <span
                                 className={`px-3 py-1 rounded-full text-xs font-medium border ${
                                   process.status === "running"
-                                    ? "bg-green-500/20 text-green-300 border-green-500/30"
+                                    ? "bg-purple-500/20 text-purple-300 border-purple-500/30"
                                     : "bg-gray-500/20 text-gray-300 border-gray-500/30"
                                 }`}
                               >

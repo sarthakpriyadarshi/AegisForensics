@@ -160,9 +160,9 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
         </div>
         <div className="relative z-10 flex items-center justify-center min-h-screen">
           <div className="text-center glass-strong rounded-3xl p-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-400 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
             <p className="text-green-100 font-medium">Initializing Aegis Forensics...</p>
-            <p className="text-teal-300 text-sm mt-2">Connecting to secure systems</p>
+            <p className="text-purple-500 text-sm mt-2">Connecting to secure systems</p>
           </div>
         </div>
       </div>

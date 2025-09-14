@@ -503,7 +503,7 @@ REPORT GENERATION:
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-purple-100 text-purple-800 border-purple-200"
       case "processing":
         return "bg-yellow-100 text-yellow-800 border-yellow-200"
       case "pending":
@@ -518,7 +518,7 @@ REPORT GENERATION:
   const getVerdictColor = (verdict: string) => {
     switch (verdict) {
       case "clean":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-purple-100 text-purple-800 border-purple-200"
       case "suspicious":
         return "bg-yellow-100 text-yellow-800 border-yellow-200"
       case "malicious":
@@ -550,14 +550,14 @@ REPORT GENERATION:
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-green-100">Evidence Analysis</h1>
-          <p className="text-green-200 mt-1">Upload and analyze forensic evidence using AI-powered tools</p>
+          <h1 className="text-2xl font-bold text-white">Evidence Analysis</h1>
+          <p className="text-purple-200 mt-1">Upload and analyze forensic evidence using AI-powered tools</p>
         </div>
 
         {/* Upload Section */}
-        <div className="glass-strong rounded-3xl p-8 border border-teal-500/30 shadow-xl">
+        <div className="glass-strong rounded-3xl p-8 border border-purple-500/30 shadow-xl">
           <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
-            <svg className="w-6 h-6 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -574,7 +574,7 @@ REPORT GENERATION:
               <div
                 className={`relative border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-300 ${
                   dragActive
-                    ? "border-teal-400 bg-teal-500/20 glass-strong"
+                    ? "border-purple-400 bg-purple-500/20 glass-strong"
                     : "border-teal-500/50 hover:border-teal-400/70 hover:bg-teal-500/10"
                 }`}
                 onDragEnter={handleDrag}
@@ -779,7 +779,7 @@ REPORT GENERATION:
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-200 hover:text-green-100 disabled:opacity-50 transition-all duration-300 border border-teal-500/30 rounded-xl hover:bg-teal-600/20 glass-subtle"
               >
                 {loadingEvidence ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-400"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-400"></div>
                 ) : (
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -800,7 +800,7 @@ REPORT GENERATION:
           <div className="p-6">
             {loadingEvidence && evidence.length === 0 ? (
               <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-400 mx-auto mb-4"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div>
                 <p className="text-green-200">Loading evidence results...</p>
               </div>
             ) : evidence.length === 0 ? (

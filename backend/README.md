@@ -1,6 +1,6 @@
 # Aegis Forensics
 
-<img src="../assets/aegis-logo.png" align="left" width="220"/>
+<img src="aegis-logo.svg" align="left" width="220"/>
 
 ### `Aegis Forensics
 
@@ -16,38 +16,35 @@
 
 <hr>
 
-## 🚀 Features
+## 🔍 Overview
 
-### Core Capabilities
-- **AI-Powered Analysis**: Advanced AI agents specialized in different forensic domains
-- **JWT Authentication**: Secure bearer token authentication with password policies
-- **Single Admin User**: One admin user system with 90-day password rotation
-- **System Monitoring**: Real-time system information and health monitoring
-- **Automated Backups**: Manual and automatic backup functionality
-- **Multi-Platform Support**: Windows, Linux, and macOS forensic analysis
-- **Live System Monitoring**: Real-time data collection and analysis
-- **Script Generation**: Automated forensic script creation for remote deployment
-- **Comprehensive File Support**: Analysis of memory dumps, disk images, network captures, binaries, and logs
-- **RESTful API**: Complete API for integration with existing security tools
-- **Web Interface**: Interactive dashboard for forensic investigations
+The Aegis Forensics backend is a high-performance FastAPI-based REST API that powers the digital forensics platform. It provides comprehensive endpoints for authentication, case management, evidence analysis, system monitoring, and AI-powered forensic investigations.
 
-### Specialized Analysis Modules
-- **Memory Analysis**: RAM dump analysis, process inspection, rootkit detection
-- **Disk Forensics**: File system analysis, deleted file recovery, timeline reconstruction
-- **Network Analysis**: PCAP analysis, traffic pattern detection, IoC extraction
-- **Binary Analysis**: Malware analysis, reverse engineering, behavioral assessment
-- **Timeline Analysis**: Event correlation, chronological reconstruction
-- **User Profiling**: Behavioral analysis, activity patterns, anomaly detection
-- **Live Response**: Real-time system analysis, incident response automation
+## ✨ Core Features
+
+### 🤖 AI-Powered Analysis
+- **Specialized AI Agents**: Memory, disk, network, binary, timeline, and user profiling agents
+- **Automated Intelligence**: Pattern recognition and anomaly detection
+- **Live Response**: Real-time incident response automation
 - **Sandbox Analysis**: Safe malware execution and behavior analysis
 
----
+### 🔐 Security & Authentication
+- **JWT Authentication**: Secure bearer token-based authentication with 30-minute expiry
+- **Single Admin System**: One admin user with secure setup and password policies
+- **Password Rotation**: 90-day mandatory password changes
+- **Secure Endpoints**: Comprehensive authorization on all protected routes
 
-## 🏗️ Architecture
+### 📊 Evidence & Case Management
+- **Case Organization**: Complete case lifecycle management
+- **Evidence Tracking**: File upload, analysis status, and result storage
+- **Timeline Analysis**: Event correlation and chronological reconstruction
+- **Report Generation**: Automated forensic report creation
 
-```
-Aegis Forensics
-├── 🧠 AI Agents (Specialized Forensic Analysts)
+### 🌐 System Monitoring
+- **Health Monitoring**: Real-time system health and status
+- **Performance Metrics**: CPU, memory, disk, and network monitoring
+- **Database Statistics**: Record counts and storage metrics
+- **Log Management**: Comprehensive logging and audit trails
 ├── 🔧 Tools (Analysis Functions)
 ├── 📊 Database (Evidence & Case Management)
 ├── 🌐 API Layer (RESTful Endpoints)
@@ -55,34 +52,306 @@ Aegis Forensics
 └── 🎯 Orchestrator (Intelligent Routing)
 ```
 
-### AI Agent Ecosystem
-- **ForensicOrchestrator**: Central coordinator for analysis workflows
-- **MemoryAnalyzer**: Memory dump and live memory analysis
-- **DiskAnalyzer**: Disk image and file system forensics
-- **NetworkAnalyzer**: Network traffic and protocol analysis
-- **BinaryAnalyzer**: Executable and malware analysis
-- **TimelineAnalyzer**: Event timeline reconstruction
-- **UserProfiler**: User behavior and activity analysis
-- **SandboxAgent**: Controlled malware execution
-- **ReconAgent**: Intelligence gathering and OSINT
-- **CustodianAgent**: Evidence integrity and chain of custody
-- **LiveResponseAgent**: Real-time incident response
+## 📚 API Documentation
 
----
+The complete API documentation is available at `/docs` when the server is running. Below are the key endpoints organized by category:
 
-## 🚦 Quick Start
+### 🔐 Authentication Endpoints
+```
+POST /auth/setup-admin      # Create the first admin user
+POST /auth/login           # User authentication (returns JWT)
+GET  /auth/me             # Get current user information
+POST /auth/change-password # Change user password
+GET  /auth/password-status # Get password expiration status
+PUT  /auth/profile        # Update user profile and avatar
+```
+
+### 📋 Case Management
+```
+GET    /api/cases                    # List all forensic cases
+POST   /api/cases                    # Create new case
+GET    /api/cases/{case_id}          # Get specific case details
+PUT    /api/cases/{case_id}          # Update existing case
+DELETE /api/cases/{case_id}          # Delete case and associated data
+GET    /api/cases/{case_id}/evidence # Get all evidence for case
+POST   /api/cases/{case_id}/evidence # Add evidence to case
+GET    /api/cases/{case_id}/events   # Get all events for case
+GET    /api/cases/{case_id}/reports  # Get agent reports for case
+POST   /api/cases/{case_id}/reports  # Create new agent report
+POST   /api/cases/{case_id}/analyze  # Upload and analyze file for case
+```
+
+### 🔍 Evidence & Analysis
+```
+POST /analyze/uploadfile/            # Upload file for analysis
+POST /analyze/streamdata/            # Receive binary stream analysis
+GET  /api/evidence/{evidence_id}     # Get evidence details
+GET  /api/evidence/{evidence_id}/status # Get analysis status
+GET  /api/analysis/summary           # Get analysis statistics
+POST /api/analysis/bulk             # Submit multiple files for analysis
+GET  /api/evidence-results          # Get all evidence with results
+```
+
+### 🤖 Agent Management
+```
+GET /api/agents/status              # Get status of all forensic agents
+```
+
+### 🖥️ System Monitoring
+```
+GET /health                         # System health check
+GET /system/info                    # System information (version, hostname, etc.)
+GET /system/metrics                 # Real-time system metrics (CPU, memory, disk, network)
+GET /system/database-stats          # Database statistics and record counts
+GET /system/logs                    # Recent system logs (with limit parameter)
+GET /system/timeline                # Timeline of system events
+GET /system/processes               # Running processes with resource usage
+GET /system/events                  # System events for timeline display
+```
+
+### 💾 Backup Management
+```
+GET    /system/backups              # List all available backups
+POST   /system/backup               # Create manual backup
+DELETE /system/backup/{backup_name} # Delete specific backup
+POST   /system/backup/auto          # Setup automatic backup
+```
+
+### 📜 Script Generation
+```
+POST /api/scripts/generate          # Generate forensic analysis script
+POST /api/scripts/download          # Download generated script as file
+GET  /api/scripts/platforms         # Get supported operating systems
+GET  /api/scripts/analysis-types    # Get supported analysis types
+POST /api/scripts/validate          # Validate script configuration
+POST /api/stream/live-analysis      # Receive live analysis data from scripts
+```
+
+### 🔧 Utility Endpoints
+```
+GET /api/file-types                 # Get supported file types and routing
+GET /                              # Root endpoint with API information
+```
+
+## 🏗️ AI Agent Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Aegis Forensics Backend                  │
+├─────────────────────────────────────────────────────────────┤
+│  FastAPI Application Layer                                 │
+│  ├── Authentication & Authorization (JWT)                  │
+│  ├── Request/Response Handling                             │
+│  ├── Input Validation & Serialization                      │
+│  └── Error Handling & Logging                              │
+├─────────────────────────────────────────────────────────────┤
+│  Business Logic Layer                                      │
+│  ├── Case Management Services                              │
+│  ├── Evidence Processing Services                          │
+│  ├── Analysis Orchestration                                │
+│  └── Report Generation                                     │
+├─────────────────────────────────────────────────────────────┤
+│  AI Forensic Agents                                        │
+│  ├── 🧠 ForensicOrchestrator (Central Coordinator)          │
+│  ├── 💾 MemoryAnalyzer (RAM Analysis)                       │
+│  ├── 🗃️  DiskAnalyzer (File System Forensics)              │
+│  ├── 🌐 NetworkAnalyzer (Traffic Analysis)                 │
+│  ├── ⚙️  BinaryAnalyzer (Malware Analysis)                  │
+│  ├── ⏱️  TimelineAgent (Event Reconstruction)              │
+│  ├── 👤 UserProfiler (Behavior Analysis)                   │
+│  ├── 🏃 LiveResponseAgent (Real-time Response)             │
+│  ├── 🔬 SandboxAgent (Safe Execution)                       │
+│  ├── 🕵️  ReconAgent (Intelligence Gathering)               │
+│  └── 🛡️  CustodianAgent (Chain of Custody)                 │
+├─────────────────────────────────────────────────────────────┤
+│  Data Persistence Layer                                    │
+│  ├── SQLAlchemy ORM                                        │
+│  ├── SQLite Database                                       │
+│  ├── File Storage System                                   │
+│  └── Evidence Repository                                   │
+├─────────────────────────────────────────────────────────────┤
+│  External Integrations                                     │
+│  ├── Forensic Tools (Volatility, Autopsy)                 │
+│  ├── Analysis Libraries                                    │
+│  ├── System Monitoring                                     │
+│  └── Backup Services                                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## � Quick Start
 
 ### Prerequisites
-- Python 3.8+
-- Virtual environment support
-- 4GB+ RAM recommended
-- Modern web browser
+- **Python 3.8+** with pip package manager
+- **Virtual environment** support (venv or conda)
+- **4GB+ RAM** recommended for analysis tasks
+- **Modern operating system** (Windows 10+, macOS 10.15+, Ubuntu 18.04+)
 
 ### Installation
 
 1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/sarthakpriyadarshi/AegisForensics.git
+   cd AegisForensics/backend
+   ```
+
+2. **Setup Virtual Environment**
+   ```bash
+   # Create virtual environment
+   python -m venv .venv
+   
+   # Activate virtual environment
+   # Linux/macOS:
+   source .venv/bin/activate
+   # Windows:
+   .venv\Scripts\activate
+   ```
+
+3. **Install Dependencies**
+   ```bash
+   # Install all required packages
+   pip install -r requirements.txt
+   
+   # For development dependencies
+   pip install -r requirements-dev.txt
+   ```
+
+4. **Configure Environment**
+   ```bash
+   # Create environment configuration
+   cp .env.example .env
+   # Edit .env with your settings
+   ```
+
+5. **Initialize Database**
+   ```bash
+   # Database will be created automatically on first run
+   python main.py
+   ```
+
+6. **Access the API**
+   - **API Server**: http://localhost:8000
+   - **Interactive Docs**: http://localhost:8000/docs
+   - **OpenAPI Schema**: http://localhost:8000/openapi.json
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+Create a `.env` file in the backend directory with the following configuration:
+
 ```bash
-git clone https://github.com/sarthakpriyadarshi/AegisForensics.git
+# Database Configuration
+DATABASE_URL=sqlite:///./aegis_forensics.db
+DATABASE_POOL_SIZE=10
+DATABASE_MAX_OVERFLOW=20
+
+# JWT Authentication
+SECRET_KEY=your-super-secret-key-change-this-in-production
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Server Configuration
+HOST=0.0.0.0
+PORT=8000
+DEBUG=false
+RELOAD=false
+
+# Logging Configuration
+LOG_LEVEL=INFO
+LOG_FILE=logs/aegis_forensics.log
+LOG_MAX_SIZE=10MB
+LOG_BACKUP_COUNT=5
+
+# File Upload Configuration
+MAX_FILE_SIZE=100MB
+UPLOAD_PATH=uploads/
+TEMP_PATH=temp/
+
+# Analysis Configuration
+ANALYSIS_TIMEOUT=3600
+MAX_CONCURRENT_ANALYSES=5
+ENABLE_BACKGROUND_PROCESSING=true
+
+# Security Configuration
+ENABLE_CORS=true
+ALLOWED_ORIGINS=["http://localhost:3000"]
+PASSWORD_MIN_LENGTH=8
+PASSWORD_EXPIRE_DAYS=90
+
+# Backup Configuration
+BACKUP_PATH=backups/
+AUTO_BACKUP_ENABLED=true
+AUTO_BACKUP_INTERVAL=24h
+BACKUP_RETENTION_DAYS=30
+```
+
+### Production Configuration
+
+For production deployment, ensure these security settings:
+
+```bash
+# Production Security
+DEBUG=false
+SECRET_KEY=generate-a-strong-random-secret-key
+ALLOWED_ORIGINS=["https://yourdomain.com"]
+ENABLE_CORS=false
+LOG_LEVEL=WARNING
+
+# Performance Optimization
+DATABASE_POOL_SIZE=20
+MAX_CONCURRENT_ANALYSES=10
+ENABLE_BACKGROUND_PROCESSING=true
+```
+
+## 🛠️ Development
+
+### Running in Development Mode
+
+```bash
+# Start with auto-reload
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# Start with specific log level
+uvicorn main:app --reload --log-level debug
+
+# Start with custom configuration
+python main.py --host 0.0.0.0 --port 8080 --debug
+```
+
+### Database Management
+
+```bash
+# Reset database (development only)
+rm aegis_forensics.db
+python main.py
+
+# Create manual backup
+curl -X POST "http://localhost:8000/system/backup" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"backup_name": "manual_backup"}'
+
+# View database statistics
+curl -X GET "http://localhost:8000/system/database-stats" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+### Testing
+
+```bash
+# Install test dependencies
+pip install pytest pytest-asyncio httpx
+
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=. --cov-report=html
+
+# Run specific test categories
+pytest tests/test_auth.py
+pytest tests/test_analysis.py
+```
 cd AegisForensics
 ```
 
@@ -108,27 +377,140 @@ cp .env.example .env
 
 # Edit .env and add your Google API key
 GOOGLE_API_KEY=your_google_api_key_here
-```
+## 📊 Supported File Types & Analysis
 
-4. **Initialize Database**
-```bash
-python -c "from database.models import init_db; init_db()"
-```
+| File Type | Extensions | Agent | Analysis Capabilities |
+|-----------|------------|-------|----------------------|
+| **Memory Dumps** | `.mem`, `.dmp`, `.raw`, `.vmem` | MemoryAnalyzer | Process analysis, rootkit detection, malware identification |
+| **Disk Images** | `.img`, `.dd`, `.e01`, `.vhd` | DiskAnalyzer | File system analysis, deleted file recovery, timeline creation |
+| **Network Captures** | `.pcap`, `.pcapng`, `.cap` | NetworkAnalyzer | Traffic analysis, protocol detection, IoC extraction |
+| **Executables** | `.exe`, `.dll`, `.bin`, `.elf` | BinaryAnalyzer | Malware analysis, reverse engineering, behavioral assessment |
+| **Archives** | `.zip`, `.rar`, `.7z`, `.tar` | DiskAnalyzer | Content extraction, recursive analysis |
+| **Documents** | `.pdf`, `.doc`, `.txt`, `.log` | UserProfiler | Metadata extraction, content analysis |
+| **Mobile** | `.ab`, `.tar`, `.img` | DiskAnalyzer | Mobile forensics, app data recovery |
 
-5. **Start the Server**
+## 🔒 Security Features
+
+### Authentication & Authorization
+- **JWT Tokens**: Secure bearer token authentication with configurable expiry
+- **Password Policies**: Minimum length, complexity, and rotation requirements
+- **Single Admin**: One admin user system with secure setup process
+- **Session Management**: Automatic token refresh and logout capabilities
+
+### Data Protection
+- **Input Validation**: Comprehensive request validation using Pydantic models
+- **SQL Injection Protection**: SQLAlchemy ORM prevents injection attacks
+- **File Upload Security**: MIME type validation and size restrictions
+- **Error Handling**: Secure error responses without information disclosure
+
+### Audit & Compliance
+- **Activity Logging**: Comprehensive audit trail of all user actions
+- **Chain of Custody**: Evidence integrity tracking and verification
+- **Backup Security**: Encrypted backups with retention policies
+- **Access Controls**: Role-based permissions and endpoint protection
+
+## 🚀 Performance Optimization
+
+### Background Processing
+- **Async Operations**: FastAPI async/await for high concurrency
+- **Background Tasks**: Large file analysis runs in background threads
+- **Queue Management**: Task queuing for resource-intensive operations
+- **Progress Tracking**: Real-time analysis progress updates
+
+### Resource Management
+- **Memory Optimization**: Efficient memory usage for large file analysis
+- **Database Pooling**: Connection pooling for optimal database performance
+- **File Streaming**: Chunked file upload/download for large evidence files
+- **Caching**: Intelligent caching of analysis results and system metrics
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**Database Connection Errors**
 ```bash
-cd backend
-uv run main.py
-# or
+# Check database file permissions
+ls -la aegis_forensics.db
+
+# Recreate database
+rm aegis_forensics.db
 python main.py
 ```
 
-6. **Initial Setup**
-- First, create an admin user at: http://localhost:8000/auth/setup-admin
-- Then login to get JWT token: http://localhost:8000/auth/login
-- Use the JWT token for all subsequent API calls
+**Memory Issues During Analysis**
+```bash
+# Increase system memory limits
+ulimit -v 8388608  # 8GB virtual memory
 
-7. **Access the Platform**
+# Monitor memory usage
+python -c "import psutil; print(f'Memory: {psutil.virtual_memory().percent}%')"
+```
+
+**File Upload Failures**
+```bash
+# Check upload directory permissions
+mkdir -p uploads temp
+chmod 755 uploads temp
+
+# Verify file size limits in configuration
+grep MAX_FILE_SIZE .env
+```
+
+**JWT Token Issues**
+```bash
+# Generate new secret key
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+
+# Update .env file with new SECRET_KEY
+```
+
+### Debugging
+
+Enable debug mode for detailed logging:
+```bash
+# Set debug mode
+echo "DEBUG=true" >> .env
+
+# Start with debug logging
+uvicorn main:app --reload --log-level debug
+
+# Monitor logs in real-time
+tail -f logs/aegis_forensics.log
+```
+
+## 📚 Documentation Links
+
+- **API Documentation**: `/docs` (Swagger UI)
+- **OpenAPI Schema**: `/openapi.json`
+- **Health Check**: `/health`
+- **System Info**: `/system/info`
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes with proper tests
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+### Development Guidelines
+- Follow PEP 8 style guidelines
+- Add comprehensive docstrings
+- Include unit tests for new features
+- Update API documentation
+- Ensure backward compatibility
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
+
+---
+
+<div align="center">
+  <p><strong>Aegis Forensics Backend - Powering Advanced Digital Investigations</strong></p>
+  <p>Built with ❤️ using FastAPI, SQLAlchemy, and modern Python technologies</p>
+</div>
 - Root Status: http://localhost:8000/
 - API Documentation: http://localhost:8000/docs
 - Health Check: http://localhost:8000/health

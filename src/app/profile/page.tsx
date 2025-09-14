@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 
 interface UserProfile {
@@ -40,39 +40,55 @@ interface PasswordChangeForm {
   confirmPassword: string
 }
 
+interface ApiUserProfile {
+  id: number
+  full_name: string
+  email: string
+  organization: string
+  timezone: string
+  avatar_base64: string | null
+  is_admin: boolean
+  created_at: string
+  last_login: string | null
+  password_expires_at: string
+  is_active: boolean
+}
+
 const ProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"profile" | "security" | "preferences">("profile")
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const [profile, setProfile] = useState<UserProfile>({
-    id: "user-001",
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@aegis.com",
-    role: "Senior Forensic Analyst",
-    department: "Digital Forensics",
-    phone: "+1 (555) 123-4567",
-    timezone: "UTC-05:00 (Eastern Time)",
+    id: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    role: "",
+    department: "",
+    phone: "",
+    timezone: "",
     avatar: "",
-    lastLogin: "2024-01-15T09:30:00Z",
-    createdAt: "2023-06-15T10:00:00Z",
+    lastLogin: "",
+    createdAt: "",
     preferences: {
       notifications: {
         email: true,
         browser: true,
         mobile: false,
       },
-      theme: "light",
+      theme: "dark",
       language: "English",
       dateFormat: "MM/DD/YYYY",
       timeFormat: "12h",
     },
     security: {
-      twoFactorEnabled: true,
-      lastPasswordChange: "2023-12-01T14:00:00Z",
-      activeSessions: 3,
+      twoFactorEnabled: false,
+      lastPasswordChange: "",
+      activeSessions: 1,
     },
   })
 
@@ -82,14 +98,107 @@ const ProfilePage: React.FC = () => {
     confirmPassword: "",
   })
 
+  // Load profile data from API
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const token = localStorage.getItem("aegis_token")
+        if (!token) {
+          window.location.href = "/auth/login"
+          return
+        }
+
+        const response = await fetch("http://localhost:8000/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (response.ok) {
+          const data: ApiUserProfile = await response.json()
+          const nameParts = data.full_name.split(' ')
+          const firstName = nameParts[0] || ''
+          const lastName = nameParts.slice(1).join(' ') || ''
+
+          setProfile({
+            id: data.id.toString(),
+            firstName,
+            lastName,
+            email: data.email,
+            role: data.is_admin ? "Administrator" : "Forensic Analyst",
+            department: data.organization,
+            phone: "",
+            timezone: data.timezone,
+            avatar: data.avatar_base64 || "",
+            lastLogin: data.last_login || "",
+            createdAt: data.created_at,
+            preferences: {
+              notifications: {
+                email: true,
+                browser: true,
+                mobile: false,
+              },
+              theme: "dark",
+              language: "English",
+              dateFormat: "MM/DD/YYYY",
+              timeFormat: "12h",
+            },
+            security: {
+              twoFactorEnabled: false,
+              lastPasswordChange: data.password_expires_at,
+              activeSessions: 1,
+            },
+          })
+        } else if (response.status === 401) {
+          localStorage.removeItem("aegis_token")
+          window.location.href = "/auth/login"
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error)
+        setError("Failed to load profile data")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadProfile()
+  }, [])
+
   const handleProfileUpdate = async () => {
     setIsSaving(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setIsEditing(false)
+      const token = localStorage.getItem("aegis_token")
+      if (!token) {
+        window.location.href = "/auth/login"
+        return
+      }
+
+      const response = await fetch("http://localhost:8000/auth/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          full_name: `${profile.firstName} ${profile.lastName}`,
+          organization: profile.department,
+          timezone: profile.timezone,
+          avatar_base64: profile.avatar || null,
+        }),
+      })
+
+      if (response.ok) {
+        setIsEditing(false)
+        setError(null)
+      } else if (response.status === 401) {
+        localStorage.removeItem("aegis_token")
+        window.location.href = "/auth/login"
+      } else {
+        throw new Error("Failed to update profile")
+      }
     } catch (error) {
       console.error("Failed to update profile:", error)
+      setError("Failed to update profile")
     } finally {
       setIsSaving(false)
     }
@@ -97,42 +206,62 @@ const ProfilePage: React.FC = () => {
 
   const handlePasswordChange = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      alert("Passwords do not match")
+      setError("Passwords do not match")
       return
     }
 
     setIsSaving(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setShowPasswordForm(false)
-      setPasswordForm({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      })
-      setProfile((prev) => ({
-        ...prev,
-        security: {
-          ...prev.security,
-          lastPasswordChange: new Date().toISOString(),
+      const token = localStorage.getItem("aegis_token")
+      if (!token) {
+        window.location.href = "/auth/login"
+        return
+      }
+
+      const response = await fetch("http://localhost:8000/auth/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      }))
+        body: JSON.stringify({
+          current_password: passwordForm.currentPassword,
+          new_password: passwordForm.newPassword,
+        }),
+      })
+
+      if (response.ok) {
+        setPasswordForm({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        })
+        setShowPasswordForm(false)
+        setError(null)
+        alert("Password changed successfully")
+      } else if (response.status === 401) {
+        localStorage.removeItem("aegis_token")
+        window.location.href = "/auth/login"
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || "Failed to change password")
+      }
     } catch (error) {
       console.error("Failed to change password:", error)
+      setError("Failed to change password: " + (error as Error).message)
     } finally {
       setIsSaving(false)
     }
   }
 
-  const handlePreferenceChange = (category: string, key: string, value: any) => {
+  const handlePreferenceChange = (category: string, key: string, value: boolean | string) => {
     setProfile((prev) => ({
       ...prev,
       preferences: {
         ...prev.preferences,
         [category]:
           typeof prev.preferences[category as keyof typeof prev.preferences] === "object"
-            ? { ...(prev.preferences[category as keyof typeof prev.preferences] as Record<string, any>), [key]: value }
+            ? { ...(prev.preferences[category as keyof typeof prev.preferences] as Record<string, boolean | string>), [key]: value }
             : value,
       },
     }))
@@ -144,14 +273,34 @@ const ProfilePage: React.FC = () => {
     { id: "preferences", name: "Preferences", icon: "⚙️" },
   ]
 
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex h-screen items-center justify-center">
+          <div className="flex items-center space-x-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+            <span className="text-white text-lg">Loading profile...</span>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
+  }
+
   return (
     <DashboardLayout>
       <div className="min-h-screen">
         <div className="mx-auto max-w-4xl">
+          {/* Error Banner */}
+          {error && (
+            <div className="mb-8 bg-red-500/20 border border-red-500/50 text-red-300 px-4 py-3 rounded-xl">
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
+
           {/* Header */}
           <div className="mb-8 animate-slide-up">
             <div className="inline-flex items-center px-4 py-2 glass-subtle rounded-full text-sm text-purple-200 mb-6">
-              <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+              <span className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse"></span>
               Account Management
             </div>
             <h1 className="text-4xl font-bold text-white mb-4 text-balance">User Profile</h1>
@@ -192,7 +341,7 @@ const ProfilePage: React.FC = () => {
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
+                    onClick={() => setActiveTab(tab.id as "profile" | "security" | "preferences")}
                     className={`flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-300 ${
                       activeTab === tab.id
                         ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
@@ -323,7 +472,7 @@ const ProfilePage: React.FC = () => {
                         <span
                           className={`text-sm font-semibold px-3 py-1 rounded-full ${
                             profile.security.twoFactorEnabled
-                              ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                              ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
                               : "bg-gray-500/20 text-gray-300 border border-gray-500/30"
                           }`}
                         >

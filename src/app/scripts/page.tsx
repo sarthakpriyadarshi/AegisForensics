@@ -324,14 +324,14 @@ export default function ScriptsPage() {
           <p className="text-slate-300">Generate custom forensic collection scripts for remote deployment</p>
         </div>
 
-        <div className="glass-strong rounded-3xl shadow-xl border border-teal-500/30">
-          <div className="border-b border-teal-500/30">
+        <div className="glass-strong rounded-3xl shadow-xl border border-purple-500/30">
+          <div className="border-b border-purple-500/30">
             <nav className="flex space-x-8 px-6">
               <button
                 onClick={() => setActiveTab("configure")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${
                   activeTab === "configure"
-                    ? "border-teal-400 text-teal-300"
+                    ? "border-purple-400 text-purple-300"
                     : "border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-500"
                 }`}
               >
@@ -341,7 +341,7 @@ export default function ScriptsPage() {
                 onClick={() => setActiveTab("generated")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${
                   activeTab === "generated"
-                    ? "border-teal-400 text-teal-300"
+                    ? "border-purple-400 text-purple-300"
                     : "border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-500"
                 }`}
               >

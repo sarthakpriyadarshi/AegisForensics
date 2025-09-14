@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 
 interface LoginFormData {
   email: string
@@ -87,12 +88,18 @@ const LoginPage: React.FC = () => {
           <div className="mx-auto w-full max-w-sm lg:w-96">
             <div className="animate-slide-up">
               <div className="flex items-center space-x-4 mb-12">
-                <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg animate-glow">
-                  <span className="text-white font-bold text-2xl">A</span>
+                <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg animate-glow p-2">
+                  <Image
+                    src="/aegis-logo.svg"
+                    alt="Aegis Forensics Logo"
+                    width={40}
+                    height={40}
+                    className="text-white"
+                  />
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-white">Aegis Forensics</h1>
-                  <p className="text-purple-300 text-sm">AI-Powered Investigation</p>
+                  <p className="text-purple-300 text-sm">Agentic AI-Powered Investigation</p>
                 </div>
               </div>
 
@@ -183,15 +190,6 @@ const LoginPage: React.FC = () => {
                       Remember me
                     </label>
                   </div>
-
-                  <div className="text-sm">
-                    <Link
-                      href="/auth/forgot-password"
-                      className="font-medium text-purple-400 hover:text-purple-300 transition-colors"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
                 </div>
 
                 <div>
@@ -226,36 +224,6 @@ const LoginPage: React.FC = () => {
                   </button>
                 </div>
               </form>
-
-              <div className="mt-8">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/20" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="bg-transparent px-4 text-slate-400">Demo Credentials</span>
-                  </div>
-                </div>
-
-                <div className="mt-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-                  <p className="font-semibold mb-3 text-white text-sm">Demo Login:</p>
-                  <div className="space-y-2 text-sm">
-                    <p className="text-slate-300">
-                      <span className="text-purple-400">Email:</span> admin@company.com
-                    </p>
-                    <p className="text-slate-300">
-                      <span className="text-purple-400">Password:</span> secure_password_123
-                    </p>
-                  </div>
-                  <p className="text-xs mt-4 text-slate-500">
-                    Note: First setup admin at{" "}
-                    <Link href="/auth/setup" className="text-purple-400 hover:text-purple-300">
-                      /auth/setup
-                    </Link>{" "}
-                    if needed
-                  </p>
-                </div>
-              </div>
             </div>
 
             <div className="mt-8 text-center">

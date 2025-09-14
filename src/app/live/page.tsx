@@ -11,7 +11,7 @@ interface LiveDataPoint {
   type: "network" | "file" | "process" | "memory" | "registry" | "event"
   severity: "low" | "medium" | "high" | "critical"
   message: string
-  details: any
+  details: Record<string, unknown>
   agent: string
 }
 
@@ -24,6 +24,7 @@ interface StreamStats {
   memoryEvents: number
   registryEvents: number
   systemEvents: number
+  [key: string]: number
 }
 
 interface ActiveAgent {
@@ -33,6 +34,21 @@ interface ActiveAgent {
   status: "active" | "idle" | "error"
   lastUpdate: string
   eventsGenerated: number
+}
+
+// Interface for system events from API
+interface SystemEvent {
+  id?: string | number
+  timestamp?: string
+  source?: string
+  event_type?: string
+  type?: string
+  severity?: string
+  level?: string
+  message?: string
+  description?: string
+  agent?: string
+  [key: string]: unknown
 }
 
 const LiveStreamingPage: React.FC = () => {
@@ -48,9 +64,116 @@ const LiveStreamingPage: React.FC = () => {
     "event",
   ])
   const [selectedSeverity, setSelectedSeverity] = useState<string[]>(["low", "medium", "high", "critical"])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Load system events from API
+  useEffect(() => {
+    const loadSystemEvents = async () => {
+      setIsLoading(true)
+      try {
+        const token = localStorage.getItem("aegis_token")
+        if (!token) {
+          window.location.href = "/auth/login"
+          return
+        }
+
+        const response = await fetch("http://localhost:8000/system/events?limit=50", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (response.ok) {
+          const events = await response.json()
+          // Map API events to LiveDataPoint format
+          const mappedEvents: LiveDataPoint[] = events.map((event: SystemEvent, index: number) => ({
+            id: event.id?.toString() || index.toString(),
+            timestamp: event.timestamp || new Date().toISOString(),
+            source: event.source || "System",
+            type: mapEventType(event.event_type || event.type || "event"),
+            severity: mapSeverity(event.severity || event.level || "medium"),
+            message: event.message || event.description || "System event",
+            details: event,
+            agent: event.agent || "System",
+          }))
+          setStreamData(mappedEvents)
+        } else if (response.status === 401) {
+          localStorage.removeItem("aegis_token")
+          window.location.href = "/auth/login"
+        } else {
+          // Fallback to mock data if API not available
+          loadMockData()
+        }
+      } catch (error) {
+        console.error("Error loading system events:", error)
+        setError("Failed to load system events")
+        loadMockData()
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    const mapEventType = (type: string): "network" | "file" | "process" | "memory" | "registry" | "event" => {
+      const lowerType = type.toLowerCase()
+      if (lowerType.includes('network')) return 'network'
+      if (lowerType.includes('file')) return 'file'
+      if (lowerType.includes('process')) return 'process'
+      if (lowerType.includes('memory')) return 'memory'
+      if (lowerType.includes('registry')) return 'registry'
+      return 'event'
+    }
+
+    const mapSeverity = (severity: string): "low" | "medium" | "high" | "critical" => {
+      const lowerSeverity = severity.toLowerCase()
+      if (lowerSeverity.includes('critical') || lowerSeverity.includes('error')) return 'critical'
+      if (lowerSeverity.includes('high') || lowerSeverity.includes('warn')) return 'high'
+      if (lowerSeverity.includes('low') || lowerSeverity.includes('debug')) return 'low'
+      return 'medium'
+    }
+
+    const loadMockData = () => {
+      const mockEvents: LiveDataPoint[] = [
+        {
+          id: "1",
+          timestamp: new Date().toISOString(),
+          source: "Network Monitor",
+          type: "network",
+          severity: "high",
+          message: "Suspicious outbound connection detected",
+          details: { ip: "192.168.1.100", port: 443 },
+          agent: "NetworkAnalyzer",
+        },
+        {
+          id: "2",
+          timestamp: new Date(Date.now() - 1000).toISOString(),
+          source: "File Monitor",
+          type: "file",
+          severity: "medium",
+          message: "New executable created in system directory",
+          details: { path: "/system/bin/suspicious.exe" },
+          agent: "DiskAnalyzer",
+        },
+      ]
+      setStreamData(mockEvents)
+    }
+
+    loadSystemEvents()
+
+    // Set up polling for live updates
+    const interval = setInterval(() => {
+      if (isStreaming) {
+        loadSystemEvents()
+      }
+    }, 5000) // Poll every 5 seconds
+
+    return () => clearInterval(interval)
+  }, [isStreaming])
+
+  // Rest of the component logic stays the same
   const [searchQuery, setSearchQuery] = useState("")
   const [autoScroll, setAutoScroll] = useState(true)
-  const [maxEvents, setMaxEvents] = useState(1000)
+  const maxEvents = 1000
   const [selectedAgent, setSelectedAgent] = useState<string>("all")
   const [streamStats, setStreamStats] = useState<StreamStats>({
     totalEvents: 0,
@@ -226,7 +349,7 @@ const LiveStreamingPage: React.FC = () => {
               const eventsData = await eventsResponse.json()
 
               if (eventsData.events && eventsData.events.length > 0) {
-                const transformedEvents = eventsData.events.map((event: any) => ({
+                const transformedEvents = eventsData.events.map((event: SystemEvent) => ({
                   id: event.id || Date.now().toString() + Math.random(),
                   timestamp: event.timestamp || new Date().toISOString(),
                   source: event.source || "Unknown",
@@ -287,7 +410,7 @@ const LiveStreamingPage: React.FC = () => {
               ...prev,
               totalEvents: prev.totalEvents + 1,
               eventsPerSecond: Math.random() * 5 + 1,
-              [`${newEvent.type}Events`]: (prev as any)[`${newEvent.type}Events`] + 1,
+              [`${newEvent.type}Events`]: (prev as Record<string, number>)[`${newEvent.type}Events`] + 1,
             }))
           },
           Math.random() * 2000 + 500,
@@ -310,7 +433,7 @@ const LiveStreamingPage: React.FC = () => {
             ...prev,
             totalEvents: prev.totalEvents + 1,
             eventsPerSecond: Math.random() * 5 + 1,
-            [`${newEvent.type}Events`]: (prev as any)[`${newEvent.type}Events`] + 1,
+            [`${newEvent.type}Events`]: (prev as Record<string, number>)[`${newEvent.type}Events`] + 1,
           }))
         },
         Math.random() * 2000 + 500,
@@ -415,7 +538,7 @@ const LiveStreamingPage: React.FC = () => {
 
   const getAgentStatusColor = (status: ActiveAgent["status"]) => {
     const colors = {
-      active: "text-green-600 bg-green-50",
+      active: "text-purple-600 bg-purple-50",
       idle: "text-yellow-600 bg-yellow-50",
       error: "text-red-600 bg-red-50",
     }
@@ -427,12 +550,32 @@ const LiveStreamingPage: React.FC = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-green-100">Live Response Streaming</h1>
-          <p className="text-green-200 mt-1">Real-time monitoring of forensic analysis and system events</p>
+          <h1 className="text-2xl font-bold text-white">Live Response Streaming</h1>
+          <p className="text-purple-200 mt-1">Real-time monitoring of forensic analysis and system events</p>
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="glass-strong rounded-2xl p-6 shadow-lg border border-blue-500/30">
+            <div className="flex items-center justify-center space-x-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div>
+              <span className="text-blue-200">Loading system events...</span>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="glass-strong rounded-2xl p-6 shadow-lg border border-red-500/30">
+            <div className="flex items-center space-x-3">
+              <span className="text-red-400 text-xl">⚠️</span>
+              <span className="text-red-200">{error}</span>
+            </div>
+          </div>
+        )}
+
         {/* Stream Controls */}
-        <div className="glass-strong rounded-2xl p-6 shadow-lg border border-teal-500/30">
+        <div className="glass-strong rounded-2xl p-6 shadow-lg border border-purple-500/30">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
               <button
@@ -440,8 +583,8 @@ const LiveStreamingPage: React.FC = () => {
                 className={`rounded-xl px-6 py-3 text-sm font-medium transition-all duration-300 shadow-lg ${
                   isStreaming
                     ? "bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-700 hover:to-red-600 shadow-red-500/25"
-                    : "bg-gradient-to-r from-green-600 to-teal-600 text-white hover:from-green-700 hover:to-teal-700 shadow-green-500/25"
-                } border border-opacity-30 ${isStreaming ? "border-red-500" : "border-green-500"}`}
+                    : "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-purple-500/25"
+                } border border-opacity-30 ${isStreaming ? "border-red-500" : "border-purple-500"}`}
               >
                 <div className="flex items-center gap-2">
                   {isStreaming ? (
@@ -539,7 +682,7 @@ const LiveStreamingPage: React.FC = () => {
                         className="rounded border-teal-500/30 bg-gray-700/50 text-teal-500 focus:ring-teal-500"
                       />
                       <span className="text-sm capitalize text-green-200">
-                        {getTypeIcon(type as any)} {type}
+                        {getTypeIcon(type as LiveDataPoint["type"])} {type}
                       </span>
                     </label>
                   ))}

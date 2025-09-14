@@ -71,14 +71,20 @@ class Evidence(Base):
     prev_hash = Column(String, default="")
     current_hash = Column(String, index=True)
     evidence_metadata = Column(Text, nullable=True)
+    analysis_status = Column(String, nullable=True, default="completed")  # "processing", "completed", "error"
+    analysis_result = Column(Text, nullable=True)  # JSON result of analysis
     case = relationship("Case", back_populates="evidences")
 
 class Event(Base):
     __tablename__ = "events"
     id = Column(Integer, primary_key=True, index=True)
-    case_id = Column(Integer, ForeignKey("cases.id"))
+    case_id = Column(Integer, ForeignKey("cases.id"), nullable=True)
     description = Column(Text)
     timestamp = Column(DateTime, default=datetime.utcnow)
+    event_type = Column(String, default="system_event", nullable=False)
+    source = Column(String, default="system", nullable=False)
+    severity = Column(String, default="info", nullable=False)
+    event_data = Column(Text, nullable=True)  # JSON data for event details
     prev_hash = Column(String, default="")
     current_hash = Column(String, index=True)
     extra = Column(Text, nullable=True)

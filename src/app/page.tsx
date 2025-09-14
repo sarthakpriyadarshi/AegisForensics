@@ -276,7 +276,7 @@ const DashboardPage: React.FC = () => {
     switch (status) {
       case "open":
       case "active":
-        return "bg-green-500/20 text-green-300 border-green-500/30"
+        return "bg-purple-500/20 text-purple-300 border-purple-500/30"
       case "investigating":
       case "idle":
         return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
@@ -298,7 +298,7 @@ const DashboardPage: React.FC = () => {
       case "medium":
         return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
       case "low":
-        return "bg-green-500/20 text-green-300 border-green-500/30"
+        return "bg-purple-500/20 text-purple-300 border-purple-500/30"
       default:
         return "bg-gray-500/20 text-gray-300 border-gray-500/30"
     }
@@ -307,7 +307,7 @@ const DashboardPage: React.FC = () => {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case "success":
-        return "text-green-400"
+        return "text-purple-400"
       case "warning":
         return "text-yellow-400"
       case "error":

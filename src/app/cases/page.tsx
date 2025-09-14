@@ -243,9 +243,9 @@ export default function CasesPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "open":
-        return "text-emerald-700 bg-emerald-100/80 border-emerald-200"
+        return "text-purple-700 bg-purple-100/80 border-purple-200"
       case "analyzing":
-        return "text-teal-700 bg-teal-100/80 border-teal-200"
+        return "text-blue-700 bg-blue-100/80 border-blue-200"
       case "closed":
         return "text-slate-700 bg-slate-100/80 border-slate-200"
       case "suspended":
@@ -289,22 +289,22 @@ export default function CasesPage() {
     <AuthGuard>
       <DashboardLayout>
         <div className="space-y-8">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-900/20 via-teal-800/20 to-emerald-400/20 backdrop-blur-sm border border-white/20 p-8">
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/10 to-teal-500/10 animate-pulse"></div>
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-900/20 via-blue-800/20 to-purple-400/20 backdrop-blur-sm border border-white/20 p-8">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-blue-500/10 animate-pulse"></div>
             <div className="relative flex justify-between items-center">
               <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-800 to-teal-700 bg-clip-text text-green-100">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-white">
                   Case Management
                 </h1>
-                <p className="mt-3 text-lg text-green-100">
+                <p className="mt-3 text-lg text-purple-100">
                   Manage your forensic investigation cases with advanced tracking
                 </p>
               </div>
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="group relative overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20"
+                className="group relative overflow-hidden bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative flex items-center gap-3">
                   <Plus className="w-5 h-5" />
                   Create New Case
@@ -326,7 +326,7 @@ export default function CasesPage() {
             <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
               <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-8 w-full max-w-2xl shadow-2xl border border-white/20">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-800 to-teal-700 bg-clip-text text-transparent">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                     Create New Case
                   </h2>
                   <button
@@ -449,7 +449,7 @@ export default function CasesPage() {
                   <button
                     onClick={createCase}
                     disabled={!createData.name || !createData.investigator}
-                    className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-300 disabled:to-slate-400 transition-all duration-200 font-medium shadow-lg"
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 transition-all duration-200 font-medium shadow-lg"
                   >
                     Create Case
                   </button>
@@ -461,8 +461,8 @@ export default function CasesPage() {
           {loading ? (
             <div className="text-center py-16">
               <div className="relative">
-                <div className="animate-spin rounded-full h-16 w-16 border-4 border-emerald-200 border-t-emerald-600 mx-auto"></div>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-400/20 to-teal-400/20 animate-pulse"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600 mx-auto"></div>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-400/20 to-blue-400/20 animate-pulse"></div>
               </div>
               <p className="mt-6 text-slate-600 text-lg">Loading cases...</p>
             </div>
@@ -480,7 +480,7 @@ export default function CasesPage() {
                     key={caseItem.id}
                     className="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 p-8 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                     <div className="relative">
                       <div className="flex justify-between items-start mb-6">
@@ -510,28 +510,28 @@ export default function CasesPage() {
 
                       <div className="grid grid-cols-2 gap-6 text-slate-600 mb-6">
                         <div className="flex items-center gap-3">
-                          <User className="w-5 h-5 text-emerald-600" />
+                          <User className="w-5 h-5 text-purple-600" />
                           <div>
                             <span className="font-semibold text-slate-700">Investigator:</span>
                             <p className="text-slate-600">{caseItem.investigator}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-teal-600" />
+                          <FileText className="w-5 h-5 text-blue-600" />
                           <div>
                             <span className="font-semibold text-slate-700">Evidence:</span>
                             <p className="text-slate-600">{caseItem.evidenceCount} items</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Calendar className="w-5 h-5 text-emerald-600" />
+                          <Calendar className="w-5 h-5 text-purple-600" />
                           <div>
                             <span className="font-semibold text-slate-700">Created:</span>
                             <p className="text-slate-600">{new Date(caseItem.createdAt).toLocaleDateString()}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Clock className="w-5 h-5 text-teal-600" />
+                          <Clock className="w-5 h-5 text-blue-600" />
                           <div>
                             <span className="font-semibold text-slate-700">Updated:</span>
                             <p className="text-slate-600">{new Date(caseItem.updatedAt).toLocaleDateString()}</p>
@@ -582,7 +582,7 @@ export default function CasesPage() {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-white/20">
               <div className="sticky top-0 bg-white/95 backdrop-blur-xl border-b border-slate-200 px-8 py-6 flex items-center justify-between rounded-t-2xl">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-800 to-teal-700 bg-clip-text text-transparent">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                   Case Details - {selectedCase.caseNumber}
                 </h2>
                 <button
@@ -721,7 +721,7 @@ export default function CasesPage() {
                                   setShowCaseDetails(false)
                                   window.location.href = "/analysis"
                                 }}
-                                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-lg"
+                                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg"
                               >
                                 View Report
                               </button>

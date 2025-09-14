@@ -91,9 +91,6 @@ CREATE TABLE agent_reports (
 
 CREATE INDEX ix_agent_reports_id ON agent_reports (id);
 
--- Sample data inserts
-INSERT INTO users (full_name, email, organization, password_hash, is_admin) VALUES 
-('Admin User', 'admin@aegisforensics.com', 'Aegis Forensics', '$2b$12$example_hash_here', 1);
 
 INSERT INTO cases (case_number, name, description, investigator, status, priority, tags) VALUES 
 ('CASE-2024-001', 'Suspicious Email Investigation', 'Investigation of phishing email with malicious attachments', 'Admin User', 'OPEN', 'HIGH', '["phishing", "email", "malware"]'),
