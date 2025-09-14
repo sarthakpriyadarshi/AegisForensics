@@ -59586,3 +59586,35 @@ Traceback (most recent call last):
     version = _bcrypt.__about__.__version__
               ^^^^^^^^^^^^^^^^^
 AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-09-15 02:16:31 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-15 02:16:31 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-15 02:16:31 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-15 02:16:31 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-15 02:16:31 - aegis_forensics - INFO - Using existing database: /home/sarthak/Documents/Projects/aegis-forensics/backend/aegis_forensics.db
+2025-09-15 02:16:31 - aegis_forensics - INFO - ✅ Database connection verified
+2025-09-15 02:16:31 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-15 02:16:31 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-15 02:31:12 - aegis_forensics - INFO - Starting analysis for evidence 1: 1.exe
+2025-09-15 02:31:12 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-15 02:31:12 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-15 02:31:15 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-15 02:31:15 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-15 02:31:16 - aegis_forensics - INFO - Analysis completed for evidence 1
+2025-09-15 03:08:10 - aegis_forensics - INFO - Starting analysis for evidence 2: 1.log
+2025-09-15 03:08:10 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-15 03:08:10 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-15 03:08:14 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-15 03:08:14 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-15 03:08:14 - aegis_forensics - INFO - Analysis completed for evidence 2
+2025-09-15 03:09:29 - aegis_forensics - INFO - Starting analysis for evidence 3: 1.pcap
+2025-09-15 03:09:29 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-15 03:09:29 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-15 03:09:33 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-15 03:09:33 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-15 03:09:33 - aegis_forensics - INFO - Analysis completed for evidence 3
+2025-09-15 03:11:18 - aegis_forensics - INFO - Starting analysis for evidence 4: 2.pcap
+2025-09-15 03:11:18 - google_adk.google.adk.models.google_llm - INFO - Sending out request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-09-15 03:11:18 - google_genai.models - INFO - AFC is enabled with max remote calls: 10.
+2025-09-15 03:11:22 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-15 03:11:22 - google_adk.google.adk.models.google_llm - INFO - Response received from the model.
+2025-09-15 03:11:22 - aegis_forensics - INFO - Analysis completed for evidence 4

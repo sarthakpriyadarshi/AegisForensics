@@ -4,8 +4,19 @@ import type React from "react"
 
 import DashboardLayout from "@/components/DashboardLayout"
 import { useState, useRef, useEffect } from "react"
+import { AuthGuard } from "../../components/AuthGuard"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
-interface AnalysisResult {
+
+interface UploadAnalysisResult {
   verdict: string
   severity: string
   criticality: string
@@ -26,7 +37,7 @@ interface AnalysisResult {
 interface UploadAnalysisResponse {
   status: string
   message: string
-  analysis?: AnalysisResult
+  analysis?: UploadAnalysisResult
   evidence_id: number
   file_info: {
     filename: string
@@ -72,7 +83,7 @@ interface EvidenceAPIResponse {
     execution_time: number
     created_at: string
   }>
-  analysisResults?: any  // Add this field for the new analysis results
+  analysisResults?: any // Add this field for the new analysis results
   report_count: number
 }
 
@@ -141,7 +152,7 @@ interface Case {
   updatedAt: string
 }
 
-export default function AnalysisPage() {
+const AnalysisPage: React.FC = () => {
   const [evidence, setEvidence] = useState<Evidence[]>([])
   const [dragActive, setDragActive] = useState(false)
   const [selectedCaseId, setSelectedCaseId] = useState<number | null>(null)
@@ -151,6 +162,26 @@ export default function AnalysisPage() {
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+    const [alertDialog, setAlertDialog] = useState<{
+    isOpen: boolean
+    title: string
+    description: string
+    type: 'success' | 'error' | 'warning'
+  }>({
+    isOpen: false,
+    title: '',
+    description: '',
+    type: 'error'
+  })
+
+  const showAlert = (title: string, description: string, type: 'success' | 'error' | 'warning' = 'error') => {
+    setAlertDialog({
+      isOpen: true,
+      title,
+      description,
+      type
+    })
+  }
 
   // Fetch evidence results
   const fetchEvidenceResults = async () => {
@@ -184,7 +215,8 @@ export default function AnalysisPage() {
             latest_confidence: item.latest_confidence,
             analysis_results: item.analysis_results,
             report_count: item.report_count,
-            analysisResults: item.analysisResults || // Use the new analysisResults field from backend
+            analysisResults:
+              item.analysisResults || // Use the new analysisResults field from backend
               (item.analysis_results?.length > 0
                 ? {
                     verdict: (item.latest_verdict || "unknown") as "clean" | "suspicious" | "malicious" | "unknown",
@@ -446,13 +478,13 @@ REPORT GENERATION:
 
     const token = localStorage.getItem("aegis_token")
     if (!token) {
-      alert("Please login to upload files")
+      showAlert("Authentication Required", "Please login to upload files", "warning")
       window.location.href = "/auth/login"
       return
     }
 
     if (!selectedCaseId) {
-      alert("Please select a case to associate this evidence with")
+      showAlert("Case Selection Required", "Please select a case to associate this evidence with", "warning")
       return
     }
 
@@ -495,13 +527,13 @@ REPORT GENERATION:
 
         // Display detailed analysis results if available
         if (result.analysis) {
-          const analysis = result.analysis as AnalysisResult
+          const analysis = result.analysis as UploadAnalysisResult
           let alertMessage = `Analysis Complete!\n\n`
           alertMessage += `Verdict: ${analysis.verdict}\n`
           alertMessage += `Severity: ${analysis.severity}\n`
           alertMessage += `Confidence: ${analysis.confidence}\n\n`
           alertMessage += `Summary: ${analysis.summary}\n\n`
-          
+
           if (analysis.findings && analysis.findings.length > 0) {
             alertMessage += `Key Findings:\n`
             analysis.findings.forEach((finding, index: number) => {
@@ -509,17 +541,17 @@ REPORT GENERATION:
             })
             alertMessage += `\n`
           }
-          
+
           if (analysis.recommendations && analysis.recommendations.length > 0) {
             alertMessage += `Recommendations:\n`
             analysis.recommendations.forEach((rec: string, index: number) => {
               alertMessage += `${index + 1}. ${rec}\n`
             })
           }
-          
-          alert(alertMessage)
+
+          showAlert("Analysis Complete", alertMessage, "success")
         } else {
-          alert("File uploaded and analysis completed successfully!")
+          showAlert("Upload Successful", "File uploaded and analysis completed successfully!", "success")
         }
 
         // Refresh the evidence list to get the latest data
@@ -530,12 +562,12 @@ REPORT GENERATION:
       } else {
         const errorData = await response.json()
         setEvidence((prev) => prev.map((e) => (e.id === newEvidence.id ? { ...e, analysisStatus: "failed" } : e)))
-        alert(`Upload failed: ${errorData.detail || "Unknown error"}`)
+        showAlert("Upload Failed", errorData.detail || "Unknown error occurred", "error")
       }
     } catch (error) {
       console.error("Upload error:", error)
       setEvidence((prev) => prev.map((e) => (e.id === newEvidence.id ? { ...e, analysisStatus: "failed" } : e)))
-      alert("Upload failed. Please check your connection and try again.")
+      showAlert("Upload Failed", "Upload failed. Please check your connection and try again.", "error")
     }
   }
 
@@ -606,22 +638,26 @@ REPORT GENERATION:
   }
 
   return (
+    <AuthGuard>
     <DashboardLayout>
       <div className="space-y-8">
         {/* Header */}
-        <div className="text-center">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-3">
-            AI-Powered Evidence Analysis
-          </h1>
-          <p className="text-purple-200 text-lg max-w-2xl mx-auto leading-relaxed">
-            Upload forensic evidence and let our intelligent agents automatically detect file types and perform comprehensive analysis
+        <div className="mb-8 animate-slide-up">
+          <div className="inline-flex items-center px-4 py-2 glass-subtle rounded-full text-sm text-purple-200 mb-6">
+            <span className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse"></span>
+            AI-Powered Evidence Analysis Platform
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-4 text-balance">Evidence Analysis</h1>
+          <p className="text-xl text-slate-300 text-pretty">
+            Upload forensic evidence and let our intelligent agents automatically detect file types and perform
+            comprehensive analysis with unprecedented accuracy.
           </p>
         </div>
 
         {/* Upload Section */}
-        <div className="bg-gradient-to-br from-purple-900/50 to-indigo-900/40 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/30 shadow-2xl">
+        <div className="glass-strong rounded-3xl p-8 border border-white/20 shadow-2xl animate-scale-in">
           <h2 className="text-2xl font-semibold text-white mb-8 flex items-center gap-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -640,8 +676,8 @@ REPORT GENERATION:
               <div
                 className={`relative border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-500 ${
                   dragActive
-                    ? "border-purple-400 bg-purple-500/30 scale-105 shadow-2xl"
-                    : "border-purple-500/50 hover:border-purple-400/70 hover:bg-purple-500/20"
+                    ? "border-purple-400 bg-purple-500/20 scale-105 shadow-2xl"
+                    : "border-purple-500/50 hover:border-purple-400/70 hover:bg-purple-500/10"
                 }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
@@ -657,7 +693,7 @@ REPORT GENERATION:
                 />
                 <div className="space-y-8">
                   <div className="flex justify-center">
-                    <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl animate-pulse">
+                    <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl animate-pulse">
                       <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
                           strokeLinecap="round"
@@ -670,15 +706,16 @@ REPORT GENERATION:
                   </div>
                   <div>
                     <p className="text-2xl font-semibold text-white mb-3">Drop Evidence Files Here</p>
-                    <p className="text-purple-200 leading-relaxed max-w-lg mx-auto">
-                      Supports all forensic file types: memory dumps, disk images, network captures, executables, documents, and more
+                    <p className="text-slate-300 leading-relaxed max-w-lg mx-auto">
+                      Supports all forensic file types: memory dumps, disk images, network captures, executables,
+                      documents, and more
                     </p>
                   </div>
                   <div className="flex flex-wrap justify-center gap-3 text-sm">
-                    {['Memory Dumps', 'Disk Images', 'PCAP Files', 'Executables', 'Documents'].map((type) => (
+                    {["Memory Dumps", "Disk Images", "PCAP Files", "Executables", "Documents"].map((type) => (
                       <span
                         key={type}
-                        className="px-4 py-2 bg-purple-600/40 text-purple-200 rounded-xl border border-purple-400/30"
+                        className="px-4 py-2 bg-purple-500/20 text-purple-300 rounded-xl border border-purple-500/30"
                       >
                         {type}
                       </span>
@@ -692,7 +729,7 @@ REPORT GENERATION:
                 disabled={!selectedCaseId}
                 className={`w-full px-8 py-4 rounded-2xl font-semibold transition-all duration-300 ${
                   selectedCaseId
-                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-xl hover:shadow-purple-500/25 transform hover:scale-105 border border-purple-500/30"
+                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-xl hover:shadow-purple-500/25 transform hover:scale-105 border border-purple-500/30"
                     : "bg-gray-600/50 text-gray-400 cursor-not-allowed border border-gray-500/30"
                 }`}
               >
@@ -710,12 +747,11 @@ REPORT GENERATION:
               )}
             </div>
 
-            {/* Case Selection */}
             <div className="space-y-6">
               {/* Case Selection */}
-              <div className="bg-gradient-to-br from-purple-900/40 to-purple-800/30 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/30 shadow-2xl">
+              <div className="glass-subtle rounded-3xl p-8 border border-white/20 shadow-2xl">
                 <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
@@ -728,7 +764,7 @@ REPORT GENERATION:
                   Select Active Case
                 </h3>
                 {loadingCases ? (
-                  <div className="bg-purple-500/20 backdrop-blur-sm rounded-2xl p-6 border border-purple-400/30">
+                  <div className="glass-subtle rounded-2xl p-6 border border-purple-400/30">
                     <div className="flex items-center gap-3">
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-400"></div>
                       <p className="text-purple-200">Loading available cases...</p>
@@ -739,7 +775,7 @@ REPORT GENERATION:
                     <select
                       value={selectedCaseId || ""}
                       onChange={(e) => setSelectedCaseId(e.target.value ? Number(e.target.value) : null)}
-                      className="w-full p-4 bg-gray-900/70 border border-purple-500/40 rounded-2xl text-white focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-300 backdrop-blur-sm"
+                      className="w-full p-4 glass-subtle border border-purple-500/40 rounded-2xl text-white focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-300"
                     >
                       <option value="">Choose a case to associate evidence...</option>
                       {cases.map((caseItem) => (
@@ -749,15 +785,25 @@ REPORT GENERATION:
                       ))}
                     </select>
                     {selectedCaseId && (
-                      <div className="bg-purple-500/20 backdrop-blur-sm rounded-2xl p-6 border border-purple-400/30">
+                      <div className="glass-subtle rounded-2xl p-6 border border-purple-400/30">
                         {(() => {
                           const selectedCase = cases.find((c) => c.id === selectedCaseId)
                           return selectedCase ? (
                             <div className="space-y-3">
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
+                                  <svg
+                                    className="w-5 h-5 text-white"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
                                   </svg>
                                 </div>
                                 <div>
@@ -766,14 +812,14 @@ REPORT GENERATION:
                                 </div>
                               </div>
                               <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div className="bg-purple-600/20 rounded-xl p-3">
+                                <div className="glass-subtle rounded-xl p-3">
                                   <p className="text-purple-300 font-medium">Investigator</p>
                                   <p className="text-white">{selectedCase.investigator}</p>
                                 </div>
-                                <div className="bg-purple-600/20 rounded-xl p-3">
+                                <div className="glass-subtle rounded-xl p-3">
                                   <p className="text-purple-300 font-medium">Status & Priority</p>
                                   <p className="text-white">
-                                    <span className="text-purple-300">{selectedCase.status.toUpperCase()}</span> | 
+                                    <span className="text-purple-300">{selectedCase.status.toUpperCase()}</span> |
                                     <span className="text-orange-300 ml-1">{selectedCase.priority.toUpperCase()}</span>
                                   </p>
                                 </div>
@@ -785,11 +831,16 @@ REPORT GENERATION:
                     )}
                   </div>
                 ) : (
-                  <div className="bg-yellow-500/20 backdrop-blur-sm rounded-2xl p-6 border border-yellow-400/30">
+                  <div className="glass-subtle rounded-2xl p-6 border border-yellow-400/30 bg-yellow-500/10">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-yellow-500 rounded-xl flex items-center justify-center">
                         <svg className="w-5 h-5 text-yellow-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                          />
                         </svg>
                       </div>
                       <div>
@@ -797,7 +848,8 @@ REPORT GENERATION:
                         <p className="text-yellow-300 text-sm">
                           <a href="/cases" className="text-purple-300 hover:text-purple-200 underline">
                             Create a case first
-                          </a> to start evidence analysis
+                          </a>{" "}
+                          to start evidence analysis
                         </p>
                       </div>
                     </div>
@@ -806,41 +858,56 @@ REPORT GENERATION:
               </div>
 
               {/* AI-Powered Analysis Info */}
-              <div className="bg-gradient-to-br from-indigo-900/40 to-purple-800/30 backdrop-blur-xl rounded-3xl p-8 border border-indigo-500/30 shadow-2xl">
+              <div className="glass-subtle rounded-3xl p-8 border border-white/20 shadow-2xl">
                 <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                      />
                     </svg>
                   </div>
                   Intelligent Analysis Engine
                 </h3>
                 <div className="space-y-4">
-                  <div className="flex items-start gap-4 p-4 bg-indigo-500/20 rounded-2xl border border-indigo-400/30">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="flex items-start gap-4 p-4 glass-subtle rounded-2xl border border-green-500/30 bg-green-500/10">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
                       <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
                       </svg>
                     </div>
                     <div>
                       <p className="font-medium text-white mb-2">Auto-Detection Technology</p>
-                      <p className="text-indigo-200 text-sm leading-relaxed">
-                        Our AI automatically identifies file types and selects the optimal analysis approach - 
-                        memory dumps, disk images, network captures, executables, and documents are all handled intelligently.
+                      <p className="text-slate-300 text-sm leading-relaxed">
+                        Our AI automatically identifies file types and selects the optimal analysis approach - memory
+                        dumps, disk images, network captures, executables, and documents are all handled intelligently.
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-4 p-4 bg-purple-500/20 rounded-2xl border border-purple-400/30">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="flex items-start gap-4 p-4 glass-subtle rounded-2xl border border-purple-500/30 bg-purple-500/10">
+                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
                       <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                        />
                       </svg>
                     </div>
                     <div>
                       <p className="font-medium text-white mb-2">Multi-Agent Forensics</p>
-                      <p className="text-purple-200 text-sm leading-relaxed">
-                        Specialized AI agents for memory analysis, disk forensics, network investigation, 
-                        binary analysis, and behavioral assessment work together for comprehensive results.
+                      <p className="text-slate-300 text-sm leading-relaxed">
+                        Specialized AI agents for memory analysis, disk forensics, network investigation, binary
+                        analysis, and behavioral assessment work together for comprehensive results.
                       </p>
                     </div>
                   </div>
@@ -851,13 +918,23 @@ REPORT GENERATION:
         </div>
 
         {/* Evidence Analysis Results */}
-        <div className="bg-gradient-to-br from-purple-900/50 to-indigo-900/40 backdrop-blur-xl rounded-3xl border border-purple-500/30 shadow-2xl">
-          <div className="px-8 py-6 border-b border-purple-500/30 flex items-center justify-between">
+        <div className="glass-strong rounded-3xl border border-white/20 shadow-2xl animate-fade-in">
+          <div className="px-8 py-6 border-b border-white/20 flex items-center justify-between">
             <h2 className="text-2xl font-semibold text-white flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17h6l-1-1V9l1-1H9l1 1v7l-1 1z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 12h.01M12 12h.01M2 12h.01M7 3h10l1 1v16l-1 1H7l-1-1V4l1-1z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 17h6l-1-1V9l1-1H9l1 1v7l-1 1z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M22 12h.01M12 12h.01M2 12h.01M7 3h10l1 1v16l-1 1H7l-1-1V4l1-1z"
+                  />
                 </svg>
               </div>
               Analysis Results
@@ -866,7 +943,7 @@ REPORT GENERATION:
               <button
                 onClick={fetchEvidenceResults}
                 disabled={loadingEvidence}
-                className="inline-flex items-center gap-3 px-6 py-3 text-sm font-medium text-purple-200 hover:text-white disabled:opacity-50 transition-all duration-300 border border-purple-500/30 rounded-2xl hover:bg-purple-600/20 bg-purple-600/10 backdrop-blur-sm"
+                className="inline-flex items-center gap-3 px-6 py-3 text-sm font-medium text-purple-200 hover:text-white disabled:opacity-50 transition-all duration-300 border border-purple-500/30 rounded-2xl hover:bg-purple-600/20 glass-subtle"
               >
                 {loadingEvidence ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-400"></div>
@@ -882,7 +959,7 @@ REPORT GENERATION:
                 )}
                 Refresh Results
               </button>
-              <div className="text-purple-200 text-sm bg-purple-600/20 px-4 py-2 rounded-xl border border-purple-400/30">
+              <div className="text-purple-200 text-sm glass-subtle px-4 py-2 rounded-xl border border-purple-400/30">
                 {evidence.length} total • {evidence.filter((e) => e.analysisStatus === "completed").length} analyzed
               </div>
             </div>
@@ -890,9 +967,14 @@ REPORT GENERATION:
           <div className="p-8">
             {loadingEvidence && evidence.length === 0 ? (
               <div className="text-center py-16">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-pulse">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-pulse">
                   <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 </div>
                 <p className="text-purple-200 text-lg">Loading evidence results...</p>
@@ -929,7 +1011,12 @@ REPORT GENERATION:
                         <div className="flex items-center gap-4 mb-4">
                           <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
                             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                              />
                             </svg>
                           </div>
                           <div>
@@ -953,35 +1040,73 @@ REPORT GENERATION:
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-purple-200 mb-4">
                           {item.fileSize && (
                             <div className="flex items-center gap-2 bg-purple-600/20 rounded-xl p-3">
-                              <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2" />
+                              <svg
+                                className="w-4 h-4 text-purple-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2"
+                                />
                               </svg>
                               <span>{formatFileSize(item.fileSize)}</span>
                             </div>
                           )}
                           <div className="flex items-center gap-2 bg-purple-600/20 rounded-xl p-3">
-                            <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <svg
+                              className="w-4 h-4 text-purple-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
                             </svg>
                             <span>{formatDate(item.uploadedAt)}</span>
                           </div>
                           <div className="flex items-center gap-2 bg-purple-600/20 rounded-xl p-3">
-                            <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2" />
+                            <svg
+                              className="w-4 h-4 text-purple-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2"
+                              />
                             </svg>
                             <span>Case: {item.caseId}</span>
                           </div>
                           <div className="flex items-center gap-2 bg-purple-600/20 rounded-xl p-3">
-                            <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            <svg
+                              className="w-4 h-4 text-purple-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                              />
                             </svg>
                             <span>{item.report_count || 0} Reports</span>
                           </div>
                         </div>
                         <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-4 border border-purple-500/20">
-                          <p className="text-xs text-purple-300 font-mono break-all">
-                            SHA256: {item.sha256Hash}
-                          </p>
+                          <p className="text-xs text-purple-300 font-mono break-all">SHA256: {item.sha256Hash}</p>
                         </div>
                       </div>
                       <div className="flex gap-3 ml-6">
@@ -990,8 +1115,18 @@ REPORT GENERATION:
                           className="px-6 py-3 text-sm font-medium transition-all duration-300 rounded-2xl bg-purple-600/20 text-purple-300 hover:text-white hover:bg-purple-600/30 border border-purple-500/30 flex items-center gap-2"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
                           </svg>
                           View Details
                         </button>
@@ -1000,7 +1135,12 @@ REPORT GENERATION:
                           className="px-6 py-3 text-sm font-medium transition-all duration-300 rounded-2xl bg-indigo-600/20 text-indigo-300 hover:text-white hover:bg-indigo-600/30 border border-indigo-500/30 flex items-center gap-2"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
                           </svg>
                           Generate Report
                         </button>
@@ -1012,13 +1152,24 @@ REPORT GENERATION:
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <h4 className="font-semibold text-white mb-3 flex items-center gap-2">
-                            <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            <svg
+                              className="w-5 h-5 text-purple-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                              />
                             </svg>
                             Analysis Summary
                           </h4>
                           <p className="text-purple-200 mb-4 leading-relaxed">
-                            {item.analysisResults?.summary || "Analysis completed successfully with AI-powered detection"}
+                            {item.analysisResults?.summary ||
+                              "Analysis completed successfully with AI-powered detection"}
                           </p>
                           <div className="flex items-center gap-4 text-sm">
                             <span
@@ -1044,24 +1195,29 @@ REPORT GENERATION:
         </div>
 
         {/* Analysis Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-br from-emerald-900/50 to-green-800/40 backdrop-blur-xl rounded-2xl p-6 border border-emerald-500/30 shadow-xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
+          <div className="glass-strong rounded-2xl p-6 border border-green-500/30 shadow-xl">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-300 mb-1">Successfully Analyzed</p>
+                <p className="text-sm font-medium text-green-300 mb-1">Successfully Analyzed</p>
                 <p className="text-3xl font-bold text-white">
                   {evidence.filter((e) => e.analysisStatus === "completed").length}
                 </p>
-                <p className="text-xs text-emerald-400 mt-1">Files processed</p>
+                <p className="text-xs text-green-400 mt-1">Files processed</p>
               </div>
-              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-400 rounded-2xl flex items-center justify-center">
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-400 rounded-2xl flex items-center justify-center">
                 <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-red-900/50 to-orange-800/40 backdrop-blur-xl rounded-2xl p-6 border border-red-500/30 shadow-xl">
+          <div className="glass-strong rounded-2xl p-6 border border-red-500/30 shadow-xl">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-red-300 mb-1">Threats Detected</p>
@@ -1082,16 +1238,16 @@ REPORT GENERATION:
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-amber-900/50 to-yellow-800/40 backdrop-blur-xl rounded-2xl p-6 border border-amber-500/30 shadow-xl">
+          <div className="glass-strong rounded-2xl p-6 border border-yellow-500/30 shadow-xl">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-amber-300 mb-1">In Processing Queue</p>
+                <p className="text-sm font-medium text-yellow-300 mb-1">In Processing Queue</p>
                 <p className="text-3xl font-bold text-white">
                   {evidence.filter((e) => e.analysisStatus === "pending" || e.analysisStatus === "processing").length}
                 </p>
-                <p className="text-xs text-amber-400 mt-1">Awaiting analysis</p>
+                <p className="text-xs text-yellow-400 mt-1">Awaiting analysis</p>
               </div>
-              <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-yellow-400 rounded-2xl flex items-center justify-center">
+              <div className="w-14 h-14 bg-gradient-to-br from-yellow-500 to-orange-400 rounded-2xl flex items-center justify-center">
                 <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -1114,7 +1270,12 @@ REPORT GENERATION:
               <h2 className="text-2xl font-semibold text-white flex items-center gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
                   </svg>
                 </div>
                 Evidence Analysis Details
@@ -1135,7 +1296,12 @@ REPORT GENERATION:
                 <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
                   <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                   </div>
                   Evidence Information
@@ -1148,7 +1314,9 @@ REPORT GENERATION:
                     </div>
                     <div>
                       <p className="text-sm font-medium text-purple-300 mb-1">File Size</p>
-                      <p className="text-white">{selectedEvidence.fileSize ? formatFileSize(selectedEvidence.fileSize) : "Unknown"}</p>
+                      <p className="text-white">
+                        {selectedEvidence.fileSize ? formatFileSize(selectedEvidence.fileSize) : "Unknown"}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-purple-300 mb-1">MIME Type</p>
@@ -1168,7 +1336,9 @@ REPORT GENERATION:
                   <div className="flex items-center gap-4">
                     <div>
                       <p className="text-sm font-medium text-purple-300 mb-1">Analysis Status</p>
-                      <span className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium border ${getStatusColor(selectedEvidence.analysisStatus)}`}>
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium border ${getStatusColor(selectedEvidence.analysisStatus)}`}
+                      >
                         {selectedEvidence.analysisStatus.toUpperCase()}
                       </span>
                     </div>
@@ -1185,7 +1355,12 @@ REPORT GENERATION:
                 <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
                   <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                      />
                     </svg>
                   </div>
                   Analysis Summary
@@ -1194,19 +1369,25 @@ REPORT GENERATION:
                   <div className="grid grid-cols-3 gap-4">
                     <div>
                       <p className="text-sm font-medium text-purple-300 mb-2">Verdict</p>
-                      <span className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium border ${getVerdictColor(selectedEvidence.analysisResults?.verdict || "unknown")}`}>
+                      <span
+                        className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium border ${getVerdictColor(selectedEvidence.analysisResults?.verdict || "unknown")}`}
+                      >
                         {(selectedEvidence.analysisResults?.verdict || "unknown").toUpperCase()}
                       </span>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-purple-300 mb-2">Severity</p>
-                      <span className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium border ${getSeverityColor(selectedEvidence.analysisResults?.severity || "low")}`}>
+                      <span
+                        className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium border ${getSeverityColor(selectedEvidence.analysisResults?.severity || "low")}`}
+                      >
                         {(selectedEvidence.analysisResults?.severity || "low").toUpperCase()}
                       </span>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-purple-300 mb-2">Confidence</p>
-                      <p className="text-white text-lg font-semibold">{selectedEvidence.analysisResults?.confidence || 0}%</p>
+                      <p className="text-white text-lg font-semibold">
+                        {selectedEvidence.analysisResults?.confidence || 0}%
+                      </p>
                     </div>
                   </div>
                   <div>
@@ -1224,14 +1405,22 @@ REPORT GENERATION:
                   <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
                     <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2"
+                        />
                       </svg>
                     </div>
                     Detailed Agent Reports ({selectedEvidence.analysis_results.length})
                   </h3>
                   <div className="space-y-4">
                     {selectedEvidence.analysis_results.map((report) => (
-                      <div key={report.id} className="bg-indigo-900/40 backdrop-blur-sm rounded-2xl p-6 border border-indigo-500/30">
+                      <div
+                        key={report.id}
+                        className="bg-indigo-900/40 backdrop-blur-sm rounded-2xl p-6 border border-indigo-500/30"
+                      >
                         <div className="flex items-start justify-between mb-4">
                           <div>
                             <h4 className="font-semibold text-white text-lg">{report.agent_name}</h4>
@@ -1239,7 +1428,9 @@ REPORT GENERATION:
                             <p className="text-sm text-indigo-300">Execution Time: {report.execution_time || 0}s</p>
                           </div>
                           <div className="text-right">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium border ${getVerdictColor(report.verdict)}`}>
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium border ${getVerdictColor(report.verdict)}`}
+                            >
                               {report.verdict.toUpperCase()}
                             </span>
                             <p className="text-sm text-indigo-300 mt-1">{report.confidence || 0}% confidence</p>
@@ -1251,13 +1442,17 @@ REPORT GENERATION:
                         </div>
                         {report.findings && report.findings.length > 0 && (
                           <div>
-                            <p className="text-sm font-medium text-indigo-300 mb-3">Findings ({report.findings.length})</p>
+                            <p className="text-sm font-medium text-indigo-300 mb-3">
+                              Findings ({report.findings.length})
+                            </p>
                             <div className="space-y-2">
                               {report.findings.map((finding, findingIndex) => (
                                 <div key={findingIndex} className="bg-purple-600/20 rounded-xl p-3">
                                   <p className="text-sm text-white">{finding.description}</p>
                                   <div className="flex items-center gap-2 mt-2">
-                                    <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium border ${getSeverityColor(finding.severity)}`}>
+                                    <span
+                                      className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium border ${getSeverityColor(finding.severity)}`}
+                                    >
                                       {finding.severity.toUpperCase()}
                                     </span>
                                     {finding.confidence && (
@@ -1278,6 +1473,35 @@ REPORT GENERATION:
           </div>
         </div>
       )}
+      <AlertDialog open={alertDialog.isOpen} onOpenChange={(open) => setAlertDialog(prev => ({ ...prev, isOpen: open }))}>
+          <AlertDialogContent className="glass-strong border border-white/20">
+            <AlertDialogHeader>
+              <AlertDialogTitle className={`text-lg font-semibold ${
+                alertDialog.type === 'success' ? 'text-green-400' :
+                alertDialog.type === 'warning' ? 'text-yellow-400' :
+                'text-red-400'
+              }`}>
+                {alertDialog.title}
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-slate-300">
+                {alertDialog.description}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction 
+                className={`${
+                  alertDialog.type === 'success' ? 'bg-green-600 hover:bg-black-700' :
+                  alertDialog.type === 'warning' ? 'bg-yellow-600 hover:bg-black-700' :
+                  'bg-red-600 hover:bg-black-700'
+                } text-white`}
+              >
+                OK
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
     </DashboardLayout>
+    </AuthGuard>
   )
 }
+export default AnalysisPage
