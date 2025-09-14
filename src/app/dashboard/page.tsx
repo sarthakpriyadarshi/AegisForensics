@@ -4,6 +4,27 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 import { AuthGuard } from "@/components/AuthGuard"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { Skeleton } from "@/components/ui/skeleton"
+import { 
+  RefreshCw, 
+  Cpu, 
+  HardDrive, 
+  Wifi, 
+  MemoryStick, 
+  CheckCircle,
+  Search,
+  FolderOpen,
+  FileText,
+  Activity,
+  Users,
+  Brain,
+  Network,
+  Binary
+} from "lucide-react"
 
 interface SystemMetrics {
   version?: string
@@ -398,51 +419,25 @@ const DashboardPage: React.FC = () => {
     loadData()
   }, [])
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "open":
-      case "active":
-        return "bg-green-500/20 text-green-300 border-green-500/30"
-      case "investigating":
-      case "analyzing":
-      case "idle":
-        return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
-      case "closed":
-        return "bg-gray-500/20 text-gray-300 border-gray-500/30"
-      case "error":
-        return "bg-red-500/20 text-red-300 border-red-500/30"
-      default:
-        return "bg-gray-500/20 text-gray-300 border-gray-500/30"
-    }
-  }
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-      case "critical":
-        return "bg-red-500/20 text-red-300 border-red-500/30"
-      case "high":
-        return "bg-orange-500/20 text-orange-300 border-orange-500/30"
-      case "medium":
-        return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
-      case "low":
-        return "bg-green-500/20 text-green-300 border-green-500/30"
-      default:
-        return "bg-gray-500/20 text-gray-300 border-gray-500/30"
-    }
-  }
-
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex h-screen items-center justify-center">
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500/20 border-t-purple-500"></div>
-              <div className="absolute inset-0 animate-ping rounded-full h-12 w-12 border-2 border-purple-400/30"></div>
-            </div>
-            <div className="glass-subtle px-6 py-3 rounded-2xl">
-              <span className="text-white text-lg font-medium">Loading dashboard...</span>
-            </div>
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-96" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-6">
+                  <Skeleton className="h-12 w-12 rounded-lg mb-4" />
+                  <Skeleton className="h-4 w-20 mb-2" />
+                  <Skeleton className="h-6 w-16 mb-2" />
+                  <Skeleton className="h-3 w-24" />
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </DashboardLayout>
@@ -452,312 +447,246 @@ const DashboardPage: React.FC = () => {
   return (
     <AuthGuard>
       <DashboardLayout>
-        <div className="fixed inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20 animate-gradient-shift"></div>
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-float"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-float-delayed"></div>
-        </div>
-
-        <div className="min-h-screen relative">
-          <div className="mx-auto max-w-7xl px-6 py-8">
-            <div className="mb-12 animate-slide-up">
-              <div className="inline-flex items-center px-6 py-3 glass-strong rounded-full text-sm text-purple-200 mb-8 border border-purple-500/20">
-                <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full mr-3 animate-pulse"></div>
-                <span className="font-medium">AI-Powered Digital Forensics Platform</span>
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="outline" className="border-primary/20 text-primary">
+                  <CheckCircle className="w-3 h-3 mr-1" />
+                  AI-Powered Platform
+                </Badge>
               </div>
-              <h1 className="text-5xl font-bold text-white mb-6 text-balance leading-tight">
-                Welcome back,{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
-                  {userProfile?.full_name?.split(" ")[0] || "Admin"}
-                </span>
+              <h1 className="text-3xl font-bold text-foreground">
+                Welcome back, {userProfile?.full_name?.split(" ")[0] || "Admin"}
               </h1>
-              <p className="text-xl text-slate-300 text-pretty max-w-3xl leading-relaxed">
+              <p className="text-lg text-muted-foreground">
                 Your comprehensive forensics command center with intelligent automation and real-time insights.
               </p>
             </div>
+            <div className="flex items-center gap-4">
+              <Card>
+                <CardContent className="p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Last updated</p>
+                  <p className="text-sm font-medium">{new Date().toLocaleTimeString()}</p>
+                </CardContent>
+              </Card>
+              <Button onClick={() => window.location.reload()} className="bg-primary hover:bg-primary/90">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+            </div>
+          </div>
 
-            {systemMetrics && (
-              <div className="mb-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 animate-scale-in">
-                {[
-                  {
-                    title: "CPU Usage",
-                    value: systemMetrics?.cpu_usage || "0%",
-                    icon: "⚡",
-                    color: "from-purple-500 to-blue-500",
-                    description: "Processing power utilization",
-                  },
-                  {
-                    title: "Memory",
-                    value: systemMetrics?.memory_usage || "0%",
-                    icon: "🧠",
-                    color: "from-blue-500 to-cyan-500",
-                    description: "RAM usage and availability",
-                  },
-                  {
-                    title: "Disk Usage",
-                    value: systemMetrics?.disk_usage || "0%",
-                    icon: "💾",
-                    color: "from-purple-500 to-blue-500",
-                    description: "Storage capacity used",
-                  },
-                  {
-                    title: "Connections",
-                    value: systemMetrics?.active_connections?.toString() || "0",
-                    icon: "🔗",
-                    color: "from-blue-500 to-purple-500",
-                    description: "Active network connections",
-                  },
-                ].map((metric, index) => (
-                  <div
-                    key={metric.title}
-                    className="glass-strong rounded-3xl p-8 hover:scale-105 hover:glass-subtle transition-all duration-500 animate-slide-up border border-white/10 group"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <div className="flex items-center justify-between mb-6">
-                      <div
-                        className={`w-16 h-16 bg-gradient-to-br ${metric.color} rounded-3xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                      >
-                        <span className="text-3xl">{metric.icon}</span>
+          {/* System Metrics Cards */}
+          {systemMetrics && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  title: "CPU Usage",
+                  value: systemMetrics?.cpu_usage || "0%",
+                  subtitle: "Processing power utilization",
+                  icon: Cpu,
+                  progress: parseFloat(systemMetrics?.cpu_usage?.replace('%', '') || '0'),
+                },
+                {
+                  title: "Memory Usage",
+                  value: systemMetrics?.memory_usage || "0 GB / 0 GB",
+                  subtitle: "RAM usage and availability", 
+                  icon: MemoryStick,
+                  progress: systemMetrics?.memory_usage ? 
+                    (parseFloat(systemMetrics.memory_usage.split(' ')[0]) / parseFloat(systemMetrics.memory_usage.split(' ')[4])) * 100 : 0,
+                },
+                {
+                  title: "Disk Usage",
+                  value: systemMetrics?.disk_usage || "0 GB / 0 GB",
+                  subtitle: "Storage capacity used",
+                  icon: HardDrive,
+                  progress: systemMetrics?.disk_usage ? 
+                    (parseFloat(systemMetrics.disk_usage.split(' ')[0]) / parseFloat(systemMetrics.disk_usage.split(' ')[4])) * 100 : 0,
+                },
+                {
+                  title: "Active Connections",
+                  value: systemMetrics?.active_connections?.toString() || "0",
+                  subtitle: "Active network connections",
+                  icon: Wifi,
+                  progress: 0,
+                },
+              ].map((metric) => (
+                <Card key={metric.title}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <metric.icon className="w-5 h-5 text-primary" />
                       </div>
-                      <div className="w-4 h-4 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                     </div>
-                    <div>
-                      <dt className="text-sm font-medium text-slate-400 mb-2">{metric.title}</dt>
-                      <dd className="text-3xl font-bold text-white mb-2">{metric.value}</dd>
-                      <p className="text-xs text-slate-500 text-pretty">{metric.description}</p>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">{metric.title}</p>
+                      <div className="text-2xl font-bold">{metric.value}</div>
+                      <p className="text-xs text-muted-foreground">{metric.subtitle}</p>
+                      {metric.progress !== undefined && metric.progress > 0 && (
+                        <Progress value={metric.progress} className="h-2" />
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Recent Cases */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FolderOpen className="w-5 h-5" />
+                  Recent Cases
+                </CardTitle>
+                <CardDescription>Latest forensic investigations</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {recentCases.slice(0, 3).map((case_item) => (
+                  <div
+                    key={case_item.id}
+                    className="border-l-4 border-primary pl-4 hover:bg-muted/50 rounded-r-lg p-3 transition-colors"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold">{case_item.name}</h4>
+                      <Badge variant={case_item.priority === 'critical' ? 'destructive' : 
+                                   case_item.priority === 'high' ? 'default' : 'secondary'}>
+                        {case_item.priority}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <Badge variant={case_item.status === 'investigating' ? 'default' : 'secondary'}>
+                        {case_item.status}
+                      </Badge>
+                      <span>•</span>
+                      <span>{case_item.investigator}</span>
+                      <span>•</span>
+                      <span>{case_item.created}</span>
                     </div>
                   </div>
                 ))}
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 mb-12">
-              {/* Recent Cases */}
-              <div className="lg:col-span-1">
-                <div className="glass-strong rounded-3xl p-8 animate-fade-in border border-white/10 hover:border-purple-500/30 transition-all duration-300">
-                  <div className="flex items-center justify-between mb-8">
-                    <div>
-                      <h3 className="text-2xl font-bold text-white mb-2">Recent Cases</h3>
-                      <p className="text-sm text-slate-400">Latest forensic investigations</p>
-                    </div>
-                    <div className="w-3 h-3 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full animate-pulse"></div>
-                  </div>
-                  <div className="space-y-6">
-                    {recentCases.map((case_item, index) => (
-                      <div
-                        key={case_item.id}
-                        className="glass-subtle border-l-4 border-purple-500 pl-6 hover:glass-strong rounded-r-3xl p-4 transition-all duration-300 animate-slide-up group"
-                        style={{ animationDelay: `${index * 0.1}s` }}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="text-lg font-semibold text-white group-hover:text-purple-300 transition-colors">
-                            {case_item.name}
-                          </h4>
-                          <span
-                            className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border ${getPriorityColor(
-                              case_item.priority,
-                            )}`}
-                          >
-                            {case_item.priority.toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-4 text-sm">
-                          <span
-                            className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border ${getStatusColor(
-                              case_item.status,
-                            )}`}
-                          >
-                            {case_item.status.toUpperCase()}
-                          </span>
-                          <span className="text-slate-400">•</span>
-                          <span className="text-slate-300 font-medium">{case_item.investigator}</span>
-                          <span className="text-slate-400">•</span>
-                          <span className="text-slate-400">{case_item.created}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-8 pt-6 border-t border-white/10">
-                    <a
-                      href="/cases"
-                      className="inline-flex items-center space-x-3 text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors group"
-                    >
-                      <span>View all cases</span>
-                      <svg
-                        className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 7l5 5m0 0l-5 5m5-5H6"
-                        />
-                      </svg>
-                    </a>
-                  </div>
+                <div className="pt-4 border-t">
+                  <Button variant="ghost" className="w-full" asChild>
+                    <a href="/cases">View all cases</a>
+                  </Button>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              {/* Active Agents */}
-              <div className="lg:col-span-1">
-                <div
-                  className="glass-strong rounded-3xl p-8 animate-fade-in border border-white/10 hover:border-blue-500/30 transition-all duration-300"
-                  style={{ animationDelay: "0.2s" }}
-                >
-                  <div className="flex items-center justify-between mb-8">
-                    <div>
-                      <h3 className="text-2xl font-bold text-white mb-2">Active Agents</h3>
-                      <p className="text-sm text-slate-400">AI forensic analysis agents</p>
+            {/* Active Agents */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Active Agents
+                </CardTitle>
+                <CardDescription>AI forensic analysis agents</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {activeAgents.slice(0, 4).map((agent) => {
+                  const getAgentIcon = (type: string) => {
+                    switch (type.toLowerCase()) {
+                      case 'memory': return Brain
+                      case 'disk': return HardDrive  
+                      case 'network': return Network
+                      case 'binary': return Binary
+                      default: return Activity
+                    }
+                  }
+                  
+                  const AgentIcon = getAgentIcon(agent.type)
+                  
+                  return (
+                    <div
+                      key={agent.id}
+                      className="border-l-4 border-primary pl-4 hover:bg-muted/50 rounded-r-lg p-3 transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <AgentIcon className="w-4 h-4 text-primary" />
+                          </div>
+                          <h4 className="font-semibold">{agent.name}</h4>
+                        </div>
+                        <Badge variant={agent.status === 'active' ? 'default' : 
+                                     agent.status === 'idle' ? 'secondary' : 'destructive'}>
+                          {agent.status}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span>Tasks: {agent.tasksCompleted}</span>
+                        <span>•</span>
+                        <span>{agent.lastActivity}</span>
+                      </div>
                     </div>
-                    <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full animate-pulse"></div>
-                  </div>
-                  <div className="space-y-6">
-                    {activeAgents.map((agent, index) => (
-                      <div
-                        key={agent.id}
-                        className="glass-subtle border-l-4 border-blue-500 pl-6 hover:glass-strong rounded-r-3xl p-4 transition-all duration-300 animate-slide-up group"
-                        style={{ animationDelay: `${0.2 + index * 0.1}s` }}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="text-lg font-semibold text-white flex items-center space-x-3 group-hover:text-blue-300 transition-colors">
-                            <div
-                              className={`w-4 h-4 rounded-full ${
-                                agent.status === "active"
-                                  ? "bg-gradient-to-r from-purple-400 to-blue-400 animate-pulse"
-                                  : agent.status === "idle"
-                                    ? "bg-yellow-400"
-                                    : "bg-red-400"
-                              }`}
-                            ></div>
-                            <span>{agent.name}</span>
-                          </h4>
-                          <div className="text-right">
-                            <span className="text-lg font-bold text-white">{agent.tasksCompleted}</span>
-                            <p className="text-xs text-slate-400">tasks completed</p>
+                  )
+                })}
+                <div className="pt-4 border-t">
+                  <Button variant="ghost" className="w-full" asChild>
+                    <a href="/agents">Manage agents</a>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>Streamline your forensic workflow with these essential tools</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  {
+                    href: "/analysis",
+                    title: "Analyze Evidence",
+                    description: "Upload and analyze forensic evidence with AI agents",
+                    icon: Search,
+                  },
+                  {
+                    href: "/cases",
+                    title: "Create Case",
+                    description: "Start a new forensic investigation case",
+                    icon: FolderOpen,
+                  },
+                  {
+                    href: "/scripts",
+                    title: "Generate Script",
+                    description: "Create forensic analysis scripts for deployment",
+                    icon: FileText,
+                  },
+                  {
+                    href: "/live",
+                    title: "Live Response",
+                    description: "Monitor live analysis data and system events",
+                    icon: Activity,
+                  },
+                ].map((action) => (
+                  <Card key={action.title} className="hover:shadow-md transition-shadow cursor-pointer">
+                    <a href={action.href}>
+                      <CardContent className="p-6">
+                        <div className="flex flex-col items-center text-center space-y-4">
+                          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <action.icon className="w-6 h-6 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold mb-2">{action.title}</h3>
+                            <p className="text-sm text-muted-foreground">{action.description}</p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-4 text-sm">
-                          <span
-                            className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border ${
-                              agent.status === "active"
-                                ? "text-purple-300 bg-purple-900/30 border-purple-500/50"
-                                : agent.status === "idle"
-                                  ? "text-yellow-300 bg-yellow-900/30 border-yellow-500/50"
-                                  : "text-red-300 bg-red-900/30 border-red-500/50"
-                            }`}
-                          >
-                            {agent.status.toUpperCase()}
-                          </span>
-                          <span className="text-slate-400">•</span>
-                          <span className="text-slate-300 font-medium">{agent.type}</span>
-                          <span className="text-slate-400">•</span>
-                          <span className="text-slate-400">{agent.lastActivity}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-8 pt-6 border-t border-white/10">
-                    <a
-                      href="/agents"
-                      className="inline-flex items-center space-x-3 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors group"
-                    >
-                      <span>Manage agents</span>
-                      <svg
-                        className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 7l5 5m0 0l-5 5m5-5H6"
-                        />
-                      </svg>
+                      </CardContent>
                     </a>
-                  </div>
-                </div>
+                  </Card>
+                ))}
               </div>
-            </div>
-
-            <div className="animate-fade-in" style={{ animationDelay: "0.6s" }}>
-              <div className="glass-strong rounded-3xl p-10 border border-white/10">
-                <div className="text-center mb-12">
-                  <h3 className="text-3xl font-bold text-white mb-4">Quick Actions</h3>
-                  <p className="text-lg text-slate-400 text-pretty">
-                    Streamline your forensic workflow with these essential tools
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                  {[
-                    {
-                      href: "/analysis",
-                      title: "Analyze Evidence",
-                      description: "Upload and analyze forensic evidence with AI agents",
-                      icon: "🔍",
-                      color: "from-purple-500 to-blue-500",
-                    },
-                    {
-                      href: "/cases",
-                      title: "Create Case",
-                      description: "Start a new forensic investigation case",
-                      icon: "📁",
-                      color: "from-blue-500 to-cyan-500",
-                    },
-                    {
-                      href: "/scripts",
-                      title: "Generate Script",
-                      description: "Create forensic analysis scripts for deployment",
-                      icon: "📝",
-                      color: "from-purple-500 to-blue-500",
-                    },
-                    {
-                      href: "/live",
-                      title: "Live Response",
-                      description: "Monitor live analysis data and system events",
-                      icon: "🔴",
-                      color: "from-blue-500 to-purple-500",
-                    },
-                  ].map((action, index) => (
-                    <a
-                      key={action.title}
-                      href={action.href}
-                      className="group relative glass-subtle hover:glass-strong p-8 rounded-3xl transition-all duration-500 hover:scale-105 animate-slide-up border border-white/5 hover:border-purple-500/30"
-                      style={{ animationDelay: `${0.6 + index * 0.1}s` }}
-                    >
-                      <div className="mb-8">
-                        <div
-                          className={`w-20 h-20 bg-gradient-to-br ${action.color} rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}
-                        >
-                          <span className="text-3xl">{action.icon}</span>
-                        </div>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-white mb-4 group-hover:text-purple-300 transition-colors">
-                          {action.title}
-                        </h3>
-                        <p className="text-sm text-slate-400 leading-relaxed text-pretty">{action.description}</p>
-                      </div>
-                      <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-110">
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 7l5 5m0 0l-5 5m5-5H6"
-                          />
-                        </svg>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </DashboardLayout>
     </AuthGuard>
