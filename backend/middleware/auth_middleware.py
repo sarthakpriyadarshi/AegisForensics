@@ -12,13 +12,20 @@ logger = logging.getLogger(__name__)
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
+        method = request.method
+        
+        # Always allow OPTIONS requests (CORS preflight)
+        if method == "OPTIONS":
+            response = await call_next(request)
+            return response
         
         # List of endpoints that are always public (no auth required)
         always_public_endpoints = [
             "/docs",
             "/openapi.json", 
             "/redoc",
-            "/favicon.ico"
+            "/favicon.ico",
+            "/health"
         ]
         
         # Check if this is an always public endpoint or root path exactly
@@ -36,7 +43,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             
             # If no admin exists, only allow setup-admin endpoint
             if not admin_exists:
-                if path == "/auth/setup-admin" and request.method == "POST":
+                if path == "/auth/setup-admin" and method == "POST":
                     response = await call_next(request)
                     return response
                 else:
@@ -44,14 +51,15 @@ class AuthMiddleware(BaseHTTPMiddleware):
                         status_code=status.HTTP_403_FORBIDDEN,
                         content={
                             "detail": "No admin user exists. Please create an admin user first at POST /auth/setup-admin",
-                            "setup_endpoint": "/auth/setup-admin"
+                            "setup_endpoint": "/auth/setup-admin",
+                            "admin_setup_required": True
                         }
                     )
             
             # If admin exists, check JWT for all endpoints except login
             else:
                 # Allow login endpoint without JWT
-                if path == "/auth/login" and request.method == "POST":
+                if path == "/auth/login" and method == "POST":
                     response = await call_next(request)
                     return response
                 
@@ -62,7 +70,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
                         status_code=status.HTTP_401_UNAUTHORIZED,
                         content={
                             "detail": "Authorization header required. Please login first at POST /auth/login",
-                            "login_endpoint": "/auth/login"
+                            "login_endpoint": "/auth/login",
+                            "admin_setup_required": False
                         },
                         headers={"WWW-Authenticate": "Bearer"}
                     )

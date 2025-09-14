@@ -2343,3 +2343,799 @@ API Endpoints Available:
 2025-09-14 00:57:43 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
 2025-09-14 00:57:43 - aegis_forensics - INFO - Starting Aegis Forensics server...
 2025-09-14 00:57:43 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 14:01:17 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 14:01:17 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 14:01:17 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 14:05:09 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 14:05:09 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 14:05:09 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 14:47:21 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 14:47:21 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 14:47:21 - aegis_forensics - INFO - ==================================================
+2025-09-14 14:47:21 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 14:47:21 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 14:47:21 - aegis_forensics - INFO - ==================================================
+2025-09-14 14:47:21 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 14:47:21 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 14:47:21 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 14:47:21 - aegis_forensics - INFO -   Environment: Development
+2025-09-14 14:47:21 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 14:47:21 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 14:47:21 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 14:47:21 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 14:47:21 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 14:47:21 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 14:47:21 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 14:47:21 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 14:47:21 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 14:47:21 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 14:47:21 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 14:47:21 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 14:47:21 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 14:47:21 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 14:47:21 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 14:47:21 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 14:47:21 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 14:47:21 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 14:47:21 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 14:47:21 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 14:47:21 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 14:47:21 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 14:47:21 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 14:47:21 - aegis_forensics - INFO - ==================================================
+2025-09-14 14:47:48 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 14:47:48 - aegis_forensics - INFO - 🚀 Starting Aegis Forensics Server...
+2025-09-14 14:47:48 - aegis_forensics - INFO - ==================================================
+2025-09-14 14:47:48 - aegis_forensics - INFO - Aegis Forensics - AI-Powered Digital Forensics Platform
+2025-09-14 14:47:48 - aegis_forensics - INFO - Version: 1.0.0
+2025-09-14 14:47:48 - aegis_forensics - INFO - ==================================================
+2025-09-14 14:47:48 - aegis_forensics - INFO - Server Configuration:
+2025-09-14 14:47:48 - aegis_forensics - INFO -   Host: 0.0.0.0
+2025-09-14 14:47:48 - aegis_forensics - INFO -   Port: 8000
+2025-09-14 14:47:48 - aegis_forensics - INFO -   Environment: Development
+2025-09-14 14:47:48 - aegis_forensics - INFO -   Log file: logs/aegis_forensics.log
+2025-09-14 14:47:48 - aegis_forensics - INFO -   Database: aegis_forensics.db
+2025-09-14 14:47:48 - aegis_forensics - INFO - 
+Forensic Agents Status:
+2025-09-14 14:47:48 - aegis_forensics - INFO -   ✅ NetworkAnalyzer - Ready
+2025-09-14 14:47:48 - aegis_forensics - INFO -   ✅ BinaryAnalyzer - Ready
+2025-09-14 14:47:48 - aegis_forensics - INFO -   ✅ MemoryAnalyzer - Ready
+2025-09-14 14:47:48 - aegis_forensics - INFO -   ✅ DiskAnalyzer - Ready
+2025-09-14 14:47:48 - aegis_forensics - INFO -   ✅ UserProfiler - Ready
+2025-09-14 14:47:48 - aegis_forensics - INFO -   ✅ TimelineAnalyzer - Ready
+2025-09-14 14:47:48 - aegis_forensics - INFO -   ✅ SandboxAgent - Ready
+2025-09-14 14:47:48 - aegis_forensics - INFO -   ✅ ReconAgent - Ready
+2025-09-14 14:47:48 - aegis_forensics - INFO -   ✅ CustodianAgent - Ready
+2025-09-14 14:47:48 - aegis_forensics - INFO -   ✅ LiveResponseAgent - Ready
+2025-09-14 14:47:48 - aegis_forensics - INFO - 
+API Endpoints Available:
+2025-09-14 14:47:48 - aegis_forensics - INFO -   POST /analyze/uploadfile/ - File analysis
+2025-09-14 14:47:48 - aegis_forensics - INFO -   POST /analyze/streamdata/ - Stream analysis
+2025-09-14 14:47:48 - aegis_forensics - INFO -   GET  /api/agents/status - Agent status
+2025-09-14 14:47:48 - aegis_forensics - INFO -   GET  /api/file-types - Supported file types
+2025-09-14 14:47:48 - aegis_forensics - INFO -   GET  /api/cases - Case management
+2025-09-14 14:47:48 - aegis_forensics - INFO -   GET  /health - Health check
+2025-09-14 14:47:48 - aegis_forensics - INFO - 
+==================================================
+2025-09-14 14:47:48 - aegis_forensics - INFO - Server starting... Press Ctrl+C to stop
+2025-09-14 14:47:48 - aegis_forensics - INFO - API Documentation: http://localhost:8000/docs
+2025-09-14 14:47:48 - aegis_forensics - INFO - ==================================================
+2025-09-14 14:47:50 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 14:47:50 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 14:47:50 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 14:47:50 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 14:47:50 - watchfiles.main - INFO - 4 changes detected
+2025-09-14 14:47:50 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:53 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:53 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:53 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:55 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:55 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:55 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:56 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:56 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:56 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:57 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:57 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:57 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:58 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:58 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:58 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:59 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:59 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:47:59 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:00 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:00 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:00 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:01 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:01 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:02 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:02 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:02 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:03 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:03 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:03 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:04 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:04 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:04 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:05 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:05 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:05 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:06 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:06 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:06 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:07 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:07 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:07 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:08 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:08 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:09 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:09 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:09 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:10 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:10 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:10 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:11 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:11 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:11 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:12 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:12 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:12 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:13 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:13 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:13 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:14 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:14 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:14 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:15 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:15 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:16 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:16 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:16 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:17 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:17 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:17 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:18 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:18 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:18 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:19 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:19 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:19 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:20 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:20 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:20 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:21 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:21 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:22 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:22 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:22 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:23 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:23 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:23 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:24 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:24 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:24 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:25 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:25 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:25 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:26 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:26 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:26 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:27 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:27 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:27 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:28 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:28 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:29 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:29 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:29 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:30 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:30 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:30 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:31 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:31 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:31 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:32 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:32 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:32 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:33 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:33 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:33 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:34 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:34 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:34 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:35 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:35 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:36 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:36 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:36 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:37 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:37 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:37 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:38 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:38 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:38 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:39 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:39 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:39 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:40 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:40 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:40 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:41 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:41 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:41 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:42 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:42 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:43 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:43 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:43 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:44 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:44 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:44 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:45 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:45 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:45 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:46 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:46 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:46 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:47 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:47 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:47 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:48 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:48 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:49 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:49 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:49 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:50 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:50 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:50 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:53 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:53 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:53 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:55 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:55 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:56 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:56 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:56 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:57 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:57 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:57 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:58 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:58 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:58 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:59 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:59 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:48:59 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:00 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:00 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:00 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:01 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:01 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:01 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:02 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:02 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:03 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:03 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:03 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:04 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:04 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:04 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:05 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:05 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:05 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:06 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:06 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:06 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:07 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:07 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:07 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:08 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:08 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:08 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:09 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:09 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:10 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:10 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:10 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:11 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:11 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:11 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:12 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:12 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:12 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:13 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:13 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:13 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:14 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:14 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:14 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:15 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:15 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:15 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:16 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:16 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:17 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:17 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:17 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:18 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:18 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:18 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:19 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:19 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:19 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:20 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:20 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:20 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:21 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:21 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:21 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:22 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:22 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:23 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:23 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:23 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:24 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:24 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:24 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:25 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:25 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:25 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:26 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:26 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:26 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:27 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:27 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:27 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:28 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:28 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:28 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:29 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:29 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:30 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:30 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:30 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:31 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:31 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:31 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:32 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:32 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:32 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:33 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:33 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:33 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:34 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:34 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:34 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:35 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:35 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:35 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:36 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:36 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:37 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:37 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:37 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:38 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:38 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:38 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:39 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:39 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:39 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:40 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:40 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:40 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:41 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:41 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:41 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:42 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:42 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:42 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:43 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:43 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:44 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:44 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:44 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:45 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:45 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:45 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:46 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:46 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:46 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:47 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:47 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:47 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:48 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:48 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:48 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:49 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:49 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:50 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:50 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:50 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:53 - watchfiles.main - INFO - 2 changes detected
+2025-09-14 14:49:53 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:55 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:55 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:55 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 14:49:55 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 14:49:55 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 14:49:55 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 14:49:55 - watchfiles.main - INFO - 4 changes detected
+2025-09-14 14:49:56 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:56 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:56 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:57 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:57 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:57 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:58 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:58 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:58 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:59 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:49:59 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:00 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:00 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:00 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:01 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:01 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:01 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:02 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:02 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:02 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:03 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:03 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:03 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:04 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:04 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:04 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:05 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:05 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:05 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:06 - watchfiles.main - INFO - 2 changes detected
+2025-09-14 14:50:06 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:07 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:07 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:07 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:08 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:08 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:08 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 14:50:08 - aegis_forensics - INFO - Logging initialized - Log file: /home/sarthak/Documents/Projects/aegis-forensics/backend/logs/aegis_forensics.log
+2025-09-14 14:50:08 - aegis_forensics - INFO - Starting Aegis Forensics server...
+2025-09-14 14:50:08 - aegis_forensics - INFO - ADK runner initialized.
+2025-09-14 14:50:08 - watchfiles.main - INFO - 4 changes detected
+2025-09-14 14:50:09 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:09 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:10 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:10 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:10 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:11 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:11 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:11 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:12 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:12 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:12 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:13 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:13 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:13 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:14 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:14 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:14 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/sarthak/Documents/Projects/aegis-forensics/backend/.venv/lib/python3.13/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-09-14 14:50:14 - watchfiles.main - INFO - 7 changes detected
+2025-09-14 14:50:15 - watchfiles.main - INFO - 4 changes detected
+2025-09-14 14:50:15 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:16 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:16 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:16 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:17 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:17 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:17 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:18 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:18 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:18 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:19 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:19 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:19 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:20 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:20 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:20 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:21 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:21 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:21 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:22 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:22 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:23 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:23 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:23 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:24 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:24 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:24 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:25 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:25 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:25 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:26 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:26 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:26 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:27 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:27 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:27 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:28 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:28 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:28 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:29 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:29 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:30 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:30 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:30 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:31 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:31 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:31 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:32 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:32 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:32 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:33 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:33 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:33 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:34 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:34 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:34 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:35 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:35 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:36 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:36 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:36 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:37 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:37 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:37 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:38 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:38 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:38 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:39 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:39 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:39 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:40 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:40 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:40 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:41 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:41 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:41 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:42 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:42 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:43 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:43 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:43 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:44 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:44 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:44 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:45 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:45 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:45 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:46 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:46 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:46 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:47 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:47 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:47 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:48 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:48 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:48 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:49 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:49 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:50 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:50 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:50 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:53 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:53 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:53 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:55 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:55 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:55 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:56 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:56 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:57 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:57 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:57 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:58 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:58 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:58 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:59 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:59 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:50:59 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:00 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:00 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:00 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:01 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:01 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:01 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:02 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:02 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:02 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:03 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:03 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:04 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:04 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:04 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:05 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:05 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:05 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:06 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:06 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:06 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:07 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:07 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:07 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:08 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:08 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:08 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:09 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:09 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:10 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:10 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:10 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:11 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:11 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:11 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:12 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:12 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:12 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:13 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:13 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:13 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:14 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:14 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:14 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:15 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:15 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:15 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:16 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:16 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:17 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:17 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:17 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:18 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:18 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:18 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:19 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:19 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:19 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:20 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:20 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:20 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:21 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:21 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:21 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:22 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:22 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:22 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:23 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:23 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:24 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:24 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:24 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:25 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:25 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:25 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:26 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:26 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:26 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:27 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:27 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:27 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:28 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:28 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:28 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:29 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:29 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:30 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:30 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:30 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:31 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:31 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:31 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:32 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:32 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:32 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:33 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:33 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:33 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:34 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:34 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:34 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:35 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:35 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:35 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:36 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:36 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:37 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:37 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:37 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:38 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:38 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:38 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:39 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:39 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:39 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:40 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:40 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:40 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:41 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:41 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:41 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:42 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:42 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:42 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:43 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:43 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:44 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:44 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:44 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:45 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:45 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:45 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:46 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:46 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:46 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:47 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:47 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:47 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:48 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:48 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:48 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:49 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:49 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:49 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:50 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:50 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:51 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:52 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:53 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:53 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:53 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:54 - watchfiles.main - INFO - 1 change detected
+2025-09-14 14:51:55 - watchfiles.main - INFO - 1 change detected
