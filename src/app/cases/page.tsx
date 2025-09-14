@@ -3,6 +3,23 @@
 import DashboardLayout from "@/components/DashboardLayout"
 import { AuthGuard } from "@/components/AuthGuard"
 import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Plus,
   Eye,
@@ -288,494 +305,458 @@ export default function CasesPage() {
   return (
     <AuthGuard>
       <DashboardLayout>
-        <div className="min-h-screen">
-          <div className="mx-auto max-w-7xl space-y-8">
-            <div className="mb-8 animate-slide-up">
-              <div className="inline-flex items-center px-4 py-2 glass-subtle rounded-full text-sm text-purple-200 mb-6">
-                <span className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse"></span>
-                Forensic Case Management System
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="outline" className="border-primary/20 text-primary">
+                  <CheckCircle className="w-3 h-3 mr-1" />
+                  Case Management System
+                </Badge>
               </div>
-              <div className="flex justify-between items-center">
-                <div>
-                  <h1 className="text-4xl font-bold text-white mb-4 text-balance">Case Management</h1>
-                  <p className="text-xl text-slate-300 text-pretty">
-                    Manage your forensic investigation cases with advanced tracking and AI-powered insights.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowCreateForm(true)}
-                  className="group glass-strong hover:glass-strong p-4 rounded-2xl transition-all duration-300 hover:scale-105 border border-white/20"
-                >
-                  <div className="flex items-center gap-3 text-white">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Plus className="w-5 h-5" />
+              <h1 className="text-3xl font-bold text-foreground">Case Management</h1>
+              <p className="text-lg text-muted-foreground">
+                Manage your forensic investigation cases with advanced tracking and AI-powered insights.
+              </p>
+            </div>
+            <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary hover:bg-primary/90">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create New Case
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Create New Case</DialogTitle>
+                  <DialogDescription>
+                    Start a new forensic investigation case with detailed information.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="case-name">Case Name</Label>
+                    <Input
+                      id="case-name"
+                      value={createData.name}
+                      onChange={(e) => setCreateData({ ...createData, name: e.target.value })}
+                      placeholder="Enter case name"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={createData.description}
+                      onChange={(e) => setCreateData({ ...createData, description: e.target.value })}
+                      placeholder="Enter case description"
+                      rows={4}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="investigator">Investigator</Label>
+                    <Input
+                      id="investigator"
+                      value={createData.investigator}
+                      onChange={(e) => setCreateData({ ...createData, investigator: e.target.value })}
+                      placeholder="Enter investigator name"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Status</Label>
+                      <Select
+                        value={createData.status}
+                        onValueChange={(value) => setCreateData({ ...createData, status: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="open">Open</SelectItem>
+                          <SelectItem value="analyzing">Analyzing</SelectItem>
+                          <SelectItem value="closed">Closed</SelectItem>
+                          <SelectItem value="suspended">Suspended</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <div className="text-left">
-                      <div className="font-semibold">Create New Case</div>
-                      <div className="text-sm text-slate-300">Start investigation</div>
+
+                    <div className="space-y-2">
+                      <Label>Priority</Label>
+                      <Select
+                        value={createData.priority}
+                        onValueChange={(value) => setCreateData({ ...createData, priority: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="critical">Critical</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
-                </button>
-              </div>
-            </div>
 
-            {error && (
-              <div className="glass-strong rounded-2xl p-6 border border-red-500/20 bg-red-500/10 animate-fade-in">
-                <div className="flex items-center gap-3 text-red-300">
-                  <AlertCircle className="w-5 h-5" />
+                  <div className="space-y-2">
+                    <Label>Tags</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyPress={(e) => e.key === "Enter" && addTag()}
+                        placeholder="Add tag"
+                        className="flex-1"
+                      />
+                      <Button type="button" onClick={addTag} variant="outline">
+                        <Tag className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {createData.tags.map((tag, index) => (
+                        <Badge key={index} variant="secondary" className="gap-1">
+                          {tag.toUpperCase()}
+                          <button onClick={() => removeTag(tag)} className="ml-1 hover:text-destructive">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-2 mt-6">
+                  <Button variant="outline" onClick={() => setShowCreateForm(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={createCase}
+                    disabled={!createData.name || !createData.investigator}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    Create Case
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {error && (
+            <Card className="border-destructive/50 bg-destructive/10">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 text-destructive">
+                  <AlertCircle className="w-4 h-4" />
                   {error}
                 </div>
-              </div>
-            )}
+              </CardContent>
+            </Card>
+          )}
 
-            {showCreateForm && (
-              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                <div className="glass-strong rounded-3xl p-8 w-full max-w-2xl shadow-2xl border border-white/20 animate-scale-in">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-white">Create New Case</h2>
-                    <button
-                      onClick={() => setShowCreateForm(false)}
-                      className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-300 mb-2">Case Name</label>
-                      <input
-                        type="text"
-                        value={createData.name}
-                        onChange={(e) => setCreateData({ ...createData, name: e.target.value })}
-                        className="w-full px-4 py-3 glass-subtle rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-white placeholder-slate-400"
-                        placeholder="Enter case name"
-                      />
+          {loading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-2">
+                          <Skeleton className="h-6 w-64" />
+                          <Skeleton className="h-4 w-32" />
+                        </div>
+                        <div className="flex gap-2">
+                          <Skeleton className="h-6 w-16" />
+                          <Skeleton className="h-6 w-16" />
+                        </div>
+                      </div>
+                      <Skeleton className="h-4 w-full" />
+                      <div className="grid grid-cols-2 gap-4">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
                     </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-300 mb-2">Description</label>
-                      <textarea
-                        value={createData.description}
-                        onChange={(e) => setCreateData({ ...createData, description: e.target.value })}
-                        className="w-full px-4 py-3 glass-subtle rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-white placeholder-slate-400"
-                        rows={4}
-                        placeholder="Enter case description"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-300 mb-2">Investigator</label>
-                      <input
-                        type="text"
-                        value={createData.investigator}
-                        onChange={(e) => setCreateData({ ...createData, investigator: e.target.value })}
-                        className="w-full px-4 py-3 glass-subtle rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-white placeholder-slate-400"
-                        placeholder="Enter investigator name"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-6">
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : cases.length === 0 ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No cases found</h3>
+                <p className="text-muted-foreground">Create your first case to get started</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {cases.map((caseItem) => (
+                <Card key={caseItem.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start mb-4">
                       <div>
-                        <label className="block text-sm font-semibold text-slate-300 mb-2">Status</label>
-                        <select
-                          value={createData.status}
-                          onChange={(e) => setCreateData({ ...createData, status: e.target.value })}
-                          className="w-full px-4 py-3 glass-subtle rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-white"
-                        >
-                          <option value="open">Open</option>
-                          <option value="analyzing">Analyzing</option>
-                          <option value="closed">Closed</option>
-                          <option value="suspended">Suspended</option>
-                        </select>
+                        <h3 className="text-xl font-semibold mb-1">{caseItem.name}</h3>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Hash className="w-4 h-4" />
+                          <span className="font-mono text-sm">Case #{caseItem.caseNumber}</span>
+                        </div>
                       </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-slate-300 mb-2">Priority</label>
-                        <select
-                          value={createData.priority}
-                          onChange={(e) => setCreateData({ ...createData, priority: e.target.value })}
-                          className="w-full px-4 py-3 glass-subtle rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-white"
+                      <div className="flex gap-2">
+                        <Badge
+                          variant={
+                            caseItem.status === "open"
+                              ? "default"
+                              : caseItem.status === "analyzing"
+                                ? "secondary"
+                                : caseItem.status === "closed"
+                                  ? "outline"
+                                  : "destructive"
+                          }
                         >
-                          <option value="low">Low</option>
-                          <option value="medium">Medium</option>
-                          <option value="high">High</option>
-                          <option value="critical">Critical</option>
-                        </select>
+                          {getStatusIcon(caseItem.status)}
+                          {caseItem.status.toUpperCase()}
+                        </Badge>
+                        <Badge
+                          variant={
+                            caseItem.priority === "critical"
+                              ? "destructive"
+                              : caseItem.priority === "high"
+                                ? "destructive"
+                                : caseItem.priority === "medium"
+                                  ? "secondary"
+                                  : "outline"
+                          }
+                        >
+                          {caseItem.priority.toUpperCase()}
+                        </Badge>
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-300 mb-2">Tags</label>
-                      <div className="flex gap-3 mb-3">
-                        <input
-                          type="text"
-                          value={tagInput}
-                          onChange={(e) => setTagInput(e.target.value)}
-                          onKeyPress={(e) => e.key === "Enter" && addTag()}
-                          className="flex-1 px-4 py-3 glass-subtle rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-white placeholder-slate-400"
-                          placeholder="Add tag"
-                        />
-                        <button
-                          type="button"
-                          onClick={addTag}
-                          className="px-6 py-3 glass-subtle text-white rounded-xl hover:bg-white/10 transition-colors font-medium"
-                        >
-                          <Tag className="w-4 h-4" />
-                        </button>
+                    <p className="text-muted-foreground mb-4">{caseItem.description}</p>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4 text-primary" />
+                        <div>
+                          <span className="font-medium">Investigator:</span>
+                          <p className="text-muted-foreground">{caseItem.investigator}</p>
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {createData.tags.map((tag, index) => (
-                          <span
-                            key={index}
-                            className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30"
-                          >
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-primary" />
+                        <div>
+                          <span className="font-medium">Evidence:</span>
+                          <p className="text-muted-foreground">{caseItem.evidenceCount} items</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-primary" />
+                        <div>
+                          <span className="font-medium">Created:</span>
+                          <p className="text-muted-foreground">{new Date(caseItem.createdAt).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-primary" />
+                        <div>
+                          <span className="font-medium">Updated:</span>
+                          <p className="text-muted-foreground">{new Date(caseItem.updatedAt).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {caseItem.tags && caseItem.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {caseItem.tags.map((tag, index) => (
+                          <Badge key={index} variant="outline">
                             {tag.toUpperCase()}
-                            <button
-                              onClick={() => removeTag(tag)}
-                              className="ml-2 text-purple-300 hover:text-purple-100"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </span>
+                          </Badge>
                         ))}
                       </div>
+                    )}
+
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" onClick={() => viewCaseDetails(caseItem)}>
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Details
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => deleteCase(caseItem.id)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </Button>
                     </div>
-                  </div>
-
-                  <div className="flex justify-end space-x-4 mt-8">
-                    <button
-                      onClick={() => setShowCreateForm(false)}
-                      className="px-6 py-3 text-slate-300 glass-subtle rounded-xl hover:bg-white/10 transition-colors font-medium"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={createCase}
-                      disabled={!createData.name || !createData.investigator}
-                      className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 disabled:from-slate-600 disabled:to-slate-700 transition-all duration-200 font-medium shadow-lg"
-                    >
-                      Create Case
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {loading ? (
-              <div className="flex h-64 items-center justify-center">
-                <div className="flex items-center space-x-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-                  <span className="text-white text-lg">Loading cases...</span>
-                </div>
-              </div>
-            ) : (
-              <div className="grid gap-6">
-                {cases.length === 0 ? (
-                  <div className="text-center py-16 glass-strong rounded-3xl border border-white/20">
-                    <FileText className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                    <p className="text-slate-300 text-xl font-medium">No cases found</p>
-                    <p className="text-slate-400 mt-2">Create your first case to get started</p>
-                  </div>
-                ) : (
-                  cases.map((caseItem, index) => (
-                    <div
-                      key={caseItem.id}
-                      className="group glass-strong rounded-3xl p-8 hover:scale-[1.02] transition-all duration-300 border border-white/20 animate-slide-up"
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <div className="flex justify-between items-start mb-6">
-                        <div>
-                          <h3 className="text-2xl font-bold text-white mb-2">{caseItem.name}</h3>
-                          <div className="flex items-center gap-2 text-slate-400">
-                            <Hash className="w-4 h-4" />
-                            <span className="font-mono text-sm">Case #{caseItem.caseNumber}</span>
-                          </div>
-                        </div>
-                        <div className="flex space-x-3">
-                          <span
-                            className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold border ${
-                              caseItem.status === "open"
-                                ? "bg-green-500/20 text-green-300 border-green-500/30"
-                                : caseItem.status === "analyzing"
-                                  ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
-                                  : caseItem.status === "closed"
-                                    ? "bg-gray-500/20 text-gray-300 border-gray-500/30"
-                                    : "bg-red-500/20 text-red-300 border-red-500/30"
-                            }`}
-                          >
-                            {getStatusIcon(caseItem.status)}
-                            {caseItem.status.toUpperCase()}
-                          </span>
-                          <span
-                            className={`inline-flex items-center px-3 py-2 rounded-full text-sm font-semibold border ${
-                              caseItem.priority === "critical"
-                                ? "bg-red-500/20 text-red-300 border-red-500/30"
-                                : caseItem.priority === "high"
-                                  ? "bg-orange-500/20 text-orange-300 border-orange-500/30"
-                                  : caseItem.priority === "medium"
-                                    ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
-                                    : "bg-green-500/20 text-green-300 border-green-500/30"
-                            }`}
-                          >
-                            {caseItem.priority.toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-
-                      <p className="text-slate-300 mb-6 text-lg leading-relaxed">{caseItem.description}</p>
-
-                      <div className="grid grid-cols-2 gap-6 text-slate-300 mb-6">
-                        <div className="flex items-center gap-3">
-                          <User className="w-5 h-5 text-purple-400" />
-                          <div>
-                            <span className="font-semibold text-slate-200">Investigator:</span>
-                            <p className="text-slate-300">{caseItem.investigator}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-blue-400" />
-                          <div>
-                            <span className="font-semibold text-slate-200">Evidence:</span>
-                            <p className="text-slate-300">{caseItem.evidenceCount} items</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Calendar className="w-5 h-5 text-purple-400" />
-                          <div>
-                            <span className="font-semibold text-slate-200">Created:</span>
-                            <p className="text-slate-300">{new Date(caseItem.createdAt).toLocaleDateString()}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Clock className="w-5 h-5 text-blue-400" />
-                          <div>
-                            <span className="font-semibold text-slate-200">Updated:</span>
-                            <p className="text-slate-300">{new Date(caseItem.updatedAt).toLocaleDateString()}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {caseItem.tags && caseItem.tags.length > 0 && (
-                        <div className="mb-6">
-                          <div className="flex flex-wrap gap-2">
-                            {caseItem.tags.map((tag, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-slate-500/20 text-slate-300 border border-slate-500/30"
-                              >
-                                {tag.toUpperCase()}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex justify-end space-x-4">
-                        <button
-                          onClick={() => viewCaseDetails(caseItem)}
-                          className="group flex items-center gap-2 px-6 py-3 glass-subtle text-white rounded-xl hover:bg-white/10 transition-all duration-200 font-medium"
-                        >
-                          <Eye className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                          View Details
-                        </button>
-                        <button
-                          onClick={() => deleteCase(caseItem.id)}
-                          className="group flex items-center gap-2 px-6 py-3 glass-subtle text-red-300 rounded-xl hover:bg-red-500/10 transition-all duration-200 font-medium"
-                        >
-                          <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
 
+        {/* Case Details Dialog */}
         {showCaseDetails && selectedCase && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="glass-strong rounded-3xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-white/20 animate-scale-in">
-              <div className="sticky top-0 glass-strong border-b border-white/20 px-8 py-6 flex items-center justify-between rounded-t-3xl">
-                <h2 className="text-2xl font-bold text-white">Case Details - {selectedCase.caseNumber}</h2>
-                <button
-                  onClick={() => setShowCaseDetails(false)}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
+          <Dialog open={showCaseDetails} onOpenChange={setShowCaseDetails}>
+            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Case Details - {selectedCase.caseNumber}</DialogTitle>
+                <DialogDescription>Detailed information and evidence for this case</DialogDescription>
+              </DialogHeader>
 
-              <div className="p-8">
+              <div className="space-y-6">
                 {/* Case Information */}
-                <div className="mb-8">
-                  <h3 className="text-xl font-bold text-white mb-6">Case Information</h3>
-                  <div className="glass-subtle rounded-2xl p-6 border border-white/10">
-                    <div className="grid grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Case Information</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <span className="text-sm font-semibold text-slate-400">Case Name:</span>
-                        <p className="text-white font-medium">{selectedCase.name}</p>
+                        <Label className="text-sm font-medium text-muted-foreground">Case Name:</Label>
+                        <p className="font-medium">{selectedCase.name}</p>
                       </div>
                       <div>
-                        <span className="text-sm font-semibold text-slate-400">Investigator:</span>
-                        <p className="text-white font-medium">{selectedCase.investigator}</p>
+                        <Label className="text-sm font-medium text-muted-foreground">Investigator:</Label>
+                        <p className="font-medium">{selectedCase.investigator}</p>
                       </div>
                       <div>
-                        <span className="text-sm font-semibold text-slate-400">Status:</span>
-                        <span
-                          className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold border ${
+                        <Label className="text-sm font-medium text-muted-foreground">Status:</Label>
+                        <Badge
+                          variant={
                             selectedCase.status === "open"
-                              ? "bg-green-500/20 text-green-300 border-green-500/30"
+                              ? "default"
                               : selectedCase.status === "analyzing"
-                                ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
+                                ? "secondary"
                                 : selectedCase.status === "closed"
-                                  ? "bg-gray-500/20 text-gray-300 border-gray-500/30"
-                                  : "bg-red-500/20 text-red-300 border-red-500/30"
-                          }`}
+                                  ? "outline"
+                                  : "destructive"
+                          }
                         >
                           {getStatusIcon(selectedCase.status)}
                           {selectedCase.status.toUpperCase()}
-                        </span>
+                        </Badge>
                       </div>
                       <div>
-                        <span className="text-sm font-semibold text-slate-400">Priority:</span>
-                        <span
-                          className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold border ${
+                        <Label className="text-sm font-medium text-muted-foreground">Priority:</Label>
+                        <Badge
+                          variant={
                             selectedCase.priority === "critical"
-                              ? "bg-red-500/20 text-red-300 border-red-500/30"
+                              ? "destructive"
                               : selectedCase.priority === "high"
-                                ? "bg-orange-500/20 text-orange-300 border-orange-500/30"
+                                ? "destructive"
                                 : selectedCase.priority === "medium"
-                                  ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
-                                  : "bg-green-500/20 text-green-300 border-green-500/30"
-                          }`}
+                                  ? "secondary"
+                                  : "outline"
+                          }
                         >
                           {selectedCase.priority.toUpperCase()}
-                        </span>
+                        </Badge>
                       </div>
                       <div className="col-span-2">
-                        <span className="text-sm font-semibold text-slate-400">Description:</span>
-                        <p className="text-white mt-1">{selectedCase.description}</p>
+                        <Label className="text-sm font-medium text-muted-foreground">Description:</Label>
+                        <p className="mt-1">{selectedCase.description}</p>
                       </div>
                       <div>
-                        <span className="text-sm font-semibold text-slate-400">Created:</span>
-                        <p className="text-white">{new Date(selectedCase.createdAt).toLocaleDateString()}</p>
+                        <Label className="text-sm font-medium text-muted-foreground">Created:</Label>
+                        <p>{new Date(selectedCase.createdAt).toLocaleDateString()}</p>
                       </div>
                       <div>
-                        <span className="text-sm font-semibold text-slate-400">Evidence Count:</span>
-                        <p className="text-white">{caseEvidence.length}</p>
+                        <Label className="text-sm font-medium text-muted-foreground">Evidence Count:</Label>
+                        <p>{caseEvidence.length}</p>
                       </div>
                     </div>
                     {selectedCase.tags && selectedCase.tags.length > 0 && (
-                      <div className="mt-6">
-                        <span className="text-sm font-semibold text-slate-400">Tags:</span>
+                      <div className="mt-4">
+                        <Label className="text-sm font-medium text-muted-foreground">Tags:</Label>
                         <div className="flex flex-wrap gap-2 mt-2">
                           {selectedCase.tags.map((tag, index) => (
-                            <span
-                              key={index}
-                              className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30"
-                            >
+                            <Badge key={index} variant="secondary">
                               {tag.toUpperCase()}
-                            </span>
+                            </Badge>
                           ))}
                         </div>
                       </div>
                     )}
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
                 {/* Evidence List */}
-                <div className="mb-8">
-                  <h3 className="text-xl font-bold text-white mb-6">Evidence ({caseEvidence.length})</h3>
-                  {caseEvidence.length === 0 ? (
-                    <div className="text-center py-12">
-                      <FileText className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                      <p className="text-slate-300 text-lg">No evidence found for this case</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {caseEvidence.map((evidence) => (
-                        <div
-                          key={evidence.id}
-                          className="glass-subtle rounded-2xl p-6 hover:bg-white/5 transition-all duration-200 border border-white/10"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-4 mb-3">
-                                <h4 className="font-semibold text-white">{evidence.filename}</h4>
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-500/20 text-green-300 border border-green-500/30">
-                                  {evidence.analysisStatus.toUpperCase()}
-                                </span>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Evidence ({caseEvidence.length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {caseEvidence.length === 0 ? (
+                      <div className="text-center py-8">
+                        <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">No evidence found for this case</p>
+                      </div>
+                    ) : (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Filename</TableHead>
+                            <TableHead>Size</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Verdict</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {caseEvidence.map((evidence) => (
+                            <TableRow key={evidence.id}>
+                              <TableCell className="font-medium">{evidence.filename}</TableCell>
+                              <TableCell>{(evidence.fileSize / 1024).toFixed(1)} KB</TableCell>
+                              <TableCell>{evidence.mimeType}</TableCell>
+                              <TableCell>
+                                <Badge variant="secondary">{evidence.analysisStatus.toUpperCase()}</Badge>
+                              </TableCell>
+                              <TableCell>
                                 {evidence.verdict && (
-                                  <span
-                                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${
+                                  <Badge
+                                    variant={
                                       evidence.verdict === "clean"
-                                        ? "bg-green-500/20 text-green-300 border-green-500/30"
+                                        ? "default"
                                         : evidence.verdict === "suspicious"
-                                          ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
+                                          ? "secondary"
                                           : evidence.verdict === "malicious"
-                                            ? "bg-red-500/20 text-red-300 border-red-500/30"
-                                            : "bg-gray-500/20 text-gray-300 border-gray-500/30"
-                                    }`}
+                                            ? "destructive"
+                                            : "outline"
+                                    }
                                   >
                                     {evidence.verdict.toUpperCase()}
-                                  </span>
+                                  </Badge>
                                 )}
-                              </div>
-                              <div className="flex items-center gap-6 text-sm text-slate-400 mb-3">
-                                {evidence.fileSize && (
-                                  <div className="flex items-center gap-2">
-                                    <FileText className="w-4 h-4" />
-                                    <span>{(evidence.fileSize / 1024).toFixed(1)} KB</span>
-                                  </div>
-                                )}
-                                {evidence.mimeType && evidence.mimeType !== "unknown" && (
-                                  <div className="flex items-center gap-2">
-                                    <Tag className="w-4 h-4" />
-                                    <span>{evidence.mimeType}</span>
-                                  </div>
-                                )}
-                                <div className="flex items-center gap-2">
-                                  <Calendar className="w-4 h-4" />
-                                  <span>{new Date(evidence.uploadedAt).toLocaleDateString()}</span>
-                                </div>
-                              </div>
-                              <p className="text-xs text-slate-400 font-mono glass-subtle p-3 rounded-lg border border-white/10">
-                                SHA256: {evidence.sha256Hash}
-                              </p>
-                            </div>
-                            <div className="ml-6">
-                              <button
-                                onClick={() => {
-                                  setShowCaseDetails(false)
-                                  window.location.href = "/analysis"
-                                }}
-                                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg"
-                              >
-                                View Report
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex justify-end gap-4">
-                  <button
-                    onClick={() => setShowCaseDetails(false)}
-                    className="bg-gradient-to-r from-slate-600 to-slate-700 text-white px-8 py-3 rounded-xl font-semibold hover:from-slate-700 hover:to-slate-800 transition-all duration-200 shadow-lg"
-                  >
-                    Close
-                  </button>
-                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  size="sm"
+                                  onClick={() => {
+                                    setShowCaseDetails(false)
+                                    window.location.href = "/analysis"
+                                  }}
+                                >
+                                  View Report
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
-            </div>
-          </div>
+            </DialogContent>
+          </Dialog>
         )}
       </DashboardLayout>
     </AuthGuard>

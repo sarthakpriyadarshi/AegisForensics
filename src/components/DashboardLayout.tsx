@@ -144,8 +144,8 @@ export default function DashboardLayout({ children }: LayoutProps) {
   }, [pathname])
 
   const handleLogout = () => {
+    window.location.href = "/auth/logout"
     localStorage.removeItem("aegis_token")
-    window.location.href = "/auth/login"
   }
 
   const SidebarContent = () => (
