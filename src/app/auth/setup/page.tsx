@@ -1,9 +1,18 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { ArrowRight, ArrowLeft, Loader2, XCircle, User, Upload, CheckCircle } from "lucide-react"
 
 interface SetupFormData {
   full_name: string
@@ -30,11 +39,18 @@ export default function AdminSetupPage() {
 
   const timezones = ["UTC", "EST", "CST", "MST", "PST", "GMT", "CET", "JST", "AEST", "IST"]
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+    }))
+  }
+
+  const handleTimezoneChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      timezone: value,
     }))
   }
 
@@ -148,161 +164,140 @@ export default function AdminSetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-float"></div>
-        <div
-          className="absolute top-1/2 -left-40 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-float"
-          style={{ animationDelay: "2s" }}
-        ></div>
-        <div
-          className="absolute -bottom-40 right-1/3 w-72 h-72 bg-cyan-500/20 rounded-full blur-3xl animate-float"
-          style={{ animationDelay: "4s" }}
-        ></div>
-      </div>
-
-      <div className="min-h-screen flex items-center justify-center p-6 relative z-10">
-        <div className="max-w-lg w-full space-y-8">
-          <div className="text-center animate-slide-up">
-            <div className="flex justify-center items-center mb-8">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl animate-glow">
-                <span className="text-3xl font-bold text-white">A</span>
-              </div>
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="max-w-lg w-full space-y-8">
+        <div className="text-center">
+          <div className="flex justify-center items-center mb-6">
+            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center p-3">
+              <Image src="/favicon.svg" alt="Aegis Forensics Logo" width={40} height={40} className="w-10 h-10" />
             </div>
-            <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-sm text-purple-200 mb-6">
-              <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
-              Initial Setup Required
-            </div>
-            <h2 className="text-4xl font-bold text-white mb-4 text-balance">Setup Admin Account</h2>
-            <p className="text-xl text-slate-300 text-pretty">
-              Create the first admin user for Aegis Forensics platform
-            </p>
           </div>
+          <Badge variant="outline" className="mb-4 border-primary/20 text-primary">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Initial Setup Required
+          </Badge>
+          <h2 className="text-3xl font-bold text-foreground mb-2 text-balance">Setup Admin Account</h2>
+          <p className="text-lg text-muted-foreground text-pretty">
+            Create the first admin user for Aegis Forensics platform
+          </p>
+        </div>
 
-          <div className="glass-strong rounded-3xl p-10 shadow-2xl animate-scale-in">
+        <Card className="border-border bg-card">
+          <CardHeader>
+            <CardTitle className="text-xl">Administrator Setup</CardTitle>
+            <CardDescription>Configure your admin account to get started</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Avatar Upload */}
               <div className="flex flex-col items-center space-y-4">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-purple-500/20 to-blue-500/20 border-2 border-white/20 flex items-center justify-center backdrop-blur-sm">
-                  {avatar ? (
-                    <img src={avatar || "/placeholder.svg"} alt="Avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <svg className="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                  )}
-                </div>
-                <label className="cursor-pointer text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors">
-                  <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
-                  Upload Avatar (Optional)
-                </label>
+                <Avatar className="w-20 h-20">
+                  <AvatarImage src={avatar || "/placeholder.svg"} alt="Avatar" />
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    <User className="w-8 h-8" />
+                  </AvatarFallback>
+                </Avatar>
+                <Label htmlFor="avatar-upload" className="cursor-pointer">
+                  <div className="flex items-center space-x-2 text-primary hover:text-primary/80 transition-colors">
+                    <Upload className="w-4 h-4" />
+                    <span className="text-sm font-medium">Upload Avatar (Optional)</span>
+                  </div>
+                  <Input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                  />
+                </Label>
               </div>
 
               {/* Form Fields */}
-              <div className="grid grid-cols-1 gap-6">
-                <div>
-                  <label htmlFor="full_name" className="block text-sm font-semibold text-white mb-3">
-                    Full Name
-                  </label>
-                  <input
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="full_name">Full Name</Label>
+                  <Input
                     id="full_name"
                     name="full_name"
                     type="text"
                     required
                     value={formData.full_name}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-4 border border-white/20 rounded-2xl bg-white/10 backdrop-blur-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/50 transition-all duration-300"
                     placeholder="Enter your full name"
+                    className="bg-background border-border"
                   />
                 </div>
 
-                <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-white mb-3">
-                    Email Address
-                  </label>
-                  <input
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
                     id="email"
                     name="email"
                     type="email"
                     required
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-4 border border-white/20 rounded-2xl bg-white/10 backdrop-blur-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/50 transition-all duration-300"
                     placeholder="admin@company.com"
+                    className="bg-background border-border"
                   />
                 </div>
 
-                <div>
-                  <label htmlFor="organization" className="block text-sm font-semibold text-white mb-3">
-                    Organization
-                  </label>
-                  <input
+                <div className="space-y-2">
+                  <Label htmlFor="organization">Organization</Label>
+                  <Input
                     id="organization"
                     name="organization"
                     type="text"
                     required
                     value={formData.organization}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-4 border border-white/20 rounded-2xl bg-white/10 backdrop-blur-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/50 transition-all duration-300"
                     placeholder="Your organization name"
+                    className="bg-background border-border"
                   />
                 </div>
 
-                <div>
-                  <label htmlFor="timezone" className="block text-sm font-semibold text-white mb-3">
-                    Timezone
-                  </label>
-                  <select
-                    id="timezone"
-                    name="timezone"
-                    value={formData.timezone}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-4 border border-white/20 rounded-2xl bg-white/10 backdrop-blur-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/50 transition-all duration-300"
-                  >
-                    {timezones.map((tz) => (
-                      <option key={tz} value={tz} className="bg-slate-800">
-                        {tz}
-                      </option>
-                    ))}
-                  </select>
+                <div className="space-y-2">
+                  <Label htmlFor="timezone">Timezone</Label>
+                  <Select value={formData.timezone} onValueChange={handleTimezoneChange}>
+                    <SelectTrigger className="bg-background border-border">
+                      <SelectValue placeholder="Select timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timezones.map((tz) => (
+                        <SelectItem key={tz} value={tz}>
+                          {tz}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="password" className="block text-sm font-semibold text-white mb-3">
-                      Password
-                    </label>
-                    <input
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
                       id="password"
                       name="password"
                       type="password"
                       required
                       value={formData.password}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-4 border border-white/20 rounded-2xl bg-white/10 backdrop-blur-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/50 transition-all duration-300"
                       placeholder="Minimum 8 characters"
+                      className="bg-background border-border"
                     />
                   </div>
 
-                  <div>
-                    <label htmlFor="confirmPassword" className="block text-sm font-semibold text-white mb-3">
-                      Confirm Password
-                    </label>
-                    <input
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Input
                       id="confirmPassword"
                       name="confirmPassword"
                       type="password"
                       required
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-4 border border-white/20 rounded-2xl bg-white/10 backdrop-blur-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/50 transition-all duration-300"
                       placeholder="Confirm password"
+                      className="bg-background border-border"
                     />
                   </div>
                 </div>
@@ -310,60 +305,40 @@ export default function AdminSetupPage() {
 
               {/* Error Message */}
               {error && (
-                <div className="bg-red-500/20 border border-red-500/30 backdrop-blur-sm text-red-300 px-6 py-4 rounded-2xl">
-                  {error}
-                </div>
+                <Alert variant="destructive">
+                  <XCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               )}
 
               {/* Submit Button */}
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="group w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 px-6 rounded-2xl text-lg font-semibold hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:ring-offset-2 focus:ring-offset-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-purple-500/25"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center justify-center space-x-3">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      <span>Setting up...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center space-x-2">
-                      <span>Create Admin Account</span>
-                      <svg
-                        className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 7l5 5m0 0l-5 5m5-5H6"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                </button>
-              </div>
+              <Button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90" size="lg">
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Setting up...
+                  </>
+                ) : (
+                  <>
+                    Create Admin Account
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
             </form>
 
             {/* Footer */}
-            <div className="mt-8 text-center space-y-3">
-              <p className="text-xs text-slate-400">Only one admin user is allowed per system</p>
-              <Link
-                href="/"
-                className="text-purple-400 hover:text-purple-300 text-sm font-medium inline-flex items-center space-x-2 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                <span>Back to Home</span>
-              </Link>
+            <div className="text-center space-y-3 pt-4 border-t border-border">
+              <p className="text-xs text-muted-foreground">Only one admin user is allowed per system</p>
+              <Button variant="ghost" asChild>
+                <Link href="/" className="text-muted-foreground hover:text-foreground">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Home
+                </Link>
+              </Button>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

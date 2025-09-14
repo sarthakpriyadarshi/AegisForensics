@@ -41,16 +41,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
         try:
             admin_exists = db.query(User).filter(User.is_admin == True).first() is not None
             
-            # If no admin exists, allow setup and dashboard endpoints
+            # If no admin exists, ONLY allow setup-admin endpoint (and always public ones)
             if not admin_exists:
-                setup_allowed_endpoints = [
-                    "/auth/setup-admin",
-                    "/auth/login", 
-                    "/api/dashboard/stats",
-                    "/api/dashboard/activity"
-                ]
-                
-                if any(path.startswith(endpoint) for endpoint in setup_allowed_endpoints):
+                if path == "/auth/setup-admin":
                     response = await call_next(request)
                     return response
                 else:

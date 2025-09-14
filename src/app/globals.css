@@ -1,96 +1,94 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 :root {
-  /* Updated to use the new gradient color scheme: #113320, #268d7c, #c2ffb4 */
-  /* Modern AI Platform Color Palette - Light Mode */
-  --background: #020617; /* Updated to dark slate background */
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Updated to use black and #3533cd color scheme */
+  --background: #000000; /* Pure black background */
+  --foreground: #ffffff; /* White text on black */
+  --card: #111111; /* Very dark gray for cards */
+  --card-foreground: #ffffff;
+  --popover: #111111;
+  --popover-foreground: #ffffff;
+  --primary: #3533cd; /* User's brand color */
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a1a; /* Dark gray for secondary elements */
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #a1a1aa; /* Light gray for muted text */
+  --accent: #3533cd; /* Brand color for accents */
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444; /* Red for destructive actions */
+  --destructive-foreground: #ffffff;
+  --border: #333333; /* Dark gray borders */
+  --input: #1a1a1a; /* Dark input backgrounds */
+  --ring: #3533cd; /* Brand color for focus rings */
+  --chart-1: #3533cd;
+  --chart-2: #6366f1;
+  --chart-3: #8b5cf6;
+  --chart-4: #a855f7;
+  --chart-5: #c084fc;
+  --radius: 0.75rem; /* Slightly larger radius for modern look */
+  --sidebar: #000000;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #3533cd;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1a1a1a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #333333;
+  --sidebar-ring: #3533cd;
 
-  /* New custom gradient colors - Updated to Purple/Blue Theme */
-  --color-primary-purple: #7c3aed;   /* purple-600 */
-  --color-secondary-blue: #3b82f6;   /* blue-500 */
-  --color-accent-purple: #a855f7;    /* purple-500 */
-  --color-dark-bg: #020617;          /* slate-950 */
-  --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #3b82f6 50%, #a855f7 100%);
-  --gradient-secondary: linear-gradient(45deg, #3b82f6 0%, #a855f7 100%);
-  --gradient-accent: linear-gradient(90deg, #7c3aed 0%, #3b82f6 100%);
-  --glass-bg: rgba(124, 58, 237, 0.15);
-  --glass-border: rgba(59, 130, 246, 0.3);
+  /* Updated custom colors for brand consistency */
+  --color-brand: #3533cd;
+  --color-brand-light: #4f46e5;
+  --color-brand-dark: #2d2a9e;
+  --gradient-primary: linear-gradient(135deg, #3533cd 0%, #4f46e5 100%);
+  --gradient-secondary: linear-gradient(45deg, #000000 0%, #1a1a1a 100%);
+  --glass-bg: rgba(53, 51, 205, 0.1);
+  --glass-border: rgba(53, 51, 205, 0.2);
 }
 
 .dark {
-  /* Updated dark mode colors to work with new gradient scheme */
-  --background: #0a0f0c;
-  --foreground: #c2ffb4;
-  --card: #113320;
-  --card-foreground: #c2ffb4;
-  --popover: #113320;
-  --popover-foreground: #c2ffb4;
-  --primary: #268d7c;
-  --primary-foreground: #113320;
-  --secondary: #1a2e20;
-  --secondary-foreground: #c2ffb4;
-  --muted: #1a2e20;
-  --muted-foreground: #7fb894;
-  --accent: #268d7c;
-  --accent-foreground: #113320;
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: #1a2e20;
-  --input: #1a2e20;
-  --ring: #268d7c;
-  --chart-1: #268d7c;
-  --chart-2: #c2ffb4;
-  --chart-3: #7fb894;
-  --chart-4: #4da373;
-  --chart-5: #1a2e20;
-  --sidebar: #0a0f0c;
-  --sidebar-foreground: #c2ffb4;
-  --sidebar-primary: #268d7c;
-  --sidebar-primary-foreground: #113320;
-  --sidebar-accent: #1a2e20;
-  --sidebar-accent-foreground: #c2ffb4;
-  --sidebar-border: #1a2e20;
-  --sidebar-ring: #268d7c;
+  /* Dark mode uses same colors since we're going with black theme */
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #111111;
+  --card-foreground: #ffffff;
+  --popover: #111111;
+  --popover-foreground: #ffffff;
+  --primary: #3533cd;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #a1a1aa;
+  --accent: #3533cd;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #333333;
+  --input: #1a1a1a;
+  --ring: #3533cd;
+  --chart-1: #3533cd;
+  --chart-2: #6366f1;
+  --chart-3: #8b5cf6;
+  --chart-4: #a855f7;
+  --chart-5: #c084fc;
+  --sidebar: #000000;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #3533cd;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1a1a1a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #333333;
+  --sidebar-ring: #3533cd;
 
-  /* Updated glass effects for dark mode */
-  --glass-bg: rgba(17, 51, 32, 0.2);
-  --glass-border: rgba(38, 141, 124, 0.4);
+  --glass-bg: rgba(53, 51, 205, 0.15);
+  --glass-border: rgba(53, 51, 205, 0.3);
 }
 
 @theme inline {
-  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
+  /* Added Montserrat font configuration */
+  --font-sans: var(--font-montserrat);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -134,14 +132,15 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
 }
 
+/* Updated body styles for black background and Montserrat */
 body {
-  background: #020617; /* Updated to dark slate background for purple/blue theme */
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: #000000;
+  color: #ffffff;
+  font-family: var(--font-montserrat), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   line-height: 1.6;
   font-feature-settings: "rlig" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
@@ -159,17 +158,17 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--muted-foreground);
+  background: #3533cd;
   border-radius: 3px;
-  opacity: 0.5;
+  opacity: 0.7;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
+  background: #4f46e5;
   opacity: 1;
 }
 
-/* Modern animations and effects */
+/* Updated animations to use brand colors */
 @keyframes float {
   0%,
   100% {
@@ -183,10 +182,10 @@ body {
 @keyframes glow {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 0 20px rgba(53, 51, 205, 0.3);
   }
   50% {
-    box-shadow: 0 0 40px rgba(168, 85, 247, 0.6), 0 0 60px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 40px rgba(53, 51, 205, 0.6), 0 0 60px rgba(79, 70, 229, 0.4);
   }
 }
 
@@ -233,7 +232,6 @@ body {
   }
 }
 
-/* Added new dynamic gradient animations */
 @keyframes dynamic-gradient {
   0% {
     background-position: 0% 50%;
@@ -280,10 +278,10 @@ body {
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 0 20px rgba(53, 51, 205, 0.3);
   }
   50% {
-    box-shadow: 0 0 40px rgba(168, 85, 247, 0.6), 0 0 60px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 40px rgba(53, 51, 205, 0.6), 0 0 60px rgba(79, 70, 229, 0.4);
   }
 }
 
@@ -291,44 +289,35 @@ body {
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
-
 .animate-glow {
   animation: glow 2s ease-in-out infinite alternate;
 }
-
 .animate-gradient {
   background-size: 200% 200%;
   animation: gradient-shift 3s ease infinite;
 }
-
 .animate-slide-up {
   animation: slide-up 0.6s ease-out;
 }
-
 .animate-fade-in {
   animation: fade-in 0.8s ease-out;
 }
-
 .animate-scale-in {
   animation: scale-in 0.5s ease-out;
 }
-
-/* New utility classes for dynamic backgrounds */
 .animate-dynamic-gradient {
   background: var(--gradient-primary);
   background-size: 200% 200%;
   animation: dynamic-gradient 8s ease-in-out infinite;
 }
-
 .animate-floating-orbs {
   animation: floating-orbs 12s ease-in-out infinite;
 }
-
 .animate-pulse-glow {
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
-/* Glass morphism effects */
+/* Updated glass morphism effects with brand colors */
 .glass {
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
@@ -337,36 +326,22 @@ body {
 }
 
 .glass-strong {
-  background: rgba(124, 58, 237, 0.15);
+  background: rgba(53, 51, 205, 0.15);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  border: 1px solid rgba(53, 51, 205, 0.3);
 }
 
 .glass-subtle {
-  background: rgba(124, 58, 237, 0.08);
+  background: rgba(53, 51, 205, 0.08);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(53, 51, 205, 0.2);
 }
 
 /* Gradient text utilities */
 .gradient-text {
   background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-text-secondary {
-  background: var(--gradient-secondary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-text-accent {
-  background: var(--gradient-accent);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -382,7 +357,7 @@ body {
 
 .btn-gradient:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 10px 25px rgba(53, 51, 205, 0.3);
 }
 
 .btn-glass {
@@ -394,7 +369,7 @@ body {
 }
 
 .btn-glass:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(53, 51, 205, 0.2);
   transform: translateY(-1px);
 }
 
@@ -405,14 +380,13 @@ body {
 
 .card-hover:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 40px rgba(53, 51, 205, 0.1);
 }
 
 /* Text balance for better typography */
 .text-balance {
   text-wrap: balance;
 }
-
 .text-pretty {
   text-wrap: pretty;
 }
@@ -439,15 +413,8 @@ body {
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   :root {
-    --border: #000000;
-    --ring: #000000;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --border: #ffffff;
-      --ring: #ffffff;
-    }
+    --border: #ffffff;
+    --ring: #ffffff;
   }
 }
 
