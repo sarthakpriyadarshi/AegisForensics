@@ -1,10 +1,19 @@
 "use client"
 
 import type React from "react"
+import { formatDate } from "@/utils/dateUtils" // Declare the formatDate variable
 
 import DashboardLayout from "@/components/DashboardLayout"
 import { useState, useRef, useEffect } from "react"
 import { AuthGuard } from "../../components/AuthGuard"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-
+import { Upload, FileText, AlertCircle, CheckCircle, Clock, Shield, Eye, RefreshCw } from "lucide-react"
 
 interface UploadAnalysisResult {
   verdict: string
@@ -162,24 +171,24 @@ const AnalysisPage: React.FC = () => {
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-    const [alertDialog, setAlertDialog] = useState<{
+  const [alertDialog, setAlertDialog] = useState<{
     isOpen: boolean
     title: string
     description: string
-    type: 'success' | 'error' | 'warning'
+    type: "success" | "error" | "warning"
   }>({
     isOpen: false,
-    title: '',
-    description: '',
-    type: 'error'
+    title: "",
+    description: "",
+    type: "error",
   })
 
-  const showAlert = (title: string, description: string, type: 'success' | 'error' | 'warning' = 'error') => {
+  const showAlert = (title: string, description: string, type: "success" | "error" | "warning" = "error") => {
     setAlertDialog({
       isOpen: true,
       title,
       description,
-      type
+      type,
     })
   }
 
@@ -433,7 +442,7 @@ REPORT GENERATION:
   }
 
   // Function to view evidence details
-  const viewEvidenceDetails = (evidence: Evidence) => {
+  const viewEvidenceDetailsHandler = (evidence: Evidence) => {
     setSelectedEvidence(evidence)
     setShowDetailModal(true)
   }
@@ -473,46 +482,19 @@ REPORT GENERATION:
   }
 
   const handleFiles = async (files: FileList) => {
-    const file = files[0]
-    if (!file) return
-
-    const token = localStorage.getItem("aegis_token")
-    if (!token) {
-      showAlert("Authentication Required", "Please login to upload files", "warning")
-      window.location.href = "/auth/login"
-      return
-    }
-
     if (!selectedCaseId) {
-      showAlert("Case Selection Required", "Please select a case to associate this evidence with", "warning")
+      showAlert("No Case Selected", "Please select a case before uploading evidence.", "warning")
       return
     }
 
-    // Find the selected case for display
-    const selectedCase = cases.find((c) => c.id === selectedCaseId)
-    const caseNumber = selectedCase ? selectedCase.caseNumber : "Unknown"
-
-    // Create a new evidence entry for immediate feedback
-    const newEvidence: Evidence = {
-      id: Date.now(),
-      filename: file.name,
-      fileSize: file.size,
-      mimeType: file.type,
-      sha256Hash: "calculating...",
-      analysisStatus: "pending",
-      uploadedAt: new Date().toISOString(),
-      caseId: caseNumber,
-    }
-
-    setEvidence((prev) => [...prev, newEvidence])
+    const file = files[0]
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("case_id", selectedCaseId.toString())
 
     try {
-      const formData = new FormData()
-      formData.append("file", file)
-      formData.append("case_id", selectedCaseId.toString())
-      // Analysis type will be auto-detected by backend
-
-      const response = await fetch("http://localhost:8000/analyze/uploadfile/", {
+      const token = localStorage.getItem("aegis_token")
+      const response = await fetch("http://localhost:8000/api/upload-evidence", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -521,163 +503,186 @@ REPORT GENERATION:
       })
 
       if (response.ok) {
-        const result = await response.json()
-
-        console.log("File uploaded and analyzed successfully:", result)
-
-        // Display detailed analysis results if available
-        if (result.analysis) {
-          const analysis = result.analysis as UploadAnalysisResult
-          let alertMessage = `Analysis Complete!\n\n`
-          alertMessage += `Verdict: ${analysis.verdict}\n`
-          alertMessage += `Severity: ${analysis.severity}\n`
-          alertMessage += `Confidence: ${analysis.confidence}\n\n`
-          alertMessage += `Summary: ${analysis.summary}\n\n`
-
-          if (analysis.findings && analysis.findings.length > 0) {
-            alertMessage += `Key Findings:\n`
-            analysis.findings.forEach((finding, index: number) => {
-              alertMessage += `${index + 1}. ${finding.category}: ${finding.description}\n`
-            })
-            alertMessage += `\n`
-          }
-
-          if (analysis.recommendations && analysis.recommendations.length > 0) {
-            alertMessage += `Recommendations:\n`
-            analysis.recommendations.forEach((rec: string, index: number) => {
-              alertMessage += `${index + 1}. ${rec}\n`
-            })
-          }
-
-          showAlert("Analysis Complete", alertMessage, "success")
-        } else {
-          showAlert("Upload Successful", "File uploaded and analysis completed successfully!", "success")
-        }
-
-        // Refresh the evidence list to get the latest data
-        await fetchEvidenceResults()
-      } else if (response.status === 401) {
-        localStorage.removeItem("aegis_token")
-        window.location.href = "/auth/login"
+        const result: UploadAnalysisResponse = await response.json()
+        showAlert("Upload Successful", `File "${file.name}" uploaded and analysis started.`, "success")
+        await loadEvidence()
       } else {
         const errorData = await response.json()
-        setEvidence((prev) => prev.map((e) => (e.id === newEvidence.id ? { ...e, analysisStatus: "failed" } : e)))
-        showAlert("Upload Failed", errorData.detail || "Unknown error occurred", "error")
+        showAlert("Upload Failed", errorData.message || "Failed to upload file", "error")
       }
     } catch (error) {
       console.error("Upload error:", error)
-      setEvidence((prev) => prev.map((e) => (e.id === newEvidence.id ? { ...e, analysisStatus: "failed" } : e)))
-      showAlert("Upload Failed", "Upload failed. Please check your connection and try again.", "error")
+      showAlert("Upload Error", "An error occurred while uploading the file.", "error")
     }
   }
 
-  const onButtonClick = () => {
-    fileInputRef.current?.click()
+  const loadCases = async () => {
+    setLoadingCases(true)
+    try {
+      const token = localStorage.getItem("aegis_token")
+      const response = await fetch("http://localhost:8000/api/cases", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.status === "success") {
+          setCases(data.cases || [])
+        }
+      }
+    } catch (error) {
+      console.error("Error loading cases:", error)
+    } finally {
+      setLoadingCases(false)
+    }
   }
 
-  const formatFileSize = (bytes: number) => {
-    const sizes = ["Bytes", "KB", "MB", "GB"]
-    if (bytes === 0) return "0 Bytes"
-    const i = Math.floor(Math.log(bytes) / Math.log(1024))
-    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i]
+  const loadEvidence = async () => {
+    setLoadingEvidence(true)
+    try {
+      const token = localStorage.getItem("aegis_token")
+      const response = await fetch("http://localhost:8000/api/evidence-results", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.status === "success") {
+          const mappedEvidence = data.evidence_results.map((item: EvidenceAPIResponse) => ({
+            id: item.id,
+            filename: item.filename,
+            fileSize: item.file_size,
+            mimeType: item.file_type,
+            sha256Hash: item.file_hash,
+            analysisStatus: item.analysis_status === "completed" ? "completed" : "processing",
+            uploadedAt: item.collected_at,
+            caseId: item.case?.case_number || "Unknown",
+            case: item.case,
+            latest_verdict: item.latest_verdict,
+            latest_severity: item.latest_severity,
+            latest_confidence: item.latest_confidence,
+            analysis_results: item.analysis_results,
+            report_count: item.report_count,
+          }))
+          setEvidence(mappedEvidence)
+        }
+      }
+    } catch (error) {
+      console.error("Error loading evidence:", error)
+    } finally {
+      setLoadingEvidence(false)
+    }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
+  const getVerdictColor = (verdict?: string) => {
+    switch (verdict?.toLowerCase()) {
+      case "clean":
+        return "default"
+      case "suspicious":
+        return "secondary"
+      case "malicious":
+        return "destructive"
+      default:
+        return "outline"
+    }
   }
 
-  const getStatusColor = (status: string) => {
+  const getSeverityColor = (severity?: string) => {
+    switch (severity?.toLowerCase()) {
+      case "low":
+        return "outline"
+      case "medium":
+        return "secondary"
+      case "high":
+        return "destructive"
+      case "critical":
+        return "destructive"
+      default:
+        return "outline"
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-purple-100 text-purple-800 border-purple-200"
+        return <CheckCircle className="w-4 h-4" />
       case "processing":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
-      case "pending":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return <Clock className="w-4 h-4" />
       case "failed":
-        return "bg-red-100 text-red-800 border-red-200"
+        return <AlertCircle className="w-4 h-4" />
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return <Clock className="w-4 h-4" />
     }
   }
 
-  const getVerdictColor = (verdict: string) => {
-    switch (verdict) {
-      case "clean":
-        return "bg-purple-100 text-purple-800 border-purple-200"
-      case "suspicious":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
-      case "malicious":
-        return "bg-red-100 text-red-800 border-red-200"
-      case "unknown":
-        return "bg-gray-100 text-gray-800 border-gray-200"
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
-    }
-  }
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case "critical":
-        return "bg-red-100 text-red-800 border-red-200"
-      case "high":
-        return "bg-orange-100 text-orange-800 border-orange-200"
-      case "medium":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
-      case "low":
-        return "bg-blue-100 text-blue-800 border-blue-200"
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
-    }
-  }
+  useEffect(() => {
+    loadCases()
+    loadEvidence()
+  }, [])
 
   return (
     <AuthGuard>
-    <DashboardLayout>
-      <div className="space-y-8">
-        {/* Header */}
-        <div className="mb-8 animate-slide-up">
-          <div className="inline-flex items-center px-4 py-2 glass-subtle rounded-full text-sm text-purple-200 mb-6">
-            <span className="w-2 h-2 bg-purple-400 rounded-full mr-2 animate-pulse"></span>
-            AI-Powered Evidence Analysis Platform
-          </div>
-          <h1 className="text-4xl font-bold text-white mb-4 text-balance">Evidence Analysis</h1>
-          <p className="text-xl text-slate-300 text-pretty">
-            Upload forensic evidence and let our intelligent agents automatically detect file types and perform
-            comprehensive analysis with unprecedented accuracy.
-          </p>
-        </div>
-
-        {/* Upload Section */}
-        <div className="glass-strong rounded-3xl p-8 border border-white/20 shadow-2xl animate-scale-in">
-          <h2 className="text-2xl font-semibold text-white mb-8 flex items-center gap-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                />
-              </svg>
+      <DashboardLayout>
+        <div className="space-y-6">
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="outline" className="border-primary/20 text-primary">
+                  <Shield className="w-3 h-3 mr-1" />
+                  AI-Powered Evidence Analysis
+                </Badge>
+              </div>
+              <h1 className="text-3xl font-bold text-foreground">Evidence Analysis</h1>
+              <p className="text-lg text-muted-foreground">
+                Upload forensic evidence and let our intelligent agents automatically detect file types and perform
+                comprehensive analysis with unprecedented accuracy.
+              </p>
             </div>
-            Evidence Upload Center
-          </h2>
+            <Button onClick={loadEvidence} className="bg-primary hover:bg-primary/90">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+          </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            {/* File Upload Area */}
-            <div className="xl:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="w-5 h-5" />
+                Evidence Upload Center
+              </CardTitle>
+              <CardDescription>Select a case and upload evidence files for automated analysis</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Case Selection */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Select Case</label>
+                <Select
+                  value={selectedCaseId?.toString() || ""}
+                  onValueChange={(value) => setSelectedCaseId(Number(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a case for evidence upload" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cases.map((caseItem) => (
+                      <SelectItem key={caseItem.id} value={caseItem.id.toString()}>
+                        {caseItem.name} (#{caseItem.caseNumber})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* File Upload Area */}
               <div
-                className={`relative border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-500 ${
+                className={`relative border-2 border-dashed rounded-lg p-12 text-center transition-all duration-300 ${
                   dragActive
-                    ? "border-purple-400 bg-purple-500/20 scale-105 shadow-2xl"
-                    : "border-purple-500/50 hover:border-purple-400/70 hover:bg-purple-500/10"
+                    ? "border-primary bg-primary/10"
+                    : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50"
                 }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
@@ -691,817 +696,465 @@ REPORT GENERATION:
                   onChange={handleChange}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
-                <div className="space-y-8">
+                <div className="space-y-4">
                   <div className="flex justify-center">
-                    <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl animate-pulse">
-                      <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                        />
-                      </svg>
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Upload className="w-8 h-8 text-primary" />
                     </div>
                   </div>
                   <div>
-                    <p className="text-2xl font-semibold text-white mb-3">Drop Evidence Files Here</p>
-                    <p className="text-slate-300 leading-relaxed max-w-lg mx-auto">
-                      Supports all forensic file types: memory dumps, disk images, network captures, executables,
-                      documents, and more
+                    <h3 className="text-lg font-semibold mb-2">Drop files here or click to browse</h3>
+                    <p className="text-muted-foreground">
+                      Upload evidence files for automated analysis. Supported formats: All file types
                     </p>
                   </div>
-                  <div className="flex flex-wrap justify-center gap-3 text-sm">
-                    {["Memory Dumps", "Disk Images", "PCAP Files", "Executables", "Documents"].map((type) => (
-                      <span
-                        key={type}
-                        className="px-4 py-2 bg-purple-500/20 text-purple-300 rounded-xl border border-purple-500/30"
-                      >
-                        {type}
-                      </span>
-                    ))}
-                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={!selectedCaseId}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Select Files
+                  </Button>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <button
-                onClick={onButtonClick}
-                disabled={!selectedCaseId}
-                className={`w-full px-8 py-4 rounded-2xl font-semibold transition-all duration-300 ${
-                  selectedCaseId
-                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-xl hover:shadow-purple-500/25 transform hover:scale-105 border border-purple-500/30"
-                    : "bg-gray-600/50 text-gray-400 cursor-not-allowed border border-gray-500/30"
-                }`}
-              >
-                <div className="flex items-center justify-center gap-3">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Select Evidence Files
-                </div>
-              </button>
-              {!selectedCaseId && (
-                <p className="text-red-400 text-sm text-center bg-red-500/20 rounded-xl p-3 border border-red-400/30">
-                  ⚠️ Please select a case first to associate evidence
-                </p>
-              )}
-            </div>
+          <Tabs defaultValue="evidence" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-1">
+              <TabsTrigger value="evidence">Evidence Analysis Results</TabsTrigger>
+            </TabsList>
 
-            <div className="space-y-6">
-              {/* Case Selection */}
-              <div className="glass-subtle rounded-3xl p-8 border border-white/20 shadow-2xl">
-                <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2"
-                      />
-                    </svg>
-                  </div>
-                  Select Active Case
-                </h3>
-                {loadingCases ? (
-                  <div className="glass-subtle rounded-2xl p-6 border border-purple-400/30">
-                    <div className="flex items-center gap-3">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-400"></div>
-                      <p className="text-purple-200">Loading available cases...</p>
-                    </div>
-                  </div>
-                ) : cases.length > 0 ? (
-                  <div className="space-y-4">
-                    <select
-                      value={selectedCaseId || ""}
-                      onChange={(e) => setSelectedCaseId(e.target.value ? Number(e.target.value) : null)}
-                      className="w-full p-4 glass-subtle border border-purple-500/40 rounded-2xl text-white focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-300"
-                    >
-                      <option value="">Choose a case to associate evidence...</option>
-                      {cases.map((caseItem) => (
-                        <option key={caseItem.id} value={caseItem.id} className="bg-gray-900">
-                          {caseItem.caseNumber} - {caseItem.name} ({caseItem.status.toUpperCase()})
-                        </option>
+            <TabsContent value="evidence" className="space-y-6">
+              {loadingEvidence ? (
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="space-y-2">
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-4 w-3/4" />
+                        </div>
                       ))}
-                    </select>
-                    {selectedCaseId && (
-                      <div className="glass-subtle rounded-2xl p-6 border border-purple-400/30">
-                        {(() => {
-                          const selectedCase = cases.find((c) => c.id === selectedCaseId)
-                          return selectedCase ? (
-                            <div className="space-y-3">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
-                                  <svg
-                                    className="w-5 h-5 text-white"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : evidence.length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No evidence found</h3>
+                    <p className="text-muted-foreground">Upload your first evidence file to get started</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Evidence Analysis Results ({evidence.length})</CardTitle>
+                    <CardDescription>
+                      View and manage uploaded evidence with AI-powered analysis results
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Filename</TableHead>
+                            <TableHead>Case</TableHead>
+                            <TableHead>Size</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Verdict</TableHead>
+                            <TableHead>Severity</TableHead>
+                            <TableHead>Reports</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {evidence.map((item) => (
+                            <TableRow key={item.id}>
+                              <TableCell className="font-medium">
+                                <div className="flex items-center gap-2">
+                                  <FileText className="w-4 h-4 text-muted-foreground" />
+                                  <span className="truncate max-w-[200px]" title={item.filename}>
+                                    {item.filename}
+                                  </span>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm">
+                                  <div className="font-medium">{item.case?.name || "Unknown"}</div>
+                                  <div className="text-muted-foreground">#{item.case?.case_number || item.caseId}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>{(item.fileSize / 1024).toFixed(1)} KB</TableCell>
+                              <TableCell>
+                                <Badge variant="outline">{item.mimeType || "Unknown"}</Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge
+                                  variant={
+                                    item.analysisStatus === "completed"
+                                      ? "default"
+                                      : item.analysisStatus === "processing"
+                                        ? "secondary"
+                                        : "destructive"
+                                  }
+                                >
+                                  {getStatusIcon(item.analysisStatus)}
+                                  {item.analysisStatus.toUpperCase()}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                {item.latest_verdict && (
+                                  <Badge variant={getVerdictColor(item.latest_verdict)}>
+                                    {item.latest_verdict.toUpperCase()}
+                                  </Badge>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                {item.latest_severity && (
+                                  <Badge variant={getSeverityColor(item.latest_severity)}>
+                                    {item.latest_severity.toUpperCase()}
+                                  </Badge>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline">{item.report_count || 0} reports</Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex gap-2">
+                                  <Button size="sm" variant="outline" onClick={() => viewEvidenceDetailsHandler(item)}>
+                                    <Eye className="w-4 h-4 mr-1" />
+                                    View
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => generatePDFReport(item)}
+                                    disabled={!item.analysis_results || item.analysis_results.length === 0}
                                   >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
-                                  </svg>
+                                    <FileText className="w-4 h-4 mr-1" />
+                                    Report
+                                  </Button>
                                 </div>
-                                <div>
-                                  <p className="font-semibold text-white text-lg">{selectedCase.name}</p>
-                                  <p className="text-purple-200 text-sm">Case #{selectedCase.caseNumber}</p>
-                                </div>
-                              </div>
-                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div className="glass-subtle rounded-xl p-3">
-                                  <p className="text-purple-300 font-medium">Investigator</p>
-                                  <p className="text-white">{selectedCase.investigator}</p>
-                                </div>
-                                <div className="glass-subtle rounded-xl p-3">
-                                  <p className="text-purple-300 font-medium">Status & Priority</p>
-                                  <p className="text-white">
-                                    <span className="text-purple-300">{selectedCase.status.toUpperCase()}</span> |
-                                    <span className="text-orange-300 ml-1">{selectedCase.priority.toUpperCase()}</span>
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          ) : null
-                        })()}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="glass-subtle rounded-2xl p-6 border border-yellow-400/30 bg-yellow-500/10">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-yellow-500 rounded-xl flex items-center justify-center">
-                        <svg className="w-5 h-5 text-yellow-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                          />
-                        </svg>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {selectedEvidence && (
+          <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Evidence Analysis Details</DialogTitle>
+                <DialogDescription>Detailed analysis results for {selectedEvidence.filename}</DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-6">
+                {/* File Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>File Information</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Filename:</label>
+                        <p className="font-medium">{selectedEvidence.filename}</p>
                       </div>
                       <div>
-                        <p className="text-yellow-200 font-medium">No Cases Available</p>
-                        <p className="text-yellow-300 text-sm">
-                          <a href="/cases" className="text-purple-300 hover:text-purple-200 underline">
-                            Create a case first
-                          </a>{" "}
-                          to start evidence analysis
+                        <label className="text-sm font-medium text-muted-foreground">File Size:</label>
+                        <p>{(selectedEvidence.fileSize / 1024).toFixed(1)} KB</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">File Type:</label>
+                        <p>{selectedEvidence.mimeType || "Unknown"}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">SHA256 Hash:</label>
+                        <p className="font-mono text-xs break-all">{selectedEvidence.sha256Hash}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Upload Date:</label>
+                        <p>{new Date(selectedEvidence.uploadedAt).toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Case:</label>
+                        <p>
+                          {selectedEvidence.case?.name || "Unknown"} (#
+                          {selectedEvidence.case?.case_number || selectedEvidence.caseId})
                         </p>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  </CardContent>
+                </Card>
 
-              {/* AI-Powered Analysis Info */}
-              <div className="glass-subtle rounded-3xl p-8 border border-white/20 shadow-2xl">
-                <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                      />
-                    </svg>
-                  </div>
-                  Intelligent Analysis Engine
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-4 p-4 glass-subtle rounded-2xl border border-green-500/30 bg-green-500/10">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 10V3L4 14h7v7l9-11h-7z"
-                        />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-medium text-white mb-2">Auto-Detection Technology</p>
-                      <p className="text-slate-300 text-sm leading-relaxed">
-                        Our AI automatically identifies file types and selects the optimal analysis approach - memory
-                        dumps, disk images, network captures, executables, and documents are all handled intelligently.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4 p-4 glass-subtle rounded-2xl border border-purple-500/30 bg-purple-500/10">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-                        />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-medium text-white mb-2">Multi-Agent Forensics</p>
-                      <p className="text-slate-300 text-sm leading-relaxed">
-                        Specialized AI agents for memory analysis, disk forensics, network investigation, binary
-                        analysis, and behavioral assessment work together for comprehensive results.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                {/* Analysis Results */}
+                {selectedEvidence.analysis_results && selectedEvidence.analysis_results.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Analysis Reports ({selectedEvidence.analysis_results.length})</CardTitle>
+                      <CardDescription>
+                        Detailed analysis results from {selectedEvidence.analysis_results.length} different agents
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {selectedEvidence.analysis_results.map((report, index) => (
+                          <Card key={index}>
+                            <CardHeader>
+                              <CardTitle className="text-lg flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Shield className="w-5 h-5 text-primary" />
+                                  <span>{report.agent_name}</span>
+                                  <Badge variant="outline">{report.analysis_type}</Badge>
+                                </div>
+                                <div className="flex gap-2">
+                                  <Badge variant={getVerdictColor(report.verdict)}>
+                                    {report.verdict.toUpperCase()}
+                                  </Badge>
+                                  <Badge variant={getSeverityColor(report.severity)}>
+                                    {report.severity.toUpperCase()}
+                                  </Badge>
+                                </div>
+                              </CardTitle>
+                              <CardDescription>
+                                <div className="flex items-center gap-4 text-sm">
+                                  <span>Confidence: {report.confidence}%</span>
+                                  <span>Execution Time: {report.execution_time}s</span>
+                                  <span>Analysis Date: {formatDate(report.created_at)}</span>
+                                </div>
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-4">
+                                <div>
+                                  <h4 className="font-medium mb-2 flex items-center gap-2">
+                                    <FileText className="w-4 h-4" />
+                                    Summary
+                                  </h4>
+                                  <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                                    {report.summary}
+                                  </p>
+                                </div>
 
-        {/* Evidence Analysis Results */}
-        <div className="glass-strong rounded-3xl border border-white/20 shadow-2xl animate-fade-in">
-          <div className="px-8 py-6 border-b border-white/20 flex items-center justify-between">
-            <h2 className="text-2xl font-semibold text-white flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 17h6l-1-1V9l1-1H9l1 1v7l-1 1z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M22 12h.01M12 12h.01M2 12h.01M7 3h10l1 1v16l-1 1H7l-1-1V4l1-1z"
-                  />
-                </svg>
-              </div>
-              Analysis Results
-            </h2>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={fetchEvidenceResults}
-                disabled={loadingEvidence}
-                className="inline-flex items-center gap-3 px-6 py-3 text-sm font-medium text-purple-200 hover:text-white disabled:opacity-50 transition-all duration-300 border border-purple-500/30 rounded-2xl hover:bg-purple-600/20 glass-subtle"
-              >
-                {loadingEvidence ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-400"></div>
-                ) : (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
+                                {report.findings && report.findings.length > 0 && (
+                                  <div>
+                                    <h4 className="font-medium mb-2 flex items-center gap-2">
+                                      <AlertCircle className="w-4 h-4" />
+                                      Findings ({report.findings.length})
+                                    </h4>
+                                    <div className="space-y-2">
+                                      {report.findings.map((finding, findingIndex) => (
+                                        <div key={findingIndex} className="border rounded-lg p-3 bg-muted/30">
+                                          <div className="flex items-start justify-between mb-2">
+                                            <div className="flex-1">
+                                              <p className="font-medium text-sm mb-1">{finding.description}</p>
+                                              {finding.category && (
+                                                <p className="text-xs text-muted-foreground">
+                                                  Category: {finding.category}
+                                                </p>
+                                              )}
+                                            </div>
+                                            <div className="flex gap-2 ml-2">
+                                              <Badge variant={getSeverityColor(finding.severity)} size="sm">
+                                                {finding.severity.toUpperCase()}
+                                              </Badge>
+                                              {finding.confidence && (
+                                                <Badge variant="outline" size="sm">
+                                                  {finding.confidence}%
+                                                </Badge>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {report.technical_details && Object.keys(report.technical_details).length > 0 && (
+                                  <div>
+                                    <h4 className="font-medium mb-2 flex items-center gap-2">
+                                      <Shield className="w-4 h-4" />
+                                      Technical Details
+                                    </h4>
+                                    <div className="bg-muted/50 p-3 rounded-lg">
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {Object.entries(report.technical_details).map(([key, value]) => (
+                                          <div key={key} className="text-sm">
+                                            <span className="font-medium text-muted-foreground">{key}:</span>
+                                            <span className="ml-2 font-mono text-xs">
+                                              {typeof value === "object"
+                                                ? JSON.stringify(value, null, 2)
+                                                : String(value)}
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {report.recommendations && report.recommendations.length > 0 && (
+                                  <div>
+                                    <h4 className="font-medium mb-2 flex items-center gap-2">
+                                      <CheckCircle className="w-4 h-4" />
+                                      Recommendations ({report.recommendations.length})
+                                    </h4>
+                                    <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
+                                      <ul className="list-disc list-inside space-y-1 text-sm">
+                                        {report.recommendations.map((rec, recIndex) => (
+                                          <li key={recIndex} className="text-blue-800 dark:text-blue-200">
+                                            {typeof rec === "object" ? JSON.stringify(rec) : rec}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+
+                      <div className="mt-6 pt-4 border-t">
+                        <Button
+                          onClick={() => generatePDFReport(selectedEvidence)}
+                          className="w-full bg-primary hover:bg-primary/90"
+                        >
+                          <FileText className="w-4 h-4 mr-2" />
+                          Generate Comprehensive Report
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
-                Refresh Results
-              </button>
-              <div className="text-purple-200 text-sm glass-subtle px-4 py-2 rounded-xl border border-purple-400/30">
-                {evidence.length} total • {evidence.filter((e) => e.analysisStatus === "completed").length} analyzed
-              </div>
-            </div>
-          </div>
-          <div className="p-8">
-            {loadingEvidence && evidence.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-pulse">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <p className="text-purple-200 text-lg">Loading evidence results...</p>
-              </div>
-            ) : evidence.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="w-20 h-20 bg-gradient-to-br from-gray-600 to-gray-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                  <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-3">No Evidence Analysis Found</h3>
-                <p className="text-purple-200 mb-6 max-w-md mx-auto">
-                  Upload evidence files above to start AI-powered forensic analysis
-                </p>
-                <p className="text-sm text-purple-300">
-                  Results will appear here once files are uploaded and analyzed by our intelligent agents
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {evidence.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-gradient-to-r from-purple-900/30 to-indigo-900/20 backdrop-blur-sm border border-purple-500/30 rounded-2xl p-6 hover:bg-purple-500/10 transition-all duration-300"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-4 mb-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                              />
-                            </svg>
+
+                {selectedEvidence.analysisResults && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Overall Analysis Summary</CardTitle>
+                      <CardDescription>Aggregated results from all analysis agents</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div className="text-center p-3 bg-muted/50 rounded-lg">
+                          <div className="text-2xl font-bold mb-1">
+                            <Badge
+                              variant={getVerdictColor(selectedEvidence.analysisResults.verdict)}
+                              className="text-lg px-3 py-1"
+                            >
+                              {selectedEvidence.analysisResults.verdict.toUpperCase()}
+                            </Badge>
                           </div>
-                          <div>
-                            <h3 className="font-semibold text-white text-lg">{item.filename}</h3>
-                            <div className="flex items-center gap-3 mt-1">
-                              <span
-                                className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium border ${getStatusColor(item.analysisStatus)}`}
-                              >
-                                {item.analysisStatus.toUpperCase()}
-                              </span>
-                              {item.analysisResults && (
-                                <span
-                                  className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium border ${getVerdictColor(item.analysisResults.verdict)}`}
-                                >
-                                  {item.analysisResults.verdict.toUpperCase()}
-                                </span>
-                              )}
-                            </div>
-                          </div>
+                          <p className="text-sm text-muted-foreground">Overall Verdict</p>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-purple-200 mb-4">
-                          {item.fileSize && (
-                            <div className="flex items-center gap-2 bg-purple-600/20 rounded-xl p-3">
-                              <svg
-                                className="w-4 h-4 text-purple-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2"
-                                />
-                              </svg>
-                              <span>{formatFileSize(item.fileSize)}</span>
+                        <div className="text-center p-3 bg-muted/50 rounded-lg">
+                          <div className="text-2xl font-bold mb-1">
+                            <Badge
+                              variant={getSeverityColor(selectedEvidence.analysisResults.severity)}
+                              className="text-lg px-3 py-1"
+                            >
+                              {selectedEvidence.analysisResults.severity.toUpperCase()}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">Severity Level</p>
+                        </div>
+                        <div className="text-center p-3 bg-muted/50 rounded-lg">
+                          <div className="text-2xl font-bold mb-1">{selectedEvidence.analysisResults.confidence}%</div>
+                          <p className="text-sm text-muted-foreground">Confidence Score</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div>
+                          <h4 className="font-medium mb-2">Analysis Summary</h4>
+                          <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                            {selectedEvidence.analysisResults.summary}
+                          </p>
+                        </div>
+
+                        {selectedEvidence.analysisResults.findings &&
+                          selectedEvidence.analysisResults.findings.length > 0 && (
+                            <div>
+                              <h4 className="font-medium mb-2">
+                                Key Findings ({selectedEvidence.analysisResults.findings.length})
+                              </h4>
+                              <div className="space-y-2">
+                                {selectedEvidence.analysisResults.findings.map((finding, index) => (
+                                  <div key={index} className="border rounded-lg p-3 bg-muted/30">
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex-1">
+                                        <p className="font-medium text-sm mb-1">{finding.description}</p>
+                                        <p className="text-xs text-muted-foreground">Category: {finding.category}</p>
+                                      </div>
+                                      <Badge variant={getSeverityColor(finding.severity)} size="sm">
+                                        {finding.severity.toUpperCase()}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           )}
-                          <div className="flex items-center gap-2 bg-purple-600/20 rounded-xl p-3">
-                            <svg
-                              className="w-4 h-4 text-purple-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
-                            <span>{formatDate(item.uploadedAt)}</span>
-                          </div>
-                          <div className="flex items-center gap-2 bg-purple-600/20 rounded-xl p-3">
-                            <svg
-                              className="w-4 h-4 text-purple-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2"
-                              />
-                            </svg>
-                            <span>Case: {item.caseId}</span>
-                          </div>
-                          <div className="flex items-center gap-2 bg-purple-600/20 rounded-xl p-3">
-                            <svg
-                              className="w-4 h-4 text-purple-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                              />
-                            </svg>
-                            <span>{item.report_count || 0} Reports</span>
-                          </div>
-                        </div>
-                        <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-4 border border-purple-500/20">
-                          <p className="text-xs text-purple-300 font-mono break-all">SHA256: {item.sha256Hash}</p>
+
+                        <div className="text-sm text-muted-foreground">
+                          <span className="font-medium">Execution Time:</span>{" "}
+                          {selectedEvidence.analysisResults.executionTime}s
                         </div>
                       </div>
-                      <div className="flex gap-3 ml-6">
-                        <button
-                          onClick={() => viewEvidenceDetails(item)}
-                          className="px-6 py-3 text-sm font-medium transition-all duration-300 rounded-2xl bg-purple-600/20 text-purple-300 hover:text-white hover:bg-purple-600/30 border border-purple-500/30 flex items-center gap-2"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                          View Details
-                        </button>
-                        <button
-                          onClick={() => generatePDFReport(item)}
-                          className="px-6 py-3 text-sm font-medium transition-all duration-300 rounded-2xl bg-indigo-600/20 text-indigo-300 hover:text-white hover:bg-indigo-600/30 border border-indigo-500/30 flex items-center gap-2"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                          </svg>
-                          Generate Report
-                        </button>
-                      </div>
-                    </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
 
-                    {/* Analysis Summary */}
-                    <div className="mt-6 pt-6 border-t border-purple-500/30">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-white mb-3 flex items-center gap-2">
-                            <svg
-                              className="w-5 h-5 text-purple-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                              />
-                            </svg>
-                            Analysis Summary
-                          </h4>
-                          <p className="text-purple-200 mb-4 leading-relaxed">
-                            {item.analysisResults?.summary ||
-                              "Analysis completed successfully with AI-powered detection"}
-                          </p>
-                          <div className="flex items-center gap-4 text-sm">
-                            <span
-                              className={`inline-flex items-center px-4 py-2 rounded-xl text-xs font-medium border ${getSeverityColor(item.analysisResults?.severity || "low")}`}
-                            >
-                              {(item.analysisResults?.severity || "low").toUpperCase()} SEVERITY
-                            </span>
-                            <span className="text-purple-300 bg-purple-600/20 px-4 py-2 rounded-xl border border-purple-400/30">
-                              {item.analysisResults?.confidence || 0}% confidence
-                            </span>
-                            <span className="text-purple-300 bg-indigo-600/20 px-4 py-2 rounded-xl border border-indigo-400/30">
-                              {item.report_count || 0} agent reports
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Analysis Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
-          <div className="glass-strong rounded-2xl p-6 border border-green-500/30 shadow-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-green-300 mb-1">Successfully Analyzed</p>
-                <p className="text-3xl font-bold text-white">
-                  {evidence.filter((e) => e.analysisStatus === "completed").length}
-                </p>
-                <p className="text-xs text-green-400 mt-1">Files processed</p>
-              </div>
-              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-400 rounded-2xl flex items-center justify-center">
-                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div className="glass-strong rounded-2xl p-6 border border-red-500/30 shadow-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-red-300 mb-1">Threats Detected</p>
-                <p className="text-3xl font-bold text-white">
-                  {evidence.filter((e) => e.analysisResults?.verdict === "malicious").length}
-                </p>
-                <p className="text-xs text-red-400 mt-1">Malicious files</p>
-              </div>
-              <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-orange-400 rounded-2xl flex items-center justify-center">
-                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div className="glass-strong rounded-2xl p-6 border border-yellow-500/30 shadow-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-yellow-300 mb-1">In Processing Queue</p>
-                <p className="text-3xl font-bold text-white">
-                  {evidence.filter((e) => e.analysisStatus === "pending" || e.analysisStatus === "processing").length}
-                </p>
-                <p className="text-xs text-yellow-400 mt-1">Awaiting analysis</p>
-              </div>
-              <div className="w-14 h-14 bg-gradient-to-br from-yellow-500 to-orange-400 rounded-2xl flex items-center justify-center">
-                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Detailed Evidence View Modal */}
-      {showDetailModal && selectedEvidence && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-purple-900/95 to-indigo-900/90 backdrop-blur-xl rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-purple-500/30">
-            <div className="sticky top-0 bg-gradient-to-r from-purple-900/95 to-indigo-900/90 backdrop-blur-xl border-b border-purple-500/30 px-8 py-6 flex items-center justify-between rounded-t-3xl">
-              <h2 className="text-2xl font-semibold text-white flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                </div>
-                Evidence Analysis Details
-              </h2>
-              <button
-                onClick={() => setShowDetailModal(false)}
-                className="text-purple-300 hover:text-white text-2xl transition-colors p-3 hover:bg-purple-600/20 rounded-2xl"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="p-8">
-              {/* Evidence Information */}
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
-                  <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </div>
-                  Evidence Information
-                </h3>
-                <div className="bg-purple-900/40 backdrop-blur-sm rounded-2xl p-6 space-y-4 border border-purple-500/30">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <p className="text-sm font-medium text-purple-300 mb-1">Filename</p>
-                      <p className="text-white font-medium">{selectedEvidence.filename}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-purple-300 mb-1">File Size</p>
-                      <p className="text-white">
-                        {selectedEvidence.fileSize ? formatFileSize(selectedEvidence.fileSize) : "Unknown"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-purple-300 mb-1">MIME Type</p>
-                      <p className="text-white">{selectedEvidence.mimeType || "Unknown"}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-purple-300 mb-1">Upload Date</p>
-                      <p className="text-white">{formatDate(selectedEvidence.uploadedAt)}</p>
-                    </div>
-                  </div>
-                  <div className="pt-4 border-t border-purple-500/30">
-                    <p className="text-sm font-medium text-purple-300 mb-2">SHA256 Hash</p>
-                    <p className="text-xs text-purple-200 font-mono bg-gray-900/50 p-3 rounded-xl border border-purple-500/20 break-all">
-                      {selectedEvidence.sha256Hash}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div>
-                      <p className="text-sm font-medium text-purple-300 mb-1">Analysis Status</p>
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium border ${getStatusColor(selectedEvidence.analysisStatus)}`}
-                      >
-                        {selectedEvidence.analysisStatus.toUpperCase()}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-purple-300 mb-1">Case ID</p>
-                      <p className="text-white">{selectedEvidence.caseId}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Analysis Summary */}
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
-                  <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                      />
-                    </svg>
-                  </div>
-                  Analysis Summary
-                </h3>
-                <div className="bg-purple-900/40 backdrop-blur-sm rounded-2xl p-6 space-y-4 border border-purple-500/30">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <p className="text-sm font-medium text-purple-300 mb-2">Verdict</p>
-                      <span
-                        className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium border ${getVerdictColor(selectedEvidence.analysisResults?.verdict || "unknown")}`}
-                      >
-                        {(selectedEvidence.analysisResults?.verdict || "unknown").toUpperCase()}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-purple-300 mb-2">Severity</p>
-                      <span
-                        className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium border ${getSeverityColor(selectedEvidence.analysisResults?.severity || "low")}`}
-                      >
-                        {(selectedEvidence.analysisResults?.severity || "low").toUpperCase()}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-purple-300 mb-2">Confidence</p>
-                      <p className="text-white text-lg font-semibold">
-                        {selectedEvidence.analysisResults?.confidence || 0}%
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-purple-300 mb-2">Summary</p>
-                    <p className="text-purple-200 leading-relaxed">
-                      {selectedEvidence.analysisResults?.summary || "Analysis completed successfully"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Detailed Agent Reports */}
-              {selectedEvidence.analysis_results && selectedEvidence.analysis_results.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
-                    <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2"
-                        />
-                      </svg>
-                    </div>
-                    Detailed Agent Reports ({selectedEvidence.analysis_results.length})
-                  </h3>
-                  <div className="space-y-4">
-                    {selectedEvidence.analysis_results.map((report) => (
-                      <div
-                        key={report.id}
-                        className="bg-indigo-900/40 backdrop-blur-sm rounded-2xl p-6 border border-indigo-500/30"
-                      >
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <h4 className="font-semibold text-white text-lg">{report.agent_name}</h4>
-                            <p className="text-sm text-indigo-300">Analysis Type: {report.analysis_type}</p>
-                            <p className="text-sm text-indigo-300">Execution Time: {report.execution_time || 0}s</p>
-                          </div>
-                          <div className="text-right">
-                            <span
-                              className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-medium border ${getVerdictColor(report.verdict)}`}
-                            >
-                              {report.verdict.toUpperCase()}
-                            </span>
-                            <p className="text-sm text-indigo-300 mt-1">{report.confidence || 0}% confidence</p>
-                          </div>
-                        </div>
-                        <div className="mb-4">
-                          <p className="text-sm font-medium text-indigo-300 mb-2">Summary</p>
-                          <p className="text-indigo-200 leading-relaxed">{report.summary}</p>
-                        </div>
-                        {report.findings && report.findings.length > 0 && (
-                          <div>
-                            <p className="text-sm font-medium text-indigo-300 mb-3">
-                              Findings ({report.findings.length})
-                            </p>
-                            <div className="space-y-2">
-                              {report.findings.map((finding, findingIndex) => (
-                                <div key={findingIndex} className="bg-purple-600/20 rounded-xl p-3">
-                                  <p className="text-sm text-white">{finding.description}</p>
-                                  <div className="flex items-center gap-2 mt-2">
-                                    <span
-                                      className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium border ${getSeverityColor(finding.severity)}`}
-                                    >
-                                      {finding.severity.toUpperCase()}
-                                    </span>
-                                    {finding.confidence && (
-                                      <span className="text-xs text-purple-300">{finding.confidence}% confidence</span>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-      <AlertDialog open={alertDialog.isOpen} onOpenChange={(open) => setAlertDialog(prev => ({ ...prev, isOpen: open }))}>
-          <AlertDialogContent className="glass-strong border border-white/20">
+        <AlertDialog
+          open={alertDialog.isOpen}
+          onOpenChange={(open) => setAlertDialog((prev) => ({ ...prev, isOpen: open }))}
+        >
+          <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle className={`text-lg font-semibold ${
-                alertDialog.type === 'success' ? 'text-green-400' :
-                alertDialog.type === 'warning' ? 'text-yellow-400' :
-                'text-red-400'
-              }`}>
+              <AlertDialogTitle
+                className={`flex items-center gap-2 ${
+                  alertDialog.type === "success"
+                    ? "text-green-600"
+                    : alertDialog.type === "warning"
+                      ? "text-yellow-600"
+                      : "text-red-600"
+                }`}
+              >
+                {alertDialog.type === "success" && <CheckCircle className="w-5 h-5" />}
+                {alertDialog.type === "warning" && <AlertCircle className="w-5 h-5" />}
+                {alertDialog.type === "error" && <AlertCircle className="w-5 h-5" />}
                 {alertDialog.title}
               </AlertDialogTitle>
-              <AlertDialogDescription className="text-slate-300">
-                {alertDialog.description}
-              </AlertDialogDescription>
+              <AlertDialogDescription>{alertDialog.description}</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogAction 
-                className={`${
-                  alertDialog.type === 'success' ? 'bg-green-600 hover:bg-black-700' :
-                  alertDialog.type === 'warning' ? 'bg-yellow-600 hover:bg-black-700' :
-                  'bg-red-600 hover:bg-black-700'
-                } text-white`}
-              >
-                OK
-              </AlertDialogAction>
+              <AlertDialogAction>OK</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-    </DashboardLayout>
+      </DashboardLayout>
     </AuthGuard>
   )
 }
+
 export default AnalysisPage

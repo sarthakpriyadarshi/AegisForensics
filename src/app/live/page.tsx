@@ -3,6 +3,15 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
+import { AuthGuard } from "@/components/AuthGuard"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Play, Square, Activity, Search, Filter, Wifi, AlertCircle, RefreshCw } from "lucide-react"
 
 interface LiveDataPoint {
   id: string
@@ -70,20 +79,20 @@ const LiveStreamingPage: React.FC = () => {
   // Helper functions
   const mapEventType = (type: string): "network" | "file" | "process" | "memory" | "registry" | "event" => {
     const lowerType = type.toLowerCase()
-    if (lowerType.includes('network')) return 'network'
-    if (lowerType.includes('file')) return 'file'
-    if (lowerType.includes('process')) return 'process'
-    if (lowerType.includes('memory')) return 'memory'
-    if (lowerType.includes('registry')) return 'registry'
-    return 'event'
+    if (lowerType.includes("network")) return "network"
+    if (lowerType.includes("file")) return "file"
+    if (lowerType.includes("process")) return "process"
+    if (lowerType.includes("memory")) return "memory"
+    if (lowerType.includes("registry")) return "registry"
+    return "event"
   }
 
   const mapSeverity = (severity: string): "low" | "medium" | "high" | "critical" => {
     const lowerSeverity = severity.toLowerCase()
-    if (lowerSeverity.includes('critical') || lowerSeverity.includes('error')) return 'critical'
-    if (lowerSeverity.includes('high') || lowerSeverity.includes('warn')) return 'high'
-    if (lowerSeverity.includes('low') || lowerSeverity.includes('debug')) return 'low'
-    return 'medium'
+    if (lowerSeverity.includes("critical") || lowerSeverity.includes("error")) return "critical"
+    if (lowerSeverity.includes("high") || lowerSeverity.includes("warn")) return "high"
+    if (lowerSeverity.includes("low") || lowerSeverity.includes("debug")) return "low"
+    return "medium"
   }
 
   // Load system events from API
@@ -333,11 +342,14 @@ const LiveStreamingPage: React.FC = () => {
         // Start polling for live events
         streamIntervalRef.current = setInterval(async () => {
           try {
-            const eventsResponse = await fetch(`http://localhost:8000/api/events/live-stream?limit=20&session_id=${sessionId}`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
+            const eventsResponse = await fetch(
+              `http://localhost:8000/api/events/live-stream?limit=20&session_id=${sessionId}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
               },
-            })
+            )
 
             if (eventsResponse.ok) {
               const eventsData = await eventsResponse.json()
@@ -513,311 +525,331 @@ const LiveStreamingPage: React.FC = () => {
 
   const getTypeIcon = (type: LiveDataPoint["type"]) => {
     const icons = {
-      network: "🌐",
-      file: "📁",
-      process: "⚙️",
-      memory: "🧠",
-      registry: "📋",
-      event: "📝",
+      network: <Wifi className="w-4 h-4" />,
+      file: <Activity className="w-4 h-4" />,
+      process: <Activity className="w-4 h-4" />,
+      memory: <Activity className="w-4 h-4" />,
+      registry: <Activity className="w-4 h-4" />,
+      event: <Activity className="w-4 h-4" />,
     }
     return icons[type]
   }
 
   const getSeverityColor = (severity: LiveDataPoint["severity"]) => {
     const colors = {
-      low: "text-blue-600 bg-blue-50",
-      medium: "text-yellow-600 bg-yellow-50",
-      high: "text-orange-600 bg-orange-50",
-      critical: "text-red-600 bg-red-50",
+      low: "default",
+      medium: "secondary",
+      high: "destructive",
+      critical: "destructive",
     }
     return colors[severity]
   }
 
   const getAgentStatusColor = (status: ActiveAgent["status"]) => {
     const colors = {
-      active: "text-purple-600 bg-purple-50",
-      idle: "text-yellow-600 bg-yellow-50",
-      error: "text-red-600 bg-red-50",
+      active: "default",
+      idle: "secondary",
+      error: "destructive",
     }
     return colors[status]
   }
 
+  const handleTypeChange = (type: string, checked: boolean) => {
+    if (checked) {
+      setSelectedTypes([...selectedTypes, type])
+    } else {
+      setSelectedTypes(selectedTypes.filter((t) => t !== type))
+    }
+  }
+
+  const handleSeverityChange = (severity: string, checked: boolean) => {
+    if (checked) {
+      setSelectedSeverity([...selectedSeverity, severity])
+    } else {
+      setSelectedSeverity(selectedSeverity.filter((s) => s !== severity))
+    }
+  }
+
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-white">Live Response Streaming</h1>
-          <p className="text-purple-200 mt-1">Real-time monitoring of forensic analysis and system events</p>
-        </div>
-
-        {/* Loading State */}
-        {isLoading && (
-          <div className="glass-strong rounded-2xl p-6 shadow-lg border border-blue-500/30">
-            <div className="flex items-center justify-center space-x-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div>
-              <span className="text-blue-200">Loading system events...</span>
+    <AuthGuard>
+      <DashboardLayout>
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="outline" className="border-primary/20 text-primary">
+                  <Activity className="w-3 h-3 mr-1" />
+                  Live Response Streaming
+                </Badge>
+              </div>
+              <h1 className="text-3xl font-bold text-foreground">Live Response Streaming</h1>
+              <p className="text-lg text-muted-foreground">
+                Real-time monitoring of forensic analysis and system events
+              </p>
             </div>
+            <Button onClick={() => window.location.reload()} className="bg-primary hover:bg-primary/90">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
           </div>
-        )}
 
-        {/* Error State */}
-        {error && (
-          <div className="glass-strong rounded-2xl p-6 shadow-lg border border-red-500/30">
-            <div className="flex items-center space-x-3">
-              <span className="text-red-400 text-xl">⚠️</span>
-              <span className="text-red-200">{error}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Stream Controls */}
-        <div className="glass-strong rounded-2xl p-6 shadow-lg border border-purple-500/30">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={isStreaming ? stopStreaming : startStreaming}
-                className={`rounded-xl px-6 py-3 text-sm font-medium transition-all duration-300 shadow-lg ${
-                  isStreaming
-                    ? "bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-700 hover:to-red-600 shadow-red-500/25"
-                    : "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-purple-500/25"
-                } border border-opacity-30 ${isStreaming ? "border-red-500" : "border-purple-500"}`}
-              >
-                <div className="flex items-center gap-2">
-                  {isStreaming ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10h6v4H9z" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m-6-8h8a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z"
-                      />
-                    </svg>
-                  )}
-                  {isStreaming ? "Stop Stream" : "Start Stream"}
+          {/* Loading State */}
+          {isLoading && (
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-center space-x-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                  <span>Loading system events...</span>
                 </div>
-              </button>
+              </CardContent>
+            </Card>
+          )}
 
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-green-300">Status:</span>
-                <span
-                  className={`flex items-center space-x-1 text-sm font-medium ${
-                    isStreaming ? "text-green-200" : "text-gray-400"
-                  }`}
-                >
-                  <div
-                    className={`h-2 w-2 rounded-full ${isStreaming ? "bg-green-400 animate-pulse" : "bg-gray-500"}`}
-                  />
-                  <span>{isStreaming ? "Streaming" : "Stopped"}</span>
-                </span>
+          {/* Error State */}
+          {error && (
+            <Card className="border-destructive/50 bg-destructive/10">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 text-destructive">
+                  <AlertCircle className="w-4 h-4" />
+                  {error}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Stream Controls */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center space-x-4">
+                  <Button
+                    onClick={isStreaming ? stopStreaming : startStreaming}
+                    className={isStreaming ? "bg-red-600 hover:bg-red-700" : "bg-primary hover:bg-primary/90"}
+                  >
+                    {isStreaming ? (
+                      <>
+                        <Square className="w-4 h-4 mr-2" />
+                        Stop Stream
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-4 h-4 mr-2" />
+                        Start Stream
+                      </>
+                    )}
+                  </Button>
+
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-muted-foreground">Status:</span>
+                    <div className="flex items-center space-x-1">
+                      <div
+                        className={`h-2 w-2 rounded-full ${isStreaming ? "bg-green-500 animate-pulse" : "bg-gray-500"}`}
+                      />
+                      <span className="text-sm font-medium">{isStreaming ? "Streaming" : "Stopped"}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="auto-scroll"
+                      checked={autoScroll}
+                      onCheckedChange={(checked) => setAutoScroll(checked as boolean)}
+                    />
+                    <Label htmlFor="auto-scroll" className="text-sm">
+                      Auto-scroll
+                    </Label>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                  <div className="text-sm text-muted-foreground">
+                    Events: <span className="font-medium text-foreground">{streamStats.totalEvents}</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    EPS: <span className="font-medium text-foreground">{streamStats.eventsPerSecond.toFixed(1)}</span>
+                  </div>
+                </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={autoScroll}
-                  onChange={(e) => setAutoScroll(e.target.checked)}
-                  className="rounded border-teal-500/30 bg-gray-700/50 text-teal-500 focus:ring-teal-500"
-                />
-                <span className="text-sm text-green-300">Auto-scroll</span>
-              </label>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <div className="text-sm text-green-300">
-                Events: <span className="font-medium text-green-100">{streamStats.totalEvents}</span>
-              </div>
-              <div className="text-sm text-green-300">
-                EPS: <span className="font-medium text-green-100">{streamStats.eventsPerSecond.toFixed(1)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 items-stretch">
-          {/* Filters Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+            {/* Filters Sidebar */}
+            <div className="lg:col-span-1 space-y-6">
               {/* Search */}
-              <div className="glass-strong rounded-2xl p-4 shadow-lg border border-teal-500/30">
-                <h3 className="mb-3 font-medium text-green-100">Search</h3>
-                <input
-                  type="text"
-                  placeholder="Search events..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-xl border border-teal-500/30 bg-gray-800/50 px-3 py-2 text-sm text-green-100 placeholder-green-400 focus:border-teal-400 focus:outline-none focus:ring-1 focus:ring-teal-400"
-                />
-              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Search className="w-4 h-4" />
+                    Search
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Input
+                    type="text"
+                    placeholder="Search events..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </CardContent>
+              </Card>
 
               {/* Event Types */}
-              <div className="glass-strong rounded-2xl p-4 shadow-lg border border-teal-500/30">
-                <h3 className="mb-3 font-medium text-green-100">Event Types</h3>
-                <div className="space-y-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Filter className="w-4 h-4" />
+                    Event Types
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
                   {["network", "file", "process", "memory", "registry", "event"].map((type) => (
-                    <label key={type} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
+                    <div key={type} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`type-${type}`}
                         checked={selectedTypes.includes(type)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedTypes([...selectedTypes, type])
-                          } else {
-                            setSelectedTypes(selectedTypes.filter((t) => t !== type))
-                          }
-                        }}
-                        className="rounded border-teal-500/30 bg-gray-700/50 text-teal-500 focus:ring-teal-500"
+                        onCheckedChange={(checked) => handleTypeChange(type, checked as boolean)}
                       />
-                      <span className="text-sm capitalize text-green-200">
-                        {getTypeIcon(type as LiveDataPoint["type"])} {type}
-                      </span>
-                    </label>
+                      <Label htmlFor={`type-${type}`} className="text-sm capitalize flex items-center gap-2">
+                        {getTypeIcon(type as LiveDataPoint["type"])}
+                        {type}
+                      </Label>
+                    </div>
                   ))}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Severity */}
-              <div className="glass-strong rounded-2xl p-4 shadow-lg border border-teal-500/30">
-                <h3 className="mb-3 font-medium text-green-100">Severity</h3>
-                <div className="space-y-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Severity</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
                   {["low", "medium", "high", "critical"].map((severity) => (
-                    <label key={severity} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
+                    <div key={severity} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`severity-${severity}`}
                         checked={selectedSeverity.includes(severity)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedSeverity([...selectedSeverity, severity])
-                          } else {
-                            setSelectedSeverity(selectedSeverity.filter((s) => s !== severity))
-                          }
-                        }}
-                        className="rounded border-teal-500/30 bg-gray-700/50 text-teal-500 focus:ring-teal-500"
+                        onCheckedChange={(checked) => handleSeverityChange(severity, checked as boolean)}
                       />
-                      <span className="text-sm capitalize text-green-200">{severity}</span>
-                    </label>
+                      <Label htmlFor={`severity-${severity}`} className="text-sm capitalize">
+                        {severity}
+                      </Label>
+                    </div>
                   ))}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Active Agents */}
-              <div className="glass-strong rounded-2xl p-4 shadow-lg border border-teal-500/30">
-                <h3 className="mb-3 font-medium text-green-100">Active Agents</h3>
-                <div className="space-y-2">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      name="agent"
-                      value="all"
-                      checked={selectedAgent === "all"}
-                      onChange={(e) => setSelectedAgent(e.target.value)}
-                      className="border-teal-500/30 bg-gray-700/50 text-teal-500 focus:ring-teal-500"
-                    />
-                    <span className="text-sm text-green-200">All Agents</span>
-                  </label>
-                  {activeAgents.map((agent) => (
-                    <label key={agent.id} className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        name="agent"
-                        value={agent.name}
-                        checked={selectedAgent === agent.name}
-                        onChange={(e) => setSelectedAgent(e.target.value)}
-                        className="border-teal-500/30 bg-gray-700/50 text-teal-500 focus:ring-teal-500"
-                      />
-                      <div className="flex-1">
-                        <div className="text-sm text-green-200">{agent.name}</div>
-                        <div className={`text-xs px-2 py-1 rounded-full ${getAgentStatusColor(agent.status)}`}>
-                          {agent.status.toUpperCase()}
-                        </div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Event Stream */}
-          <div className="lg:col-span-3 lg:row-span-10 h-full">
-            <div className="glass-strong rounded-2xl shadow-lg border border-teal-500/30 flex flex-col">
-                <div className="border-b border-teal-500/30 px-6 py-4">
-                    <div className="flex items-center justify-between">
-                        <h3 className="font-medium text-green-100">Live Event Stream</h3>
-                        <div className="text-sm text-green-300">
-                            Showing {filteredData.length} of {streamData.length} events
-                        </div>
-                </div>
-    </div>
-
-              <div ref={scrollRef} className="overflow-y-auto max-h-[83vh]" >
-                {filteredData.length === 0 ? (
-                  <div className="flex h-full items-center justify-center text-green-300">
-                    {isStreaming ? "Waiting for events..." : "No events to display. Start streaming to see live data."}
-                  </div>
-                ) : (
-                  <div className="divide-y divide-teal-500/20">
-                    {filteredData.map((event) => (
-                      <div key={event.id} className="p-4 hover:bg-teal-500/10 transition-colors">
-                        <div className="flex items-start space-x-3">
-                          <div className="flex-shrink-0">
-                            <span className="text-lg">{getTypeIcon(event.type)}</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2">
-                                <span
-                                  className={`px-2 py-1 text-xs font-medium rounded-full ${getSeverityColor(event.severity)}`}
-                                >
-                                  {event.severity.toUpperCase()}
-                                </span>
-                                <span className="text-xs text-green-300 capitalize">{event.type}</span>
-                              </div>
-                              <div className="text-xs text-green-400">
-                                {new Date(event.timestamp).toLocaleTimeString()}
-                              </div>
-                            </div>
-                            <p className="mt-1 text-sm text-green-100">{event.message}</p>
-                            <div className="mt-1 flex items-center space-x-4 text-xs text-green-300">
-                              <span>Source: {event.source}</span>
-                              <span>Agent: {event.agent}</span>
-                            </div>
-                            {event.details &&
-                              Object.keys(event.details).some((key) => event.details[key] !== undefined) && (
-                                <div className="mt-2 rounded-lg bg-gray-800/50 p-2 border border-teal-500/20">
-                                  <div className="text-xs text-green-300">
-                                    {Object.entries(event.details)
-                                      .filter(([, value]) => value !== undefined)
-                                      .map(([key, value]) => (
-                                        <div key={key} className="inline-block mr-4">
-                                          <span className="font-medium capitalize">{key}:</span> {String(value)}
-                                        </div>
-                                      ))}
-                                  </div>
-                                </div>
-                              )}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Active Agents</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RadioGroup value={selectedAgent} onValueChange={setSelectedAgent}>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="all" id="agent-all" />
+                      <Label htmlFor="agent-all" className="text-sm">
+                        All Agents
+                      </Label>
+                    </div>
+                    {activeAgents.map((agent) => (
+                      <div key={agent.id} className="flex items-center space-x-2">
+                        <RadioGroupItem value={agent.name} id={`agent-${agent.id}`} />
+                        <div className="flex-1">
+                          <Label htmlFor={`agent-${agent.id}`} className="text-sm">
+                            {agent.name}
+                          </Label>
+                          <div className="mt-1">
+                            <Badge variant={getAgentStatusColor(agent.status)} className="text-xs">
+                              {agent.status.toUpperCase()}
+                            </Badge>
                           </div>
                         </div>
                       </div>
                     ))}
+                  </RadioGroup>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Event Stream */}
+            <div className="lg:col-span-3">
+              <Card className="max-h-screen flex flex-col">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Live Event Stream</CardTitle>
+                    <CardDescription>
+                      Showing {filteredData.length} of {streamData.length} events
+                    </CardDescription>
                   </div>
-                )}
-              </div>
+                </CardHeader>
+                <CardContent className="flex-1 overflow-hidden">
+                  <div ref={scrollRef} className="h-full overflow-y-auto">
+                    {filteredData.length === 0 ? (
+                      <div className="flex h-full items-center justify-center text-muted-foreground">
+                        {isStreaming
+                          ? "Waiting for events..."
+                          : "No events to display. Start streaming to see live data."}
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {filteredData.map((event) => (
+                          <Card key={event.id} className="hover:bg-muted/50 transition-colors">
+                            <CardContent className="p-4">
+                              <div className="flex items-start space-x-3">
+                                <div className="flex-shrink-0 mt-1">{getTypeIcon(event.type)}</div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center space-x-2">
+                                      <Badge variant={getSeverityColor(event.severity)}>
+                                        {event.severity.toUpperCase()}
+                                      </Badge>
+                                      <Badge variant="outline" className="capitalize">
+                                        {event.type}
+                                      </Badge>
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {new Date(event.timestamp).toLocaleTimeString()}
+                                    </div>
+                                  </div>
+                                  <p className="text-sm font-medium mb-2">{event.message}</p>
+                                  <div className="flex items-center space-x-4 text-xs text-muted-foreground mb-2">
+                                    <span>Source: {event.source}</span>
+                                    <span>Agent: {event.agent}</span>
+                                  </div>
+                                  {event.details &&
+                                    Object.keys(event.details).some((key) => event.details[key] !== undefined) && (
+                                      <Card className="mt-2">
+                                        <CardContent className="p-2">
+                                          <div className="text-xs text-muted-foreground">
+                                            {Object.entries(event.details)
+                                              .filter(([, value]) => value !== undefined)
+                                              .map(([key, value]) => (
+                                                <div key={key} className="inline-block mr-4">
+                                                  <span className="font-medium capitalize">{key}:</span> {String(value)}
+                                                </div>
+                                              ))}
+                                          </div>
+                                        </CardContent>
+                                      </Card>
+                                    )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
-      </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </AuthGuard>
   )
 }
 

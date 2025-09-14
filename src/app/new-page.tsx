@@ -51,7 +51,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Badge variant="outline" className="border-[#3533cd]/50 text-white bg-[#3533cd]/80">
+              <Badge variant="outline" className="border-[#3533cd]/30 text-[#3533cd] bg-[#3533cd]/10">
                 <Github className="w-3 h-3 mr-1" />
                 Open Source
               </Badge>
@@ -75,7 +75,7 @@ export default function HomePage() {
       <main className="relative z-10 flex items-center justify-center" style={{ height: "calc(100vh - 4rem)" }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8 animate-slide-up">
           {/* Badge */}
-          <Badge variant="outline" className="border-[#3533cd]/50 text-white bg-[#3533cd]/80 px-4 py-2">
+          <Badge variant="outline" className="border-[#3533cd]/30 text-[#3533cd] bg-[#3533cd]/10 px-4 py-2">
             <Star className="w-4 h-4 mr-2" />
             Next-Generation Forensics Platform
           </Badge>

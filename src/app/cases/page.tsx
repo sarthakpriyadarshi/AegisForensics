@@ -604,13 +604,13 @@ export default function CasesPage() {
         {/* Case Details Dialog */}
         {showCaseDetails && selectedCase && (
           <Dialog open={showCaseDetails} onOpenChange={setShowCaseDetails}>
-            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
+            <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden flex flex-col">
+              <DialogHeader className="flex-shrink-0">
                 <DialogTitle>Case Details - {selectedCase.caseNumber}</DialogTitle>
                 <DialogDescription>Detailed information and evidence for this case</DialogDescription>
               </DialogHeader>
 
-              <div className="space-y-6">
+              <div className="flex-1 overflow-y-auto space-y-6 pr-2">
                 {/* Case Information */}
                 <Card>
                   <CardHeader>
@@ -699,58 +699,70 @@ export default function CasesPage() {
                         <p className="text-muted-foreground">No evidence found for this case</p>
                       </div>
                     ) : (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Filename</TableHead>
-                            <TableHead>Size</TableHead>
-                            <TableHead>Type</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Verdict</TableHead>
-                            <TableHead>Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {caseEvidence.map((evidence) => (
-                            <TableRow key={evidence.id}>
-                              <TableCell className="font-medium">{evidence.filename}</TableCell>
-                              <TableCell>{(evidence.fileSize / 1024).toFixed(1)} KB</TableCell>
-                              <TableCell>{evidence.mimeType}</TableCell>
-                              <TableCell>
-                                <Badge variant="secondary">{evidence.analysisStatus.toUpperCase()}</Badge>
-                              </TableCell>
-                              <TableCell>
-                                {evidence.verdict && (
-                                  <Badge
-                                    variant={
-                                      evidence.verdict === "clean"
-                                        ? "default"
-                                        : evidence.verdict === "suspicious"
-                                          ? "secondary"
-                                          : evidence.verdict === "malicious"
-                                            ? "destructive"
-                                            : "outline"
-                                    }
-                                  >
-                                    {evidence.verdict.toUpperCase()}
-                                  </Badge>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <Button
-                                  size="sm"
-                                  onClick={() => {
-                                    setShowCaseDetails(false)
-                                    window.location.href = "/analysis"
-                                  }}
-                                >
-                                  View Report
-                                </Button>
-                              </TableCell>
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="min-w-[200px]">Filename</TableHead>
+                              <TableHead className="min-w-[80px]">Size</TableHead>
+                              <TableHead className="min-w-[120px]">Type</TableHead>
+                              <TableHead className="min-w-[100px]">Status</TableHead>
+                              <TableHead className="min-w-[100px]">Verdict</TableHead>
+                              <TableHead className="min-w-[120px]">Actions</TableHead>
                             </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
+                          </TableHeader>
+                          <TableBody>
+                            {caseEvidence.map((evidence) => (
+                              <TableRow key={evidence.id}>
+                                <TableCell className="font-medium min-w-[200px]">
+                                  <div className="truncate max-w-[200px]" title={evidence.filename}>
+                                    {evidence.filename}
+                                  </div>
+                                </TableCell>
+                                <TableCell className="min-w-[80px]">
+                                  {(evidence.fileSize / 1024).toFixed(1)} KB
+                                </TableCell>
+                                <TableCell className="min-w-[120px]">
+                                  <div className="truncate max-w-[120px]" title={evidence.mimeType}>
+                                    {evidence.mimeType}
+                                  </div>
+                                </TableCell>
+                                <TableCell className="min-w-[100px]">
+                                  <Badge variant="secondary">{evidence.analysisStatus.toUpperCase()}</Badge>
+                                </TableCell>
+                                <TableCell className="min-w-[100px]">
+                                  {evidence.verdict && (
+                                    <Badge
+                                      variant={
+                                        evidence.verdict === "clean"
+                                          ? "default"
+                                          : evidence.verdict === "suspicious"
+                                            ? "secondary"
+                                            : evidence.verdict === "malicious"
+                                              ? "destructive"
+                                              : "outline"
+                                      }
+                                    >
+                                      {evidence.verdict.toUpperCase()}
+                                    </Badge>
+                                  )}
+                                </TableCell>
+                                <TableCell className="min-w-[120px]">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => {
+                                      setShowCaseDetails(false)
+                                      window.location.href = "/analysis"
+                                    }}
+                                  >
+                                    View Report
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
                     )}
                   </CardContent>
                 </Card>
