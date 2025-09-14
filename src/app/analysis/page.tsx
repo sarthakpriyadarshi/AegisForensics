@@ -969,11 +969,11 @@ REPORT GENERATION:
                                               )}
                                             </div>
                                             <div className="flex gap-2 ml-2">
-                                              <Badge variant={getSeverityColor(finding.severity)} size="sm">
+                                              <Badge variant={getSeverityColor(finding.severity)}>
                                                 {finding.severity.toUpperCase()}
                                               </Badge>
                                               {finding.confidence && (
-                                                <Badge variant="outline" size="sm">
+                                                <Badge variant="outline">
                                                   {finding.confidence}%
                                                 </Badge>
                                               )}
@@ -1102,7 +1102,7 @@ REPORT GENERATION:
                                         <p className="font-medium text-sm mb-1">{finding.description}</p>
                                         <p className="text-xs text-muted-foreground">Category: {finding.category}</p>
                                       </div>
-                                      <Badge variant={getSeverityColor(finding.severity)} size="sm">
+                                      <Badge variant={getSeverityColor(finding.severity)}>
                                         {finding.severity.toUpperCase()}
                                       </Badge>
                                     </div>

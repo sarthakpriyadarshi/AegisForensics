@@ -535,23 +535,23 @@ const LiveStreamingPage: React.FC = () => {
     return icons[type]
   }
 
-  const getSeverityColor = (severity: LiveDataPoint["severity"]) => {
-    const colors = {
+  const getSeverityColor = (severity: LiveDataPoint["severity"]): "default" | "secondary" | "destructive" => {
+    const colors: Record<LiveDataPoint["severity"], "default" | "secondary" | "destructive"> = {
       low: "default",
       medium: "secondary",
       high: "destructive",
       critical: "destructive",
     }
-    return colors[severity]
+    return colors[severity] || "secondary"
   }
 
-  const getAgentStatusColor = (status: ActiveAgent["status"]) => {
-    const colors = {
+  const getAgentStatusColor = (status: ActiveAgent["status"]): "default" | "secondary" | "destructive" => {
+    const colors: Record<ActiveAgent["status"], "default" | "secondary" | "destructive"> = {
       active: "default",
       idle: "secondary",
       error: "destructive",
     }
-    return colors[status]
+    return colors[status] || "secondary"
   }
 
   const handleTypeChange = (type: string, checked: boolean) => {

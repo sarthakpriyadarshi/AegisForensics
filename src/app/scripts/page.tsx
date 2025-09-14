@@ -58,17 +58,6 @@ interface ScriptConfig {
   }
 }
 
-interface GeneratedScript {
-  id: string
-  name: string
-  operatingSystem: string
-  analysisType: string
-  createdAt: string
-  size: number
-  downloadCount: number
-  config: Partial<ScriptConfig>
-}
-
 export default function ScriptsPageRevamped() {
   const [config, setConfig] = useState<ScriptConfig>({
     operatingSystem: "windows",
@@ -100,9 +89,6 @@ export default function ScriptsPageRevamped() {
       customCommands: [],
     },
   })
-
-  const [generatedScripts, setGeneratedScripts] = useState<GeneratedScript[]>([])
-  const [activeTab] = useState<"configure">("configure")
 
   const updateConfig = (section: keyof ScriptConfig, key: string, value: unknown) => {
     setConfig((prev) => ({
@@ -182,20 +168,6 @@ export default function ScriptsPageRevamped() {
 
       if (response.ok) {
         const result = await response.json()
-
-        // Create a new script entry
-        const newScript: GeneratedScript = {
-          id: Date.now().toString(),
-          name: `${config.operatingSystem.charAt(0).toUpperCase() + config.operatingSystem.slice(1)} Comprehensive Script`,
-          operatingSystem: config.operatingSystem.charAt(0).toUpperCase() + config.operatingSystem.slice(1),
-          analysisType: "Comprehensive",
-          createdAt: new Date().toISOString(),
-          size: result.script_content?.length || 0,
-          downloadCount: 0,
-          config: { ...config },
-        }
-
-        setGeneratedScripts((prev) => [newScript, ...prev])
 
         // Download the script file
         if (result.script_content && result.filename) {
