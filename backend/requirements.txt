@@ -5,3 +5,4 @@ sqlalchemy
 google-adk 
 google-genai
 python-multipart
+bcrypt

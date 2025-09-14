@@ -8,7 +8,7 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request, BackgroundTasks, Form
 from fastapi.responses import JSONResponse, PlainTextResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
@@ -84,8 +84,44 @@ def setup_logging():
 # Initialize logging
 logger = setup_logging()
 
-# Init DB
-init_db()
+# Database initialization with enhanced logging
+def initialize_database():
+    """Initialize database with enhanced error handling and logging"""
+    try:
+        db_path = "aegis_forensics.db"
+        db_exists = os.path.exists(db_path)
+        
+        if not db_exists:
+            logger.info("Database file not found. Creating new database...")
+            logger.info(f"Database will be created at: {os.path.abspath(db_path)}")
+        else:
+            logger.info(f"Using existing database: {os.path.abspath(db_path)}")
+        
+        # Initialize database
+        init_db()
+        
+        # Verify database was created successfully
+        if not db_exists and os.path.exists(db_path):
+            logger.info("✅ Database created successfully!")
+            logger.info("📝 Sample cases and admin user have been created")
+            logger.info("👤 Default login: admin@aegisforensics.com / admin123")
+        elif db_exists:
+            logger.info("✅ Database connection verified")
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"❌ Database initialization failed: {e}")
+        logger.error("🔧 You can try running: python database/init_database.py")
+        return False
+
+# Initialize database
+database_ok = initialize_database()
+if not database_ok:
+    logger.warning("⚠️  Database initialization had issues, but continuing startup...")
+
+# Init DB (legacy call - keeping for compatibility)
+# init_db()
 
 app = FastAPI(
     title="Aegis Forensics API",
@@ -163,6 +199,118 @@ async def run_orchestrator_prompt(prompt: str):
         except Exception:
             continue
     return result_text
+
+# Fallback analysis function when AI service is unavailable
+def create_fallback_analysis_result(filename: str, file_ext: str) -> str:
+    """Create a basic analysis result when AI service is unavailable"""
+    
+    # Determine file type and basic analysis
+    file_type = "Unknown"
+    basic_analysis = "Basic file information extracted"
+    
+    if file_ext.lower() in [".pcap", ".pcapng"]:
+        file_type = "Network Capture"
+        basic_analysis = "Network packet capture file detected. Contains network traffic data for analysis."
+    elif file_ext.lower() in [".exe", ".dll", ".bin"]:
+        file_type = "Binary/Executable"
+        basic_analysis = "Binary executable file detected. Requires malware analysis and reverse engineering."
+    elif file_ext.lower() in [".img", ".dd", ".e01"]:
+        file_type = "Disk Image"
+        basic_analysis = "Disk image file detected. Contains file system data for forensic examination."
+    elif file_ext.lower() in [".mem", ".dmp", ".vmem"]:
+        file_type = "Memory Dump"
+        basic_analysis = "Memory dump file detected. Contains system memory snapshot for analysis."
+    elif file_ext.lower() in [".log", ".txt", ".csv"]:
+        file_type = "Log File"
+        basic_analysis = "Log file detected. Contains system or application logs for timeline analysis."
+    
+    # Create JSON response similar to AI analysis
+    fallback_result = {
+        "summary": "File uploaded successfully. AI analysis temporarily unavailable - basic analysis provided.",
+        "file_info": {
+            "filename": filename,
+            "file_type": file_type,
+            "extension": file_ext,
+            "status": "uploaded"
+        },
+        "analysis": {
+            "type": "basic_analysis",
+            "description": basic_analysis,
+            "confidence": "low",
+            "recommendations": [
+                "File has been stored securely for analysis",
+                "Manual examination recommended",
+                "Re-run analysis when AI service is available"
+            ]
+        },
+        "next_steps": [
+            "Verify file integrity",
+            "Manual preliminary examination",
+            "Schedule for detailed analysis"
+        ],
+        "status": "completed_basic"
+    }
+    
+    return json.dumps(fallback_result, indent=2)
+
+# Helper function to save agent reports to database
+async def save_agent_report(agent_name: str, analysis_type: str, evidence_id: int, 
+                          parsed_response: dict, raw_output: str, case_id: int = None):
+    """Save agent analysis report to database"""
+    with SessionLocal() as db:
+        from database.models import AgentReport, Case
+        import json
+        
+        # If no case_id provided, use default case or create one
+        if case_id is None:
+            default_case = db.query(Case).filter(Case.name == "default").first()
+            if not default_case:
+                from database.models import CaseStatus, CasePriority
+                default_case = Case(
+                    case_number="CASE-DEFAULT-001",
+                    name="default",
+                    description="Default case for automated analysis",
+                    investigator="System",
+                    status=CaseStatus.ANALYZING,
+                    priority=CasePriority.MEDIUM,
+                    tags=json.dumps(["automated", "system"])
+                )
+                db.add(default_case)
+                db.commit()
+                db.refresh(default_case)
+            case_id = default_case.id
+        
+        # Extract data from parsed response
+        verdict = parsed_response.get("verdict") if isinstance(parsed_response, dict) else None
+        severity = parsed_response.get("severity") if isinstance(parsed_response, dict) else None
+        confidence = parsed_response.get("confidence") if isinstance(parsed_response, dict) else None
+        summary = parsed_response.get("summary") if isinstance(parsed_response, dict) else None
+        findings = parsed_response.get("findings", []) if isinstance(parsed_response, dict) else []
+        technical_details = parsed_response.get("technical_details", {}) if isinstance(parsed_response, dict) else {}
+        recommendations = parsed_response.get("recommendations", []) if isinstance(parsed_response, dict) else []
+        
+        # Create agent report
+        report = AgentReport(
+            case_id=case_id,
+            agent_name=agent_name,
+            evidence_id=evidence_id,
+            analysis_type=analysis_type,
+            verdict=verdict,
+            severity=severity,
+            confidence=confidence,
+            summary=summary,
+            findings=json.dumps(findings),
+            technical_details=json.dumps(technical_details),
+            recommendations=json.dumps(recommendations),
+            raw_output=raw_output
+        )
+        
+        db.add(report)
+        db.commit()
+        db.refresh(report)
+        
+        logger.info(f"Saved agent report: {agent_name} - {analysis_type} - Verdict: {verdict}")
+        return report.id
 
 def parse_agent_response(response_text: str):
     """
@@ -339,7 +487,7 @@ def parse_agent_response(response_text: str):
     }
 
 @app.post("/analyze/uploadfile/")
-async def analyze_uploadfile(file: UploadFile = File(...)):
+async def analyze_uploadfile(file: UploadFile = File(...), case_id: str = Form(None)):
     """
     Upload static file (binary, pcap, image) for analysis.
     Workflow:
@@ -358,8 +506,12 @@ async def analyze_uploadfile(file: UploadFile = File(...)):
 
     # Basic content-type guessing by extension
     ext = os.path.splitext(filename)[1].lower()
+    
+    # Use provided case_id or default to "default"
+    case_identifier = case_id if case_id else "default"
+    
     # store in DB via utils
-    evidence_rec = add_evidence_record("default", filename, tmp_path, file_hash, evidence_metadata=f"uploaded_at:{datetime.utcnow().isoformat()}")
+    evidence_rec = add_evidence_record(case_identifier, filename, tmp_path, file_hash, evidence_metadata=f"uploaded_at:{datetime.utcnow().isoformat()}")
 
     # Set appropriate state keys for the orchestrator
     state = agent_session.state
@@ -493,16 +645,60 @@ Based on this technical data, provide your forensic assessment following the exa
     # Log event
     add_event("default", f"File uploaded: {filename}")
 
-    # Run orchestrator
-    result_text = await run_orchestrator_prompt(analysis_prompt)
+    # Run orchestrator with error handling for authentication issues
+    try:
+        result_text = await run_orchestrator_prompt(analysis_prompt)
+    except Exception as e:
+        # Handle Google API authentication errors gracefully
+        if "401" in str(e) or "UNAUTHENTICATED" in str(e) or "API keys are not supported" in str(e):
+            logger.warning(f"Google API authentication failed: {e}")
+            result_text = create_fallback_analysis_result(filename, ext)
+        else:
+            logger.error(f"Unexpected error during analysis: {e}")
+            raise e
     
     # Parse the agent response to extract JSON format
     parsed_response = parse_agent_response(result_text)
+    
+    # Determine agent name and analysis type based on file extension
+    agent_name = "UnknownAgent"
+    analysis_type = "general_analysis"
+    
+    if ext in [".pcap", ".pcapng"]:
+        agent_name = "NetworkAnalyzer"
+        analysis_type = "network_analysis"
+    elif ext in [".lime", ".raw", ".mem"]:
+        agent_name = "MemoryAnalyzer"
+        analysis_type = "memory_analysis"
+    elif ext in [".img", ".dd", ".ewf", ".aff"]:
+        agent_name = "DiskAnalyzer"
+        analysis_type = "disk_analysis"
+    elif ext in [".log", ".txt", ".csv", ".evtx", ".evt"]:
+        agent_name = "UserProfiler"
+        analysis_type = "user_behavior_analysis"
+    elif ext in [".exe", ".dll", ".bin", ".so", ".msi", ".deb", ".rpm"]:
+        agent_name = "BinaryAnalyzer"
+        analysis_type = "binary_analysis"
+    
+    # Save agent report to database
+    try:
+        await save_agent_report(
+            agent_name=agent_name,
+            analysis_type=analysis_type,
+            evidence_id=evidence_rec.id,
+            parsed_response=parsed_response,
+            raw_output=result_text
+        )
+        logger.info(f"Saved agent report for {filename} - Agent: {agent_name}")
+    except Exception as e:
+        logger.error(f"Failed to save agent report: {e}")
     
     return JSONResponse(content={
         "status": "success", 
         "analysis": parsed_response,
         "evidence_id": evidence_rec.id,
+        "agent_name": agent_name,
+        "analysis_type": analysis_type,
         "file_info": {
             "filename": filename,
             "file_hash": file_hash,
@@ -558,14 +754,39 @@ Required JSON structure:
         # assume memory dump if large and not pcap
         agent_session.state["memory_path"] = tmp_path
         analysis_prompt = f"A streamed memory image has been saved to {tmp_path}. Analyze memory for processes and command lines.{json_instruction}"
-    add_evidence_record("default", os.path.basename(tmp_path), tmp_path, hashlib.sha256(open(tmp_path,'rb').read()).hexdigest())
+    
+    # Add evidence record
+    evidence_rec = add_evidence_record("default", os.path.basename(tmp_path), tmp_path, hashlib.sha256(open(tmp_path,'rb').read()).hexdigest())
     add_event("default", f"Stream received and saved to {tmp_path}")
     result_text = await run_orchestrator_prompt(analysis_prompt)
     
     # Parse the agent response to extract JSON format
     parsed_response = parse_agent_response(result_text)
     
-    return JSONResponse({"status": "success", "analysis": parsed_response})
+    # Determine agent based on detected file type
+    agent_name = "NetworkAnalyzer" if "pcap" in analysis_prompt else "MemoryAnalyzer"
+    analysis_type = "network_analysis" if "pcap" in analysis_prompt else "memory_analysis"
+    
+    # Save agent report to database
+    try:
+        await save_agent_report(
+            agent_name=agent_name,
+            analysis_type=analysis_type,
+            evidence_id=evidence_rec.id,
+            parsed_response=parsed_response,
+            raw_output=result_text
+        )
+        logger.info(f"Saved agent report for streamed data - Agent: {agent_name}")
+    except Exception as e:
+        logger.error(f"Failed to save agent report: {e}")
+    
+    return JSONResponse({
+        "status": "success", 
+        "analysis": parsed_response,
+        "evidence_id": evidence_rec.id,
+        "agent_name": agent_name,
+        "analysis_type": analysis_type
+    })
 
 @app.post("/generate_script/")
 async def generate_script(payload: dict):
@@ -598,40 +819,164 @@ async def get_cases():
     with SessionLocal() as db:
         from database.models import Case
         cases = db.query(Case).all()
+        case_list = []
+        for case in cases:
+            # Parse tags from JSON string
+            tags = []
+            if case.tags:
+                try:
+                    import json
+                    tags = json.loads(case.tags)
+                except:
+                    tags = []
+            
+            case_list.append({
+                "id": case.id,
+                "caseNumber": case.case_number,
+                "name": case.name,
+                "description": case.description or "",
+                "investigator": case.investigator,
+                "status": case.status.value if hasattr(case.status, 'value') else str(case.status),
+                "priority": case.priority.value if hasattr(case.priority, 'value') else str(case.priority),
+                "createdAt": case.created_at.isoformat(),
+                "updatedAt": case.updated_at.isoformat(),
+                "evidenceCount": len(case.evidences),
+                "tags": tags
+            })
+        
         return {
             "status": "success",
-            "cases": [
-                {
-                    "id": case.id,
-                    "name": case.name,
-                    "description": case.description,
-                    "created_at": case.created_at.isoformat(),
-                    "evidence_count": len(case.evidences),
-                    "event_count": len(case.events)
-                }
-                for case in cases
-            ]
+            "cases": case_list
         }
 
 @app.post("/api/cases")
 async def create_case(case_data: dict):
     """Create a new forensic case"""
     with SessionLocal() as db:
-        from database.models import Case
+        from database.models import Case, CaseStatus, CasePriority
+        import json
+        
+        # Generate case number
+        case_count = db.query(Case).count()
+        case_number = f"CASE-{datetime.now().year}-{str(case_count + 1).zfill(3)}"
+        
+        # Create new case
         new_case = Case(
-            name=case_data.get("name", f"case_{uuid.uuid4().hex[:8]}"),
-            description=case_data.get("description", "")
+            case_number=case_number,
+            name=case_data.get("name", f"Case {case_number}"),
+            description=case_data.get("description", ""),
+            investigator=case_data.get("investigator", "Unknown"),
+            status=CaseStatus(case_data.get("status", "open")),
+            priority=CasePriority(case_data.get("priority", "medium")),
+            tags=json.dumps(case_data.get("tags", []))
         )
         db.add(new_case)
         db.commit()
         db.refresh(new_case)
+        
         return {
             "status": "success",
             "case": {
                 "id": new_case.id,
+                "caseNumber": new_case.case_number,
                 "name": new_case.name,
                 "description": new_case.description,
-                "created_at": new_case.created_at.isoformat()
+                "investigator": new_case.investigator,
+                "status": new_case.status.value,
+                "priority": new_case.priority.value,
+                "createdAt": new_case.created_at.isoformat(),
+                "updatedAt": new_case.updated_at.isoformat(),
+                "evidenceCount": 0,
+                "tags": json.loads(new_case.tags) if new_case.tags else []
+            }
+        }
+
+@app.put("/api/cases/{case_id}")
+async def update_case(case_id: int, case_data: dict):
+    """Update an existing case"""
+    with SessionLocal() as db:
+        from database.models import Case, CaseStatus, CasePriority
+        import json
+        
+        case = db.query(Case).filter(Case.id == case_id).first()
+        if not case:
+            raise HTTPException(status_code=404, detail="Case not found")
+        
+        # Update fields if provided
+        if "name" in case_data:
+            case.name = case_data["name"]
+        if "description" in case_data:
+            case.description = case_data["description"]
+        if "investigator" in case_data:
+            case.investigator = case_data["investigator"]
+        if "status" in case_data:
+            case.status = CaseStatus(case_data["status"])
+        if "priority" in case_data:
+            case.priority = CasePriority(case_data["priority"])
+        if "tags" in case_data:
+            case.tags = json.dumps(case_data["tags"])
+        
+        case.updated_at = datetime.now()
+        db.commit()
+        db.refresh(case)
+        
+        return {
+            "status": "success",
+            "case": {
+                "id": case.id,
+                "caseNumber": case.case_number,
+                "name": case.name,
+                "description": case.description,
+                "investigator": case.investigator,
+                "status": case.status.value,
+                "priority": case.priority.value,
+                "createdAt": case.created_at.isoformat(),
+                "updatedAt": case.updated_at.isoformat(),
+                "evidenceCount": len(case.evidences),
+                "tags": json.loads(case.tags) if case.tags else []
+            }
+        }
+
+@app.delete("/api/cases/{case_id}")
+async def delete_case(case_id: int):
+    """Delete a case and all associated data"""
+    with SessionLocal() as db:
+        from database.models import Case
+        
+        case = db.query(Case).filter(Case.id == case_id).first()
+        if not case:
+            raise HTTPException(status_code=404, detail="Case not found")
+        
+        db.delete(case)
+        db.commit()
+        
+        return {"status": "success", "message": "Case deleted successfully"}
+
+@app.get("/api/cases/{case_id}")
+async def get_case_details(case_id: int):
+    """Get detailed information about a specific case"""
+    with SessionLocal() as db:
+        from database.models import Case
+        import json
+        
+        case = db.query(Case).filter(Case.id == case_id).first()
+        if not case:
+            raise HTTPException(status_code=404, detail="Case not found")
+        
+        return {
+            "status": "success",
+            "case": {
+                "id": case.id,
+                "caseNumber": case.case_number,
+                "name": case.name,
+                "description": case.description,
+                "investigator": case.investigator,
+                "status": case.status.value,
+                "priority": case.priority.value,
+                "createdAt": case.created_at.isoformat(),
+                "updatedAt": case.updated_at.isoformat(),
+                "evidenceCount": len(case.evidences),
+                "tags": json.loads(case.tags) if case.tags else []
             }
         }
 
@@ -649,11 +994,49 @@ async def get_case_evidence(case_id: int):
                     "filename": evidence.filename,
                     "file_path": evidence.file_path,
                     "file_hash": evidence.file_hash,
+                    "file_size": evidence.file_size,
+                    "file_type": evidence.file_type,
                     "collected_at": evidence.collected_at.isoformat(),
                     "metadata": evidence.evidence_metadata
                 }
                 for evidence in evidence_list
             ]
+        }
+
+@app.post("/api/cases/{case_id}/evidence")
+async def add_evidence_to_case(case_id: int, evidence_data: dict):
+    """Add evidence to a case"""
+    with SessionLocal() as db:
+        from database.models import Evidence, Case
+        
+        # Verify case exists
+        case = db.query(Case).filter(Case.id == case_id).first()
+        if not case:
+            raise HTTPException(status_code=404, detail="Case not found")
+        
+        evidence = Evidence(
+            case_id=case_id,
+            filename=evidence_data.get("filename", "unknown"),
+            file_path=evidence_data.get("file_path", ""),
+            file_hash=evidence_data.get("file_hash", ""),
+            file_size=evidence_data.get("file_size"),
+            file_type=evidence_data.get("file_type"),
+            evidence_metadata=evidence_data.get("metadata", "")
+        )
+        
+        db.add(evidence)
+        db.commit()
+        db.refresh(evidence)
+        
+        return {
+            "status": "success",
+            "evidence": {
+                "id": evidence.id,
+                "filename": evidence.filename,
+                "file_path": evidence.file_path,
+                "file_hash": evidence.file_hash,
+                "collected_at": evidence.collected_at.isoformat()
+            }
         }
 
 @app.get("/api/cases/{case_id}/events")
@@ -674,6 +1057,282 @@ async def get_case_events(case_id: int):
                 for event in events
             ]
         }
+
+@app.get("/api/cases/{case_id}/reports")
+async def get_case_reports(case_id: int):
+    """Get all agent reports for a specific case"""
+    with SessionLocal() as db:
+        from database.models import AgentReport
+        import json
+        
+        reports = db.query(AgentReport).filter(AgentReport.case_id == case_id).order_by(AgentReport.created_at.desc()).all()
+        
+        report_list = []
+        for report in reports:
+            # Parse JSON fields
+            findings = []
+            technical_details = {}
+            recommendations = []
+            
+            try:
+                if report.findings:
+                    findings = json.loads(report.findings)
+                if report.technical_details:
+                    technical_details = json.loads(report.technical_details)
+                if report.recommendations:
+                    recommendations = json.loads(report.recommendations)
+            except:
+                pass
+            
+            report_list.append({
+                "id": report.id,
+                "agent_name": report.agent_name,
+                "analysis_type": report.analysis_type,
+                "verdict": report.verdict,
+                "severity": report.severity,
+                "confidence": report.confidence,
+                "summary": report.summary,
+                "findings": findings,
+                "technical_details": technical_details,
+                "recommendations": recommendations,
+                "evidence_id": report.evidence_id,
+                "created_at": report.created_at.isoformat()
+            })
+        
+        return {
+            "status": "success",
+            "reports": report_list
+        }
+
+@app.post("/api/cases/{case_id}/reports")
+async def create_agent_report(case_id: int, report_data: dict):
+    """Create a new agent report for a case"""
+    with SessionLocal() as db:
+        from database.models import AgentReport, Case
+        import json
+        
+        # Verify case exists
+        case = db.query(Case).filter(Case.id == case_id).first()
+        if not case:
+            raise HTTPException(status_code=404, detail="Case not found")
+        
+        # Create agent report
+        report = AgentReport(
+            case_id=case_id,
+            agent_name=report_data.get("agent_name", "Unknown"),
+            evidence_id=report_data.get("evidence_id"),
+            analysis_type=report_data.get("analysis_type", "general"),
+            verdict=report_data.get("verdict"),
+            severity=report_data.get("severity"),
+            confidence=report_data.get("confidence"),
+            summary=report_data.get("summary"),
+            findings=json.dumps(report_data.get("findings", [])),
+            technical_details=json.dumps(report_data.get("technical_details", {})),
+            recommendations=json.dumps(report_data.get("recommendations", [])),
+            raw_output=report_data.get("raw_output")
+        )
+        
+        db.add(report)
+        db.commit()
+        db.refresh(report)
+        
+        return {
+            "status": "success",
+            "report": {
+                "id": report.id,
+                "agent_name": report.agent_name,
+                "analysis_type": report.analysis_type,
+                "verdict": report.verdict,
+                "severity": report.severity,
+                "created_at": report.created_at.isoformat()
+            }
+        }
+
+@app.post("/api/cases/{case_id}/analyze")
+async def analyze_file_for_case(case_id: int, file: UploadFile = File(...)):
+    """
+    Upload and analyze a file for a specific case.
+    This endpoint automatically links the evidence and analysis to a case.
+    """
+    with SessionLocal() as db:
+        from database.models import Case
+        
+        # Verify case exists
+        case = db.query(Case).filter(Case.id == case_id).first()
+        if not case:
+            raise HTTPException(status_code=404, detail="Case not found")
+    
+    # Process file similar to uploadfile but with case association
+    contents = await file.read()
+    filename = file.filename or f"upload_{uuid.uuid4().hex}"
+    safe_name = filename.replace(" ", "_")
+    tmp_path = f"/tmp/{uuid.uuid4().hex}_{safe_name}"
+    with open(tmp_path, "wb") as f:
+        f.write(contents)
+    file_hash = hashlib.sha256(contents).hexdigest()
+
+    # Get file extension and size
+    ext = os.path.splitext(filename)[1].lower()
+    file_size = len(contents)
+    
+    # Add evidence record to specific case
+    with SessionLocal() as db:
+        from database.models import Evidence
+        evidence = Evidence(
+            case_id=case_id,
+            filename=filename,
+            file_path=tmp_path,
+            file_hash=file_hash,
+            file_size=file_size,
+            file_type=ext,
+            evidence_metadata=f"uploaded_at:{datetime.utcnow().isoformat()}"
+        )
+        db.add(evidence)
+        db.commit()
+        db.refresh(evidence)
+        evidence_id = evidence.id
+
+    # Set appropriate state keys for the orchestrator
+    state = agent_session.state
+    
+    # JSON format instructions
+    json_instruction = """
+
+CRITICAL: Your response must be ONLY raw JSON without any markdown formatting, code blocks, or additional text. Do not use ```json``` blocks or any other formatting. Return only the pure JSON object starting with { and ending with }.
+
+Required JSON structure:
+{
+    "verdict": "MALICIOUS|SUSPICIOUS|BENIGN",
+    "severity": "Critical|High|Medium|Low", 
+    "criticality": "Critical|High|Medium|Low",
+    "confidence": "High|Medium|Low",
+    "summary": "Brief summary of findings",
+    "findings": [
+        {
+            "category": "Category name",
+            "description": "Detailed description",
+            "severity": "Critical|High|Medium|Low",
+            "evidence": "Supporting evidence"
+        }
+    ],
+    "technical_details": {
+        "raw_response": "Full technical details"
+    },
+    "recommendations": ["recommendation1", "recommendation2"]
+}"""
+    
+    # Determine analysis type and agent based on file extension
+    agent_name = "UnknownAgent"
+    analysis_type = "general_analysis"
+    analysis_prompt = ""
+    
+    if ext in [".pcap", ".pcapng"]:
+        state["pcap_path"] = tmp_path
+        agent_name = "NetworkAnalyzer"
+        analysis_type = "network_analysis"
+        
+        # Get raw network analysis data first
+        try:
+            from tools.network_tools import analyze_network_direct
+            network_data = analyze_network_direct(tmp_path)
+            
+            if network_data.get("status") == "success":
+                raw_data = network_data.get("raw_data", {})
+                analysis_notes = network_data.get("analysis_notes", {})
+                
+                analysis_prompt = f"""NetworkAnalyzer: Analyze this PCAP network traffic data for Case #{case_id} and provide forensic assessment:
+
+NETWORK DATA EXTRACTED:
+- Total packets: {raw_data.get('total_packets', '0')}
+- Unique IP addresses: {len(raw_data.get('unique_ips', []))} ({raw_data.get('unique_ips', [])[:5]})
+- DNS queries found: {len(raw_data.get('dns_queries', []))}
+- Suspicious domains detected: {analysis_notes.get('suspicious_domains', [])}
+- Protocols detected: {raw_data.get('protocols_detected', [])}
+- HTTP hosts: {raw_data.get('http_hosts', [])}
+
+ANALYSIS INDICATORS:
+- Suspicious DNS count: {analysis_notes.get('suspicious_dns_count', 0)}
+- High IP count (>50): {analysis_notes.get('high_ip_count', False)}
+- Unusual protocols detected: {analysis_notes.get('unusual_protocols', False)}
+
+Based on this technical data, provide your forensic assessment.{json_instruction}"""
+            else:
+                analysis_prompt = f"NetworkAnalyzer: Analyze the uploaded PCAP file at {tmp_path} for Case #{case_id}.{json_instruction}"
+        except Exception as e:
+            analysis_prompt = f"NetworkAnalyzer: Analyze the uploaded PCAP file at {tmp_path} for Case #{case_id}.{json_instruction}"
+            
+    elif ext in [".lime", ".raw", ".mem"]:
+        state["memory_path"] = tmp_path
+        agent_name = "MemoryAnalyzer"
+        analysis_type = "memory_analysis"
+        analysis_prompt = f"MemoryAnalyzer: Analyze the uploaded memory image at {tmp_path} for Case #{case_id}.{json_instruction}"
+        
+    elif ext in [".img", ".dd", ".ewf", ".aff"]:
+        state["disk_image_path"] = tmp_path
+        agent_name = "DiskAnalyzer"
+        analysis_type = "disk_analysis"
+        analysis_prompt = f"DiskAnalyzer: Analyze the uploaded disk image at {tmp_path} for Case #{case_id}.{json_instruction}"
+        
+    elif ext in [".log", ".txt", ".csv", ".evtx", ".evt"]:
+        state["user_profile_path"] = tmp_path
+        agent_name = "UserProfiler"
+        analysis_type = "user_behavior_analysis"
+        analysis_prompt = f"UserProfiler: Analyze the uploaded log file at {tmp_path} for user behavior patterns in Case #{case_id}.{json_instruction}"
+        
+    elif ext in [".exe", ".dll", ".bin", ".so", ".msi", ".deb", ".rpm"]:
+        state["binary_path"] = tmp_path
+        agent_name = "BinaryAnalyzer"
+        analysis_type = "binary_analysis"
+        analysis_prompt = f"BinaryAnalyzer: Analyze the binary file at {tmp_path} for Case #{case_id}.{json_instruction}"
+        
+    else:
+        state["binary_path"] = tmp_path
+        agent_name = "GeneralAnalyzer"
+        analysis_type = "file_analysis"
+        analysis_prompt = f"Analyze the file at {tmp_path} for Case #{case_id} and determine its type and potential threats.{json_instruction}"
+
+    # Set additional state
+    state["latest_evidence_path"] = tmp_path
+    state["case_name"] = f"case_{case_id}"
+
+    # Run orchestrator analysis
+    result_text = await run_orchestrator_prompt(analysis_prompt)
+    
+    # Parse the agent response
+    parsed_response = parse_agent_response(result_text)
+    
+    # Save agent report to database with case association
+    try:
+        report_id = await save_agent_report(
+            agent_name=agent_name,
+            analysis_type=analysis_type,
+            evidence_id=evidence_id,
+            parsed_response=parsed_response,
+            raw_output=result_text,
+            case_id=case_id
+        )
+        logger.info(f"Saved agent report for Case #{case_id} - Agent: {agent_name} - Report ID: {report_id}")
+    except Exception as e:
+        logger.error(f"Failed to save agent report for Case #{case_id}: {e}")
+
+    # Add event to case
+    add_event(f"case_{case_id}", f"File analyzed: {filename} by {agent_name}")
+
+    return JSONResponse(content={
+        "status": "success", 
+        "analysis": parsed_response,
+        "evidence_id": evidence_id,
+        "agent_name": agent_name,
+        "analysis_type": analysis_type,
+        "case_id": case_id,
+        "file_info": {
+            "filename": filename,
+            "file_hash": file_hash,
+            "file_type": ext,
+            "file_size": file_size,
+            "file_path": tmp_path
+        }
+    })
 
 @app.get("/api/evidence/{evidence_id}")
 async def get_evidence_details(evidence_id: int):
@@ -791,6 +1450,89 @@ async def get_supported_file_types():
             }
         }
     }
+
+@app.get("/api/evidence-results")
+async def get_evidence_results():
+    """Get all evidence with their analysis results"""
+    with SessionLocal() as db:
+        from database.models import Evidence, AgentReport, Case
+        import json
+        
+        # Get all evidence with their cases and reports
+        evidence_query = db.query(Evidence).join(Case).order_by(Evidence.collected_at.desc()).all()
+        
+        results = []
+        for evidence in evidence_query:
+            # Get associated reports for this evidence
+            reports = db.query(AgentReport).filter(AgentReport.evidence_id == evidence.id).order_by(AgentReport.created_at.desc()).all()
+            
+            # Process reports
+            analysis_results = []
+            latest_verdict = "unknown"
+            latest_severity = "low"
+            latest_confidence = 0
+            
+            for report in reports:
+                try:
+                    findings = json.loads(report.findings) if report.findings else []
+                    technical_details = json.loads(report.technical_details) if report.technical_details else {}
+                    recommendations = json.loads(report.recommendations) if report.recommendations else []
+                    
+                    analysis_results.append({
+                        "id": report.id,
+                        "agent_name": report.agent_name,
+                        "analysis_type": report.analysis_type,
+                        "verdict": report.verdict,
+                        "severity": report.severity,
+                        "confidence": report.confidence,
+                        "summary": report.summary,
+                        "findings": findings,
+                        "technical_details": technical_details,
+                        "recommendations": recommendations,
+                        "created_at": report.created_at.isoformat()
+                    })
+                    
+                    # Update latest analysis result
+                    if report.verdict:
+                        latest_verdict = report.verdict
+                    if report.severity:
+                        latest_severity = report.severity
+                    if report.confidence:
+                        latest_confidence = report.confidence
+                        
+                except Exception as e:
+                    logger.error(f"Error processing report {report.id}: {e}")
+            
+            # Get case info
+            case_info = {
+                "id": evidence.case.id if evidence.case else None,
+                "case_number": evidence.case.case_number if evidence.case else "Unknown",
+                "name": evidence.case.name if evidence.case else "Unknown Case"
+            }
+            
+            results.append({
+                "id": evidence.id,
+                "filename": evidence.filename,
+                "file_path": evidence.file_path,
+                "file_hash": evidence.file_hash,
+                "file_size": evidence.file_size,
+                "file_type": evidence.file_type,
+                "collected_at": evidence.collected_at.isoformat(),
+                "metadata": evidence.evidence_metadata,
+                "case": case_info,
+                "analysis_status": "completed" if analysis_results else "pending",
+                "latest_verdict": latest_verdict,
+                "latest_severity": latest_severity,
+                "latest_confidence": latest_confidence,
+                "analysis_results": analysis_results,
+                "report_count": len(analysis_results)
+            })
+        
+        return {
+            "status": "success",
+            "evidence_results": results,
+            "total_count": len(results)
+        }
 
 @app.get("/health")
 async def health():
