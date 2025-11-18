@@ -622,7 +622,9 @@ async def analyze_uploadfile(file: UploadFile = File(...), case_id: str = Form(N
         case_identifier, 
         filename, 
         tmp_path, 
-        file_hash, 
+        file_hash,
+        file_size=file_size,
+        file_type=ext,
         evidence_metadata=f"uploaded_at:{datetime.utcnow().isoformat()},file_size:{file_size}"
     )
     
@@ -968,7 +970,17 @@ Required JSON structure:
         analysis_prompt = f"A streamed memory image has been saved to {tmp_path}. Analyze memory for processes and command lines.{json_instruction}"
     
     # Add evidence record
-    evidence_rec = add_evidence_record("default", os.path.basename(tmp_path), tmp_path, hashlib.sha256(open(tmp_path,'rb').read()).hexdigest())
+    import os
+    stream_size = os.path.getsize(tmp_path) if os.path.exists(tmp_path) else 0
+    stream_ext = os.path.splitext(tmp_path)[1].lower() or ".bin"
+    evidence_rec = add_evidence_record(
+        "default", 
+        os.path.basename(tmp_path), 
+        tmp_path, 
+        hashlib.sha256(open(tmp_path,'rb').read()).hexdigest(),
+        file_size=stream_size,
+        file_type=stream_ext
+    )
     add_event("default", f"Stream received and saved to {tmp_path}")
     result_text = await run_orchestrator_prompt(analysis_prompt)
     

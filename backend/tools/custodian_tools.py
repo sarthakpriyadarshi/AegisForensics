@@ -61,7 +61,16 @@ def custodian_record(tool_context: ToolContext) -> dict:
         with open(file_path, "rb") as f:
             content = f.read()
         file_hash = hashlib.sha256(content).hexdigest()
-        evidence = add_evidence_record(case_name, os.path.basename(file_path), file_path, file_hash)
+        file_size = len(content)
+        file_type = os.path.splitext(file_path)[1].lower() or ".unknown"
+        evidence = add_evidence_record(
+            case_name, 
+            os.path.basename(file_path), 
+            file_path, 
+            file_hash,
+            file_size=file_size,
+            file_type=file_type
+        )
         event = add_event(case_name, f"Evidence {evidence.filename} recorded by custodian.")
         return {"status": "success", "evidence_id": evidence.id, "event_id": event.id}
     except Exception as e:

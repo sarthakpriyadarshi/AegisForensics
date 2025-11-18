@@ -12,7 +12,7 @@ def next_event_hash(prev_hash: str, description: str) -> str:
     data = f"{prev_hash}|{description}|{ts}"
     return compute_sha256(data)
 
-def add_evidence_record(case_identifier: str, filename: str, file_path: str, file_hash: str, evidence_metadata: str = None):
+def add_evidence_record(case_identifier: str, filename: str, file_path: str, file_hash: str, evidence_metadata: str = None, file_size: int = None, file_type: str = None):
     db = SessionLocal()
     try:
         # Try to find case by ID first (if it's a number), then by name
@@ -38,12 +38,36 @@ def add_evidence_record(case_identifier: str, filename: str, file_path: str, fil
             db.add(case)
             db.commit()
             db.refresh(case)
+        
+        # Get file size if not provided
+        if file_size is None and file_path:
+            import os
+            try:
+                file_size = os.path.getsize(file_path)
+            except:
+                file_size = 0
+        
+        # Get file type if not provided
+        if file_type is None and filename:
+            import os
+            file_type = os.path.splitext(filename)[1].lower()
+            if not file_type:
+                file_type = "unknown"
             
         last = db.query(Evidence).order_by(Evidence.id.desc()).first()
         prev_hash = last.current_hash if last else ""
         curr_hash = next_evidence_hash(prev_hash, filename, file_hash)
-        evidence = Evidence(case_id=case.id, filename=filename, file_path=file_path,
-                            file_hash=file_hash, prev_hash=prev_hash, current_hash=curr_hash, evidence_metadata=evidence_metadata)
+        evidence = Evidence(
+            case_id=case.id, 
+            filename=filename, 
+            file_path=file_path,
+            file_hash=file_hash, 
+            file_size=file_size,
+            file_type=file_type,
+            prev_hash=prev_hash, 
+            current_hash=curr_hash, 
+            evidence_metadata=evidence_metadata
+        )
         db.add(evidence)
         db.commit()
         db.refresh(evidence)

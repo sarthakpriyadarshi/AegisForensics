@@ -214,6 +214,7 @@ const AnalysisPage: React.FC = () => {
             filename: item.filename,
             filePath: item.file_path,
             fileSize: item.file_size,
+            mimeType: item.file_type,
             sha256Hash: item.file_hash,
             analysisStatus: "completed", // Always show completed
             uploadedAt: item.collected_at,
