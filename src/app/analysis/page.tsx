@@ -300,145 +300,188 @@ const AnalysisPage: React.FC = () => {
   }, [])
 
   // Function to generate PDF report
-  const generatePDFReport = (evidence: Evidence) => {
-    const formatTechnicalDetails = (details: Record<string, string | number | boolean>) => {
-      return Object.entries(details)
-        .map(([key, value]) => `    ${key}: ${typeof value === "object" ? JSON.stringify(value, null, 2) : value}`)
-        .join("\n")
+  const generatePDFReport = async (evidence: Evidence) => {
+    // Dynamically import jsPDF to avoid SSR issues
+    const { jsPDF } = await import('jspdf')
+    const doc = new jsPDF()
+    
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const margin = 20
+    let yPos = 20
+    
+    // Helper function to add new page if needed
+    const checkPageBreak = (lineHeight = 10) => {
+      if (yPos + lineHeight > pageHeight - margin) {
+        doc.addPage()
+        yPos = margin
+        return true
+      }
+      return false
     }
-
-    const formatRecommendations = (recommendations: string[]) => {
-      return recommendations
-        .map((rec, index) => `  ${index + 1}. ${typeof rec === "object" ? JSON.stringify(rec) : rec}`)
-        .join("\n")
+    
+    // Helper function to add text with word wrap
+    const addWrappedText = (text: string, x: number, fontSize = 10, isBold = false) => {
+      doc.setFontSize(fontSize)
+      doc.setFont('helvetica', isBold ? 'bold' : 'normal')
+      const lines = doc.splitTextToSize(text, pageWidth - 2 * margin)
+      lines.forEach((line: string) => {
+        checkPageBreak()
+        doc.text(line, x, yPos)
+        yPos += fontSize * 0.5
+      })
     }
-
-    let content = `
-═══════════════════════════════════════════════════════════════════
-                    AEGIS FORENSICS - EVIDENCE ANALYSIS REPORT
-═══════════════════════════════════════════════════════════════════
-
-CASE INFORMATION:
-  Case ID: ${evidence.caseId}
-  Case Name: ${evidence.case?.name || "Unknown"}
-
-EVIDENCE INFORMATION:
-  Filename: ${evidence.filename}
-  File Size: ${evidence.fileSize ? `${(evidence.fileSize / 1024).toFixed(2)} KB` : "Unknown"}
-  MIME Type: ${evidence.mimeType || "Unknown"}
-  SHA256 Hash: ${evidence.sha256Hash}
-  Upload Date: ${formatDate(evidence.uploadedAt)}
-  Analysis Status: ${evidence.analysisStatus}
-
-OVERALL ANALYSIS SUMMARY:
-  Verdict: ${evidence.analysisResults?.verdict?.toUpperCase() || "UNKNOWN"}
-  Severity: ${evidence.analysisResults?.severity?.toUpperCase() || "LOW"}
-  Confidence: ${evidence.analysisResults?.confidence || 0}%
-  Summary: ${evidence.analysisResults?.summary || "No summary available"}
-
-`
-
-    // Add detailed findings if available
+    
+    // Add logo and header
+    doc.setFillColor(15, 23, 42) // slate-900
+    doc.rect(0, 0, pageWidth, 40, 'F')
+    
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(24)
+    doc.setFont('helvetica', 'bold')
+    doc.text('AEGIS FORENSICS', pageWidth / 2, 20, { align: 'center' })
+    
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Evidence Analysis Report', pageWidth / 2, 30, { align: 'center' })
+    
+    doc.setTextColor(0, 0, 0)
+    yPos = 50
+    
+    // Case Information
+    doc.setFillColor(241, 245, 249) // slate-100
+    doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F')
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('CASE INFORMATION', margin + 2, yPos + 6)
+    yPos += 12
+    
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    addWrappedText(`Case ID: ${evidence.caseId}`, margin + 2)
+    addWrappedText(`Case Name: ${evidence.case?.name || "Unknown"}`, margin + 2)
+    yPos += 5
+    
+    // Evidence Information
+    checkPageBreak(40)
+    doc.setFillColor(241, 245, 249)
+    doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F')
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('EVIDENCE INFORMATION', margin + 2, yPos + 6)
+    yPos += 12
+    
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    addWrappedText(`Filename: ${evidence.filename}`, margin + 2)
+    addWrappedText(`File Size: ${evidence.fileSize ? `${(evidence.fileSize / 1024).toFixed(2)} KB` : "Unknown"}`, margin + 2)
+    addWrappedText(`File Type: ${evidence.mimeType || "Unknown"}`, margin + 2)
+    addWrappedText(`SHA256 Hash: ${evidence.sha256Hash}`, margin + 2, 8)
+    addWrappedText(`Upload Date: ${formatDate(evidence.uploadedAt)}`, margin + 2)
+    addWrappedText(`Analysis Status: ${evidence.analysisStatus?.toUpperCase()}`, margin + 2)
+    yPos += 5
+    
+    // Overall Analysis Summary
+    checkPageBreak(50)
+    doc.setFillColor(241, 245, 249)
+    doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F')
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('OVERALL ANALYSIS SUMMARY', margin + 2, yPos + 6)
+    yPos += 12
+    
+    const verdict = evidence.analysisResults?.verdict?.toUpperCase() || "UNKNOWN"
+    const severity = evidence.analysisResults?.severity?.toUpperCase() || "LOW"
+    
+    // Color code verdict
+    doc.setFont('helvetica', 'bold')
+    doc.text('Verdict: ', margin + 2, yPos)
+    if (verdict === 'MALICIOUS') doc.setTextColor(220, 38, 38)
+    else if (verdict === 'SUSPICIOUS') doc.setTextColor(234, 179, 8)
+    else doc.setTextColor(34, 197, 94)
+    doc.text(verdict, margin + 22, yPos)
+    doc.setTextColor(0, 0, 0)
+    yPos += 6
+    
+    doc.setFont('helvetica', 'normal')
+    addWrappedText(`Severity: ${severity}`, margin + 2)
+    addWrappedText(`Confidence: ${evidence.analysisResults?.confidence || 0}%`, margin + 2)
+    addWrappedText(`Summary: ${evidence.analysisResults?.summary || "No summary available"}`, margin + 2)
+    yPos += 5
+    
+    // Overall Findings
     if (evidence.analysisResults?.findings && evidence.analysisResults.findings.length > 0) {
-      content += `
-OVERALL FINDINGS (${evidence.analysisResults.findings.length}):
-${evidence.analysisResults.findings
-  .map(
-    (finding, index) =>
-      `  ${index + 1}. ${finding.description}
-     Category: ${finding.category || "General"}
-     Severity: ${finding.severity}
-     Confidence: ${finding.confidence || 0}%`,
-  )
-  .join("\n")}
-
-`
+      checkPageBreak(30)
+      doc.setFillColor(241, 245, 249)
+      doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F')
+      doc.setFontSize(12)
+      doc.setFont('helvetica', 'bold')
+      doc.text(`OVERALL FINDINGS (${evidence.analysisResults.findings.length})`, margin + 2, yPos + 6)
+      yPos += 12
+      
+      evidence.analysisResults.findings.forEach((finding, index) => {
+        checkPageBreak(25)
+        doc.setFont('helvetica', 'bold')
+        addWrappedText(`${index + 1}. ${finding.description}`, margin + 2, 10, true)
+        doc.setFont('helvetica', 'normal')
+        addWrappedText(`   Category: ${finding.category || "General"}`, margin + 2, 9)
+        addWrappedText(`   Severity: ${finding.severity}`, margin + 2, 9)
+        yPos += 3
+      })
+      yPos += 5
     }
-
-    // Add detailed agent reports
+    
+    // Detailed Agent Reports
     if (evidence.analysis_results && evidence.analysis_results.length > 0) {
-      content += `
-═══════════════════════════════════════════════════════════════════
-                            DETAILED AGENT REPORTS
-═══════════════════════════════════════════════════════════════════
-
-`
-
       evidence.analysis_results.forEach((report, index) => {
-        content += `
-───────────────────────────────────────────────────────────────────
-AGENT REPORT ${index + 1}: ${report.agent_name}
-───────────────────────────────────────────────────────────────────
-
-Analysis Type: ${report.analysis_type}
-Analysis Date: ${formatDate(report.created_at)}
-Execution Time: ${report.execution_time || 0} seconds
-
-VERDICT & METRICS:
-  Verdict: ${report.verdict?.toUpperCase() || "UNKNOWN"}
-  Severity: ${report.severity?.toUpperCase() || "LOW"}
-  Confidence: ${report.confidence || 0}%
-
-SUMMARY:
-${report.summary || "No summary available"}
-
-`
-
-        // Add agent-specific findings
+        checkPageBreak(40)
+        doc.setFillColor(51, 65, 85) // slate-700
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 10, 'F')
+        doc.setTextColor(255, 255, 255)
+        doc.setFontSize(12)
+        doc.setFont('helvetica', 'bold')
+        doc.text(`AGENT REPORT ${index + 1}: ${report.agent_name}`, margin + 2, yPos + 7)
+        doc.setTextColor(0, 0, 0)
+        yPos += 14
+        
+        doc.setFontSize(10)
+        doc.setFont('helvetica', 'normal')
+        addWrappedText(`Analysis Type: ${report.analysis_type}`, margin + 2)
+        addWrappedText(`Date: ${formatDate(report.created_at)}`, margin + 2)
+        addWrappedText(`Verdict: ${report.verdict?.toUpperCase() || "UNKNOWN"}`, margin + 2, 10, true)
+        addWrappedText(`Severity: ${report.severity?.toUpperCase() || "LOW"}`, margin + 2)
+        addWrappedText(`Summary: ${report.summary || "No summary available"}`, margin + 2)
+        yPos += 5
+        
         if (report.findings && report.findings.length > 0) {
-          content += `DETAILED FINDINGS (${report.findings.length}):
-${report.findings
-  .map(
-    (finding, findingIndex) =>
-      `  ${findingIndex + 1}. ${finding.description}
-     Category: ${finding.category || "General"}
-     Severity: ${finding.severity}
-     Confidence: ${finding.confidence || 0}%`,
-  )
-  .join("\n")}
-
-`
-        }
-
-        // Add technical details
-        if (report.technical_details && Object.keys(report.technical_details).length > 0) {
-          content += `TECHNICAL DETAILS:
-${formatTechnicalDetails(report.technical_details)}
-
-`
-        }
-
-        // Add recommendations
-        if (report.recommendations && report.recommendations.length > 0) {
-          content += `RECOMMENDATIONS (${report.recommendations.length}):
-${formatRecommendations(report.recommendations)}
-
-`
+          doc.setFont('helvetica', 'bold')
+          addWrappedText(`Findings (${report.findings.length}):`, margin + 2, 10, true)
+          doc.setFont('helvetica', 'normal')
+          report.findings.slice(0, 5).forEach((finding: any, fIndex: number) => {
+            checkPageBreak(15)
+            addWrappedText(`  ${fIndex + 1}. ${finding.description}`, margin + 4, 9)
+          })
+          yPos += 3
         }
       })
     }
-
-    content += `
-═══════════════════════════════════════════════════════════════════
-
-REPORT GENERATION:
-  Generated by: Aegis Forensics Platform
-  Generation Date: ${new Date().toLocaleString()}
-  Report Format: Comprehensive Analysis Report
-  Total Agent Reports: ${evidence.analysis_results?.length || 0}
-
-═══════════════════════════════════════════════════════════════════
-`
-
-    const blob = new Blob([content], { type: "text/plain" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `aegis-comprehensive-report-${evidence.filename.replace(/[^a-z0-9]/gi, "_")}-${Date.now()}.txt`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    
+    // Footer
+    const totalPages = doc.getNumberOfPages()
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i)
+      doc.setFontSize(8)
+      doc.setTextColor(100, 100, 100)
+      doc.text(
+        `Generated by Aegis Forensics Platform | ${new Date().toLocaleString()} | Page ${i} of ${totalPages}`,
+        pageWidth / 2,
+        pageHeight - 10,
+        { align: 'center' }
+      )
+    }
+    
+    // Save the PDF
+    doc.save(`aegis-report-${evidence.filename.replace(/[^a-z0-9]/gi, "_")}-${Date.now()}.pdf`)
   }
 
   // Function to view evidence details
@@ -809,9 +852,9 @@ REPORT GENERATION:
                                 </Badge>
                               </TableCell>
                               <TableCell>
-                                {item.latest_verdict && (
-                                  <Badge variant={getVerdictColor(item.latest_verdict)}>
-                                    {item.latest_verdict.toUpperCase()}
+                                {item.analysisResults?.verdict && (
+                                  <Badge variant={getVerdictColor(item.analysisResults.verdict)}>
+                                    {item.analysisResults.verdict.toUpperCase()}
                                   </Badge>
                                 )}
                               </TableCell>
@@ -835,7 +878,6 @@ REPORT GENERATION:
                                     size="sm"
                                     variant="outline"
                                     onClick={() => generatePDFReport(item)}
-                                    disabled={!item.analysis_results || item.analysis_results.length === 0}
                                   >
                                     <FileText className="w-4 h-4 mr-1" />
                                     Report
@@ -856,7 +898,7 @@ REPORT GENERATION:
 
         {selectedEvidence && (
           <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="w-[54vw] !max-w-[1600px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Evidence Analysis Details</DialogTitle>
                 <DialogDescription>Detailed analysis results for {selectedEvidence.filename}</DialogDescription>
