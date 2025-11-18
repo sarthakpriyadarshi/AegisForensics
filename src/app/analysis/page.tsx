@@ -304,12 +304,19 @@ const AnalysisPage: React.FC = () => {
   const generatePDFReport = async (evidence: Evidence) => {
     // Dynamically import jsPDF to avoid SSR issues
     const { jsPDF } = await import('jspdf')
+    const { addMontserratFont } = await import('@/lib/montserrat-font')
     const doc = new jsPDF()
+    
+    // Load Montserrat font (fallback to helvetica if it fails)
+    const fontLoaded = await addMontserratFont(doc)
     
     const pageWidth = doc.internal.pageSize.getWidth()
     const pageHeight = doc.internal.pageSize.getHeight()
     const margin = 20
     let yPos = 20
+    
+    // Use Montserrat font family if loaded, otherwise helvetica
+    const fontFamily = fontLoaded ? 'Montserrat' : 'helvetica'
     
     // Helper function to add new page if needed
     const checkPageBreak = (lineHeight = 10) => {
@@ -324,7 +331,7 @@ const AnalysisPage: React.FC = () => {
     // Helper function to add text with word wrap
     const addWrappedText = (text: string, x: number, fontSize = 10, isBold = false) => {
       doc.setFontSize(fontSize)
-      doc.setFont('helvetica', isBold ? 'bold' : 'normal')
+      doc.setFont(fontFamily, isBold ? 'bold' : 'normal')
       const lines = doc.splitTextToSize(text, pageWidth - 2 * margin)
       lines.forEach((line: string) => {
         checkPageBreak()
@@ -337,14 +344,65 @@ const AnalysisPage: React.FC = () => {
     doc.setFillColor(15, 23, 42) // slate-900
     doc.rect(0, 0, pageWidth, 40, 'F')
     
+    // Load and add logo from public folder
+    try {
+      const logoResponse = await fetch('/aegis-logo.svg')
+      const logoSvg = await logoResponse.text()
+      
+      // Create a blob URL from SVG
+      const svgBlob = new Blob([logoSvg], { type: 'image/svg+xml;charset=utf-8' })
+      const svgUrl = URL.createObjectURL(svgBlob)
+      
+      const logoImg = new Image()
+      logoImg.src = svgUrl
+      
+      await new Promise((resolve) => {
+        logoImg.onload = () => {
+          const logoX = 25
+          const logoY = 12
+          const logoSize = 16
+          
+          // Create canvas to convert SVG to PNG
+          const canvas = document.createElement('canvas')
+          canvas.width = logoSize * 4 // Higher resolution
+          canvas.height = logoSize * 4
+          const ctx = canvas.getContext('2d')
+          
+          if (ctx) {
+            // Make background transparent
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.drawImage(logoImg, 0, 0, canvas.width, canvas.height)
+            
+            // Get PNG data URL from canvas
+            const pngDataUrl = canvas.toDataURL('image/png')
+            
+            // Add logo image to PDF
+            doc.addImage(pngDataUrl, 'PNG', logoX, logoY, logoSize, logoSize)
+          }
+          
+          URL.revokeObjectURL(svgUrl)
+          resolve(true)
+        }
+        logoImg.onerror = () => {
+          URL.revokeObjectURL(svgUrl)
+          resolve(false)
+        }
+      })
+    } catch (error) {
+      console.error('Failed to load logo:', error)
+    }
+    
+    // Add text beside the logo
+    const logoSize = 16
+    const logoX = 25
     doc.setTextColor(255, 255, 255)
     doc.setFontSize(24)
-    doc.setFont('helvetica', 'bold')
-    doc.text('AEGIS FORENSICS', pageWidth / 2, 20, { align: 'center' })
+    doc.setFont(fontFamily, 'bold')
+    doc.text('AEGIS FORENSICS', logoX + logoSize + 8, 22)
     
     doc.setFontSize(12)
-    doc.setFont('helvetica', 'normal')
-    doc.text('Evidence Analysis Report', pageWidth / 2, 30, { align: 'center' })
+    doc.setFont(fontFamily, 'normal')
+    doc.text('Evidence Analysis Report', logoX + logoSize + 8, 30)
     
     doc.setTextColor(0, 0, 0)
     yPos = 50
@@ -353,12 +411,12 @@ const AnalysisPage: React.FC = () => {
     doc.setFillColor(241, 245, 249) // slate-100
     doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F')
     doc.setFontSize(14)
-    doc.setFont('helvetica', 'bold')
+    doc.setFont(fontFamily, 'bold')
     doc.text('CASE INFORMATION', margin + 2, yPos + 6)
-    yPos += 12
+    yPos += 16
     
     doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
+    doc.setFont(fontFamily, 'normal')
     addWrappedText(`Case ID: ${evidence.caseId}`, margin + 2)
     addWrappedText(`Case Name: ${evidence.case?.name || "Unknown"}`, margin + 2)
     yPos += 5
@@ -368,16 +426,16 @@ const AnalysisPage: React.FC = () => {
     doc.setFillColor(241, 245, 249)
     doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F')
     doc.setFontSize(14)
-    doc.setFont('helvetica', 'bold')
+    doc.setFont(fontFamily, 'bold')
     doc.text('EVIDENCE INFORMATION', margin + 2, yPos + 6)
-    yPos += 12
+    yPos += 16
     
     doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
+    doc.setFont(fontFamily, 'normal')
     addWrappedText(`Filename: ${evidence.filename}`, margin + 2)
     addWrappedText(`File Size: ${evidence.fileSize ? `${(evidence.fileSize / 1024).toFixed(2)} KB` : "Unknown"}`, margin + 2)
     addWrappedText(`File Type: ${evidence.mimeType || "Unknown"}`, margin + 2)
-    addWrappedText(`SHA256 Hash: ${evidence.sha256Hash}`, margin + 2, 8)
+    addWrappedText(`SHA256 Hash: ${evidence.sha256Hash}`, margin + 2, 10)
     addWrappedText(`Upload Date: ${formatDate(evidence.uploadedAt)}`, margin + 2)
     addWrappedText(`Analysis Status: ${evidence.analysisStatus?.toUpperCase()}`, margin + 2)
     yPos += 5
@@ -387,24 +445,25 @@ const AnalysisPage: React.FC = () => {
     doc.setFillColor(241, 245, 249)
     doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F')
     doc.setFontSize(14)
-    doc.setFont('helvetica', 'bold')
+    doc.setFont(fontFamily, 'bold')
     doc.text('OVERALL ANALYSIS SUMMARY', margin + 2, yPos + 6)
-    yPos += 12
+    yPos += 16
     
     const verdict = evidence.analysisResults?.verdict?.toUpperCase() || "UNKNOWN"
     const severity = evidence.analysisResults?.severity?.toUpperCase() || "LOW"
     
     // Color code verdict
-    doc.setFont('helvetica', 'bold')
+    doc.setFont(fontFamily, 'bold')
     doc.text('Verdict: ', margin + 2, yPos)
+    const verdictLabelWidth = doc.getTextWidth('Verdict: ')
     if (verdict === 'MALICIOUS') doc.setTextColor(220, 38, 38)
     else if (verdict === 'SUSPICIOUS') doc.setTextColor(234, 179, 8)
     else doc.setTextColor(34, 197, 94)
-    doc.text(verdict, margin + 22, yPos)
+    doc.text(verdict, margin + 2 + verdictLabelWidth, yPos)
     doc.setTextColor(0, 0, 0)
     yPos += 6
     
-    doc.setFont('helvetica', 'normal')
+    doc.setFont(fontFamily, 'normal')
     addWrappedText(`Severity: ${severity}`, margin + 2)
     addWrappedText(`Confidence: ${evidence.analysisResults?.confidence || 0}%`, margin + 2)
     addWrappedText(`Summary: ${evidence.analysisResults?.summary || "No summary available"}`, margin + 2)
@@ -416,15 +475,15 @@ const AnalysisPage: React.FC = () => {
       doc.setFillColor(241, 245, 249)
       doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F')
       doc.setFontSize(12)
-      doc.setFont('helvetica', 'bold')
+      doc.setFont(fontFamily, 'bold')
       doc.text(`OVERALL FINDINGS (${evidence.analysisResults.findings.length})`, margin + 2, yPos + 6)
-      yPos += 12
+      yPos += 16
       
       evidence.analysisResults.findings.forEach((finding, index) => {
         checkPageBreak(25)
-        doc.setFont('helvetica', 'bold')
+        doc.setFont(fontFamily, 'bold')
         addWrappedText(`${index + 1}. ${finding.description}`, margin + 2, 10, true)
-        doc.setFont('helvetica', 'normal')
+        doc.setFont(fontFamily, 'normal')
         addWrappedText(`   Category: ${finding.category || "General"}`, margin + 2, 9)
         addWrappedText(`   Severity: ${finding.severity}`, margin + 2, 9)
         yPos += 3
@@ -440,13 +499,13 @@ const AnalysisPage: React.FC = () => {
         doc.rect(margin, yPos, pageWidth - 2 * margin, 10, 'F')
         doc.setTextColor(255, 255, 255)
         doc.setFontSize(12)
-        doc.setFont('helvetica', 'bold')
+        doc.setFont(fontFamily, 'bold')
         doc.text(`AGENT REPORT ${index + 1}: ${report.agent_name}`, margin + 2, yPos + 7)
         doc.setTextColor(0, 0, 0)
-        yPos += 14
+        yPos += 18
         
         doc.setFontSize(10)
-        doc.setFont('helvetica', 'normal')
+        doc.setFont(fontFamily, 'normal')
         addWrappedText(`Analysis Type: ${report.analysis_type}`, margin + 2)
         addWrappedText(`Date: ${formatDate(report.created_at)}`, margin + 2)
         addWrappedText(`Verdict: ${report.verdict?.toUpperCase() || "UNKNOWN"}`, margin + 2, 10, true)
@@ -455,9 +514,9 @@ const AnalysisPage: React.FC = () => {
         yPos += 5
         
         if (report.findings && report.findings.length > 0) {
-          doc.setFont('helvetica', 'bold')
+          doc.setFont(fontFamily, 'bold')
           addWrappedText(`Findings (${report.findings.length}):`, margin + 2, 10, true)
-          doc.setFont('helvetica', 'normal')
+          doc.setFont(fontFamily, 'normal')
           report.findings.slice(0, 5).forEach((finding: any, fIndex: number) => {
             checkPageBreak(15)
             addWrappedText(`  ${fIndex + 1}. ${finding.description}`, margin + 4, 9)
