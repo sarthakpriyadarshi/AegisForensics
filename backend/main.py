@@ -911,6 +911,14 @@ Based on this technical data, provide your forensic assessment following the exa
         }
     })
 
+@app.post("/api/upload-evidence")
+async def upload_evidence(file: UploadFile = File(...), case_id: str = Form(None)):
+    """
+    Frontend-compatible upload endpoint that proxies to analyze_uploadfile.
+    Accepts file and case_id form fields, triggers full analysis pipeline.
+    """
+    return await analyze_uploadfile(file=file, case_id=case_id)
+
 @app.post("/analyze/streamdata/")
 async def analyze_streamdata(request: Request):
     """

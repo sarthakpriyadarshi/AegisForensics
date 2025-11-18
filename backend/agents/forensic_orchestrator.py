@@ -1,4 +1,6 @@
 # agents/forensic_orchestrator.py
+import os
+from dotenv import load_dotenv
 from google.adk.agents import LlmAgent
 from google.adk.tools.agent_tool import AgentTool
 
@@ -13,7 +15,9 @@ from agents.recon_agent import recon_agent
 from agents.user_profiler_agent import user_profiler_agent
 from agents.live_response_agent import live_response_agent
 
-FORGE_MODEL = "gemini-2.0-flash"  # replace with your intended model name
+load_dotenv()
+
+FORGE_MODEL = os.getenv("MODEL_GEMINI", "gemini-2.5-pro")
 
 forensic_orchestrator = LlmAgent(
     name="ForensicOrchestrator",

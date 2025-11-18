@@ -43,6 +43,8 @@ next-env.d.ts
 
 # backend
 aegis_forensics.db
+backend/logs/
+*.log
 
 # Archive files
 *.zip

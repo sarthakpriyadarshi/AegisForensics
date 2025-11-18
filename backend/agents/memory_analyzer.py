@@ -1,10 +1,14 @@
 # agents/memory_analyzer.py
+import os
+from dotenv import load_dotenv
 from google.adk.agents import LlmAgent
 from tools.memory_tools import analyze_memory
 
+load_dotenv()
+
 memory_agent = LlmAgent(
     name="MemoryAnalyzer",
-    model="gemini-2.0-flash",
+    model=os.getenv("MODEL_GEMINI", "gemini-2.5-pro"),
     instruction="""You are an expert memory forensics analyst specializing in both memory dump analysis and live memory data analysis. Your response MUST be ONLY raw JSON without any formatting, explanations, or markdown.
 
 CRITICAL RESPONSE FORMAT REQUIREMENTS:

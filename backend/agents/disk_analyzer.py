@@ -1,10 +1,14 @@
 # agents/disk_analyzer.py
+import os
+from dotenv import load_dotenv
 from google.adk.agents import LlmAgent
 from tools.disk_tools import analyze_disk
 
+load_dotenv()
+
 disk_agent = LlmAgent(
     name="DiskAnalyzer",
-    model="gemini-2.0-flash",
+    model=os.getenv("MODEL_GEMINI", "gemini-2.5-pro"),
     instruction="""You are an expert disk forensics analyst. Your response MUST be ONLY raw JSON without any formatting, explanations, or markdown.
 
 CRITICAL RESPONSE FORMAT REQUIREMENTS:

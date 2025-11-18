@@ -1,10 +1,14 @@
 # agents/custodian_agent.py
+import os
+from dotenv import load_dotenv
 from google.adk.agents import LlmAgent
 from tools.custodian_tools import custodian_record
 
+load_dotenv()
+
 custodian_agent = LlmAgent(
     name="CustodianAgent",
-    model="gemini-2.0-flash",
+    model=os.getenv("MODEL_GEMINI", "gemini-2.5-pro"),
     instruction="""You are an expert evidence custodian and chain of custody specialist. Your response MUST be ONLY raw JSON without any formatting, explanations, or markdown.
 
 CRITICAL RESPONSE FORMAT REQUIREMENTS:

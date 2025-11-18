@@ -1,10 +1,14 @@
 # agents/network_analyzer.py
+import os
+from dotenv import load_dotenv
 from google.adk.agents import LlmAgent
 from tools.network_tools import analyze_network
 
+load_dotenv()
+
 network_agent = LlmAgent(
     name="NetworkAnalyzer",
-    model="gemini-2.0-flash",
+    model=os.getenv("MODEL_GEMINI", "gemini-2.5-pro"),
     instruction="""You are an expert network traffic forensics analyst. Your response MUST be ONLY raw JSON without any formatting, explanations, or markdown.
 
 CRITICAL RESPONSE FORMAT REQUIREMENTS:

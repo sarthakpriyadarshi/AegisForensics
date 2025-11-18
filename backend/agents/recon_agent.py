@@ -1,10 +1,14 @@
 # agents/recon_agent.py
+import os
+from dotenv import load_dotenv
 from google.adk.agents import LlmAgent
 from tools.recon_tools import reconnaissance
 
+load_dotenv()
+
 recon_agent = LlmAgent(
     name="ReconAgent",
-    model="gemini-2.0-flash",
+    model=os.getenv("MODEL_GEMINI", "gemini-2.5-pro"),
     instruction="""You are an expert OSINT reconnaissance analyst. Your response MUST be ONLY raw JSON without any formatting, explanations, or markdown.
 
 CRITICAL RESPONSE FORMAT REQUIREMENTS:

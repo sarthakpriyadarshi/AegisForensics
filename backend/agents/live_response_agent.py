@@ -1,10 +1,14 @@
 # agents/live_response_agent.py
+import os
+from dotenv import load_dotenv
 from google.adk.agents import LlmAgent
 from tools.live_response_tools import generate_streaming_script
 
+load_dotenv()
+
 live_response_agent = LlmAgent(
     name="LiveResponseAgent",
-    model="gemini-2.0-flash",
+    model=os.getenv("MODEL_GEMINI", "gemini-2.5-pro"),
     instruction="""You are an expert live response and incident response specialist. Your response MUST be ONLY raw JSON without any formatting, explanations, or markdown.
 
 CRITICAL RESPONSE FORMAT REQUIREMENTS:

@@ -1,10 +1,14 @@
 # agents/timeline_agent.py
+import os
+from dotenv import load_dotenv
 from google.adk.agents import LlmAgent
 from tools.timeline_tools import generate_timeline
 
+load_dotenv()
+
 timeline_agent = LlmAgent(
     name="TimelineAgent",
-    model="gemini-2.0-flash",
+    model=os.getenv("MODEL_GEMINI", "gemini-2.5-pro"),
     instruction="""You are an expert timeline forensics analyst. Your response MUST be ONLY raw JSON without any formatting, explanations, or markdown.
 
 CRITICAL RESPONSE FORMAT REQUIREMENTS:

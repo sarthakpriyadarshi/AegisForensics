@@ -2,9 +2,17 @@
 from google.adk.agents import LlmAgent
 from tools.user_profile_tools import user_profile
 
+# agents/user_profiler_agent.py
+import os
+from dotenv import load_dotenv
+from google.adk.agents import LlmAgent
+from tools.user_profile_tools import user_profile
+
+load_dotenv()
+
 user_profiler_agent = LlmAgent(
-    name="UserProfilerAgent",
-    model="gemini-2.0-flash",
+    name="UserProfiler",
+    model=os.getenv("MODEL_GEMINI", "gemini-2.5-pro"),
     instruction="""You are an expert user behavior and activity analyst. Your response MUST be ONLY raw JSON without any formatting, explanations, or markdown.
 
 CRITICAL RESPONSE FORMAT REQUIREMENTS:
