@@ -1,78 +1,102 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import DashboardLayout from "@/components/DashboardLayout"
-import { AuthGuard } from "@/components/AuthGuard"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { User, Shield, Settings, Edit, Save, X, AlertCircle } from "lucide-react"
+import type React from "react";
+import { useState, useEffect } from "react";
+import DashboardLayout from "@/components/DashboardLayout";
+import { AuthGuard } from "@/components/AuthGuard";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  User,
+  Shield,
+  Settings,
+  Edit,
+  Save,
+  X,
+  AlertCircle,
+} from "lucide-react";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 interface UserProfile {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  role: string
-  department: string
-  phone: string
-  timezone: string
-  avatar: string
-  lastLogin: string
-  createdAt: string
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  department: string;
+  phone: string;
+  timezone: string;
+  avatar: string;
+  lastLogin: string;
+  createdAt: string;
   preferences: {
     notifications: {
-      email: boolean
-      browser: boolean
-      mobile: boolean
-    }
-    theme: "light" | "dark" | "auto"
-    language: string
-    dateFormat: string
-    timeFormat: "12h" | "24h"
-  }
+      email: boolean;
+      browser: boolean;
+      mobile: boolean;
+    };
+    theme: "light" | "dark" | "auto";
+    language: string;
+    dateFormat: string;
+    timeFormat: "12h" | "24h";
+  };
   security: {
-    twoFactorEnabled: boolean
-    lastPasswordChange: string
-    activeSessions: number
-  }
+    twoFactorEnabled: boolean;
+    lastPasswordChange: string;
+    activeSessions: number;
+  };
 }
 
 interface PasswordChangeForm {
-  currentPassword: string
-  newPassword: string
-  confirmPassword: string
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 interface ApiUserProfile {
-  id: number
-  full_name: string
-  email: string
-  organization: string
-  timezone: string
-  avatar_base64: string | null
-  is_admin: boolean
-  created_at: string
-  last_login: string | null
-  password_expires_at: string
-  is_active: boolean
+  id: number;
+  full_name: string;
+  email: string;
+  organization: string;
+  timezone: string;
+  avatar_base64: string | null;
+  is_admin: boolean;
+  created_at: string;
+  last_login: string | null;
+  password_expires_at: string;
+  is_active: boolean;
 }
 
 const ProfilePage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"profile" | "security" | "preferences">("profile")
-  const [isEditing, setIsEditing] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [showPasswordForm, setShowPasswordForm] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "security" | "preferences"
+  >("profile");
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [profile, setProfile] = useState<UserProfile>({
     id: "",
@@ -102,35 +126,35 @@ const ProfilePage: React.FC = () => {
       lastPasswordChange: "",
       activeSessions: 1,
     },
-  })
+  });
 
   const [passwordForm, setPasswordForm] = useState<PasswordChangeForm>({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-  })
+  });
 
   // Load profile data from API
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const token = localStorage.getItem("aegis_token")
+        const token = localStorage.getItem("aegis_token");
         if (!token) {
-          window.location.href = "/auth/login"
-          return
+          window.location.href = "/auth/login";
+          return;
         }
 
-        const response = await fetch("http://localhost:8000/auth/me", {
+        const response = await fetch(`${API_BASE_URL}/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
+        });
 
         if (response.ok) {
-          const data: ApiUserProfile = await response.json()
-          const nameParts = data.full_name.split(" ")
-          const firstName = nameParts[0] || ""
-          const lastName = nameParts.slice(1).join(" ") || ""
+          const data: ApiUserProfile = await response.json();
+          const nameParts = data.full_name.split(" ");
+          const firstName = nameParts[0] || "";
+          const lastName = nameParts.slice(1).join(" ") || "";
 
           setProfile({
             id: data.id.toString(),
@@ -160,32 +184,32 @@ const ProfilePage: React.FC = () => {
               lastPasswordChange: data.password_expires_at,
               activeSessions: 1,
             },
-          })
+          });
         } else if (response.status === 401) {
-          localStorage.removeItem("aegis_token")
-          window.location.href = "/auth/login"
+          localStorage.removeItem("aegis_token");
+          window.location.href = "/auth/login";
         }
       } catch (error) {
-        console.error("Error loading profile:", error)
-        setError("Failed to load profile data")
+        console.error("Error loading profile:", error);
+        setError("Failed to load profile data");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    loadProfile()
-  }, [])
+    loadProfile();
+  }, []);
 
   const handleProfileUpdate = async () => {
-    setIsSaving(true)
+    setIsSaving(true);
     try {
-      const token = localStorage.getItem("aegis_token")
+      const token = localStorage.getItem("aegis_token");
       if (!token) {
-        window.location.href = "/auth/login"
-        return
+        window.location.href = "/auth/login";
+        return;
       }
 
-      const response = await fetch("http://localhost:8000/auth/profile", {
+      const response = await fetch(`${API_BASE_URL}/auth/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -197,90 +221,100 @@ const ProfilePage: React.FC = () => {
           timezone: profile.timezone,
           avatar_base64: profile.avatar || null,
         }),
-      })
+      });
 
       if (response.ok) {
-        setIsEditing(false)
-        setError(null)
+        setIsEditing(false);
+        setError(null);
       } else if (response.status === 401) {
-        localStorage.removeItem("aegis_token")
-        window.location.href = "/auth/login"
+        localStorage.removeItem("aegis_token");
+        window.location.href = "/auth/login";
       } else {
-        throw new Error("Failed to update profile")
+        throw new Error("Failed to update profile");
       }
     } catch (error) {
-      console.error("Failed to update profile:", error)
-      setError("Failed to update profile")
+      console.error("Failed to update profile:", error);
+      setError("Failed to update profile");
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handlePasswordChange = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setError("Passwords do not match")
-      return
+      setError("Passwords do not match");
+      return;
     }
 
-    setIsSaving(true)
+    setIsSaving(true);
     try {
-      const token = localStorage.getItem("aegis_token")
+      const token = localStorage.getItem("aegis_token");
       if (!token) {
-        window.location.href = "/auth/login"
-        return
+        window.location.href = "/auth/login";
+        return;
       }
 
-      const response = await fetch("http://localhost:8000/auth/change-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          current_password: passwordForm.currentPassword,
-          new_password: passwordForm.newPassword,
-        }),
-      })
+      const response = await fetch(
+        `${API_BASE_URL}/auth/change-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            current_password: passwordForm.currentPassword,
+            new_password: passwordForm.newPassword,
+          }),
+        }
+      );
 
       if (response.ok) {
         setPasswordForm({
           currentPassword: "",
           newPassword: "",
           confirmPassword: "",
-        })
-        setShowPasswordForm(false)
-        setError(null)
-        alert("Password changed successfully")
+        });
+        setShowPasswordForm(false);
+        setError(null);
+        alert("Password changed successfully");
       } else if (response.status === 401) {
-        localStorage.removeItem("aegis_token")
-        window.location.href = "/auth/login"
+        localStorage.removeItem("aegis_token");
+        window.location.href = "/auth/login";
       } else {
-        const errorData = await response.json()
-        throw new Error(errorData.detail || "Failed to change password")
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to change password");
       }
     } catch (error) {
-      console.error("Failed to change password:", error)
-      setError("Failed to change password: " + (error as Error).message)
+      console.error("Failed to change password:", error);
+      setError("Failed to change password: " + (error as Error).message);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
-  const handlePreferenceChange = (category: string, key: string, value: boolean | string) => {
+  const handlePreferenceChange = (
+    category: string,
+    key: string,
+    value: boolean | string
+  ) => {
     setProfile((prev) => ({
       ...prev,
       preferences: {
         ...prev.preferences,
         [category]:
-          typeof prev.preferences[category as keyof typeof prev.preferences] === "object"
+          typeof prev.preferences[category as keyof typeof prev.preferences] ===
+          "object"
             ? {
-                ...(prev.preferences[category as keyof typeof prev.preferences] as Record<string, boolean | string>),
+                ...(prev.preferences[
+                  category as keyof typeof prev.preferences
+                ] as Record<string, boolean | string>),
                 [key]: value,
               }
             : value,
       },
-    }))
-  }
+    }));
+  };
 
   if (isLoading) {
     return (
@@ -306,7 +340,7 @@ const ProfilePage: React.FC = () => {
           </div>
         </DashboardLayout>
       </AuthGuard>
-    )
+    );
   }
 
   return (
@@ -317,14 +351,20 @@ const ProfilePage: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-2">
-                <Badge variant="outline" className="border-primary/20 text-primary">
+                <Badge
+                  variant="outline"
+                  className="border-primary/20 text-primary"
+                >
                   <User className="w-3 h-3 mr-1" />
                   Account Management
                 </Badge>
               </div>
-              <h1 className="text-3xl font-bold text-foreground">User Profile</h1>
+              <h1 className="text-3xl font-bold text-foreground">
+                User Profile
+              </h1>
               <p className="text-lg text-muted-foreground">
-                Manage your account settings, security preferences, and system configuration.
+                Manage your account settings, security preferences, and system
+                configuration.
               </p>
             </div>
           </div>
@@ -359,14 +399,20 @@ const ProfilePage: React.FC = () => {
                   <h2 className="text-2xl font-bold mb-2">
                     {profile.firstName} {profile.lastName}
                   </h2>
-                  <p className="text-lg font-medium text-primary">{profile.role}</p>
+                  <p className="text-lg font-medium text-primary">
+                    {profile.role}
+                  </p>
                   <p className="text-muted-foreground">{profile.department}</p>
                 </div>
                 <Card className="w-full md:w-auto">
                   <CardContent className="p-4">
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-1">Last login</p>
-                      <p className="font-medium">{new Date(profile.lastLogin).toLocaleString()}</p>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Last login
+                      </p>
+                      <p className="font-medium">
+                        {new Date(profile.lastLogin).toLocaleString()}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -377,7 +423,9 @@ const ProfilePage: React.FC = () => {
           {/* Tab Content */}
           <Tabs
             value={activeTab}
-            onValueChange={(value) => setActiveTab(value as "profile" | "security" | "preferences")}
+            onValueChange={(value) =>
+              setActiveTab(value as "profile" | "security" | "preferences")
+            }
           >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile" className="flex items-center gap-2">
@@ -388,7 +436,10 @@ const ProfilePage: React.FC = () => {
                 <Shield className="w-4 h-4" />
                 Security
               </TabsTrigger>
-              <TabsTrigger value="preferences" className="flex items-center gap-2">
+              <TabsTrigger
+                value="preferences"
+                className="flex items-center gap-2"
+              >
                 <Settings className="w-4 h-4" />
                 Preferences
               </TabsTrigger>
@@ -400,12 +451,18 @@ const ProfilePage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle>Profile Information</CardTitle>
-                      <CardDescription>Update your personal information and contact details</CardDescription>
+                      <CardDescription>
+                        Update your personal information and contact details
+                      </CardDescription>
                     </div>
                     <Button
-                      onClick={() => (isEditing ? handleProfileUpdate() : setIsEditing(true))}
+                      onClick={() =>
+                        isEditing ? handleProfileUpdate() : setIsEditing(true)
+                      }
                       disabled={isSaving}
-                      className={isEditing ? "bg-green-600 hover:bg-green-700" : ""}
+                      className={
+                        isEditing ? "bg-green-600 hover:bg-green-700" : ""
+                      }
                     >
                       {isSaving ? (
                         "Saving..."
@@ -426,24 +483,62 @@ const ProfilePage: React.FC = () => {
                 <CardContent>
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     {[
-                      { label: "First Name", key: "firstName", type: "text", editable: true },
-                      { label: "Last Name", key: "lastName", type: "text", editable: true },
-                      { label: "Email Address", key: "email", type: "email", editable: true },
-                      { label: "Phone Number", key: "phone", type: "tel", editable: true },
-                      { label: "Role", key: "role", type: "text", editable: false },
-                      { label: "Department", key: "department", type: "text", editable: false },
+                      {
+                        label: "First Name",
+                        key: "firstName",
+                        type: "text",
+                        editable: true,
+                      },
+                      {
+                        label: "Last Name",
+                        key: "lastName",
+                        type: "text",
+                        editable: true,
+                      },
+                      {
+                        label: "Email Address",
+                        key: "email",
+                        type: "email",
+                        editable: true,
+                      },
+                      {
+                        label: "Phone Number",
+                        key: "phone",
+                        type: "tel",
+                        editable: true,
+                      },
+                      {
+                        label: "Role",
+                        key: "role",
+                        type: "text",
+                        editable: false,
+                      },
+                      {
+                        label: "Department",
+                        key: "department",
+                        type: "text",
+                        editable: false,
+                      },
                     ].map((field) => (
                       <div key={field.key} className="space-y-2">
                         <Label htmlFor={field.key}>{field.label}</Label>
                         <Input
                           id={field.key}
                           type={field.type}
-                          value={profile[field.key as keyof UserProfile] as string}
+                          value={
+                            profile[field.key as keyof UserProfile] as string
+                          }
                           onChange={(e) =>
-                            field.editable && setProfile((prev) => ({ ...prev, [field.key]: e.target.value }))
+                            field.editable &&
+                            setProfile((prev) => ({
+                              ...prev,
+                              [field.key]: e.target.value,
+                            }))
                           }
                           disabled={!field.editable || !isEditing}
-                          className={!field.editable || !isEditing ? "bg-muted" : ""}
+                          className={
+                            !field.editable || !isEditing ? "bg-muted" : ""
+                          }
                         />
                       </div>
                     ))}
@@ -456,7 +551,9 @@ const ProfilePage: React.FC = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Security Settings</CardTitle>
-                  <CardDescription>Manage your account security and authentication</CardDescription>
+                  <CardDescription>
+                    Manage your account security and authentication
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Password Section */}
@@ -465,10 +562,17 @@ const ProfilePage: React.FC = () => {
                       <div>
                         <h4 className="text-lg font-semibold">Password</h4>
                         <p className="text-sm text-muted-foreground">
-                          Last changed: {new Date(profile.security.lastPasswordChange).toLocaleDateString()}
+                          Last changed:{" "}
+                          {new Date(
+                            profile.security.lastPasswordChange
+                          ).toLocaleDateString()}
                         </p>
                       </div>
-                      <Button variant="outline" onClick={() => setShowPasswordForm(!showPasswordForm)} className="w-full sm:w-auto">
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowPasswordForm(!showPasswordForm)}
+                        className="w-full sm:w-auto"
+                      >
                         Change Password
                       </Button>
                     </div>
@@ -477,17 +581,32 @@ const ProfilePage: React.FC = () => {
                       <Card>
                         <CardContent className="p-6 space-y-4">
                           {[
-                            { label: "Current Password", key: "currentPassword" },
+                            {
+                              label: "Current Password",
+                              key: "currentPassword",
+                            },
                             { label: "New Password", key: "newPassword" },
-                            { label: "Confirm New Password", key: "confirmPassword" },
+                            {
+                              label: "Confirm New Password",
+                              key: "confirmPassword",
+                            },
                           ].map((field) => (
                             <div key={field.key} className="space-y-2">
                               <Label htmlFor={field.key}>{field.label}</Label>
                               <Input
                                 id={field.key}
                                 type="password"
-                                value={passwordForm[field.key as keyof PasswordChangeForm]}
-                                onChange={(e) => setPasswordForm((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                                value={
+                                  passwordForm[
+                                    field.key as keyof PasswordChangeForm
+                                  ]
+                                }
+                                onChange={(e) =>
+                                  setPasswordForm((prev) => ({
+                                    ...prev,
+                                    [field.key]: e.target.value,
+                                  }))
+                                }
                               />
                             </div>
                           ))}
@@ -499,7 +618,10 @@ const ProfilePage: React.FC = () => {
                             >
                               {isSaving ? "Changing..." : "Change Password"}
                             </Button>
-                            <Button variant="outline" onClick={() => setShowPasswordForm(false)}>
+                            <Button
+                              variant="outline"
+                              onClick={() => setShowPasswordForm(false)}
+                            >
                               <X className="w-4 h-4 mr-2" />
                               Cancel
                             </Button>
@@ -512,15 +634,31 @@ const ProfilePage: React.FC = () => {
                   {/* Two-Factor Authentication */}
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg gap-4">
                     <div>
-                      <h4 className="text-lg font-semibold">Two-Factor Authentication</h4>
-                      <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
+                      <h4 className="text-lg font-semibold">
+                        Two-Factor Authentication
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        Add an extra layer of security to your account
+                      </p>
                     </div>
                     <div className="flex items-center space-x-4 w-full sm:w-auto justify-between sm:justify-end">
-                      <Badge variant={profile.security.twoFactorEnabled ? "default" : "secondary"}>
-                        {profile.security.twoFactorEnabled ? "Enabled" : "Disabled"}
+                      <Badge
+                        variant={
+                          profile.security.twoFactorEnabled
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
+                        {profile.security.twoFactorEnabled
+                          ? "Enabled"
+                          : "Disabled"}
                       </Badge>
                       <Button
-                        variant={profile.security.twoFactorEnabled ? "destructive" : "default"}
+                        variant={
+                          profile.security.twoFactorEnabled
+                            ? "destructive"
+                            : "default"
+                        }
                         onClick={() =>
                           setProfile((prev) => ({
                             ...prev,
@@ -531,7 +669,9 @@ const ProfilePage: React.FC = () => {
                           }))
                         }
                       >
-                        {profile.security.twoFactorEnabled ? "Disable" : "Enable"}
+                        {profile.security.twoFactorEnabled
+                          ? "Disable"
+                          : "Enable"}
                       </Button>
                     </div>
                   </div>
@@ -541,10 +681,13 @@ const ProfilePage: React.FC = () => {
                     <div>
                       <h4 className="text-lg font-semibold">Active Sessions</h4>
                       <p className="text-sm text-muted-foreground">
-                        You have {profile.security.activeSessions} active sessions
+                        You have {profile.security.activeSessions} active
+                        sessions
                       </p>
                     </div>
-                    <Button variant="outline" className="w-full sm:w-auto">Manage Sessions</Button>
+                    <Button variant="outline" className="w-full sm:w-auto">
+                      Manage Sessions
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -554,7 +697,9 @@ const ProfilePage: React.FC = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Preferences</CardTitle>
-                  <CardDescription>Customize your experience and notification settings</CardDescription>
+                  <CardDescription>
+                    Customize your experience and notification settings
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Notifications */}
@@ -566,8 +711,14 @@ const ProfilePage: React.FC = () => {
                         { key: "browser", label: "Browser notifications" },
                         { key: "mobile", label: "Mobile notifications" },
                       ].map((notification) => (
-                        <div key={notification.key} className="flex items-center justify-between p-4 border rounded-lg">
-                          <Label htmlFor={notification.key} className="font-medium">
+                        <div
+                          key={notification.key}
+                          className="flex items-center justify-between p-4 border rounded-lg"
+                        >
+                          <Label
+                            htmlFor={notification.key}
+                            className="font-medium"
+                          >
                             {notification.label}
                           </Label>
                           <Checkbox
@@ -578,7 +729,11 @@ const ProfilePage: React.FC = () => {
                               ]
                             }
                             onCheckedChange={(checked) =>
-                              handlePreferenceChange("notifications", notification.key, checked as boolean)
+                              handlePreferenceChange(
+                                "notifications",
+                                notification.key,
+                                checked as boolean
+                              )
                             }
                           />
                         </div>
@@ -632,11 +787,13 @@ const ProfilePage: React.FC = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {["English", "Spanish", "French", "German"].map((lang) => (
-                              <SelectItem key={lang} value={lang}>
-                                {lang}
-                              </SelectItem>
-                            ))}
+                            {["English", "Spanish", "French", "German"].map(
+                              (lang) => (
+                                <SelectItem key={lang} value={lang}>
+                                  {lang}
+                                </SelectItem>
+                              )
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
@@ -665,11 +822,13 @@ const ProfilePage: React.FC = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"].map((format) => (
-                              <SelectItem key={format} value={format}>
-                                {format}
-                              </SelectItem>
-                            ))}
+                            {["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"].map(
+                              (format) => (
+                                <SelectItem key={format} value={format}>
+                                  {format}
+                                </SelectItem>
+                              )
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
@@ -715,7 +874,7 @@ const ProfilePage: React.FC = () => {
         </div>
       </DashboardLayout>
     </AuthGuard>
-  )
-}
+  );
+};
 
-export default ProfilePage
+export default ProfilePage;

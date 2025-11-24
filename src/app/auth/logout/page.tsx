@@ -7,10 +7,12 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, CheckCircle, Loader2, LogOut } from "lucide-react"
+import { ArrowLeft, CheckCircle, Loader2, LogOut } from "lucide-react";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const LogoutPage: React.FC = () => {
-  const [isLoggingOut, setIsLoggingOut] = useState(true)
+  const [isLoggingOut, setIsLoggingOut] = useState(true);
   const [loggedOut, setLoggedOut] = useState(false)
 
   useEffect(() => {
@@ -21,7 +23,7 @@ const LogoutPage: React.FC = () => {
         // Call logout API if token exists
         if (token) {
           try {
-            await fetch("http://localhost:8000/auth/logout", {
+            await fetch(`${API_BASE_URL}/auth/logout`, {
               method: "POST",
               headers: {
                 Authorization: `Bearer ${token}`,

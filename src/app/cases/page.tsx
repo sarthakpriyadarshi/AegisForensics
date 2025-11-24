@@ -1,16 +1,29 @@
-"use client"
+"use client";
 
-import DashboardLayout from "@/components/DashboardLayout"
-import { AuthGuard } from "@/components/AuthGuard"
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import DashboardLayout from "@/components/DashboardLayout";
+import { AuthGuard } from "@/components/AuthGuard";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -18,8 +31,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Plus,
   Eye,
@@ -34,48 +47,50 @@ import {
   CheckCircle,
   Clock,
   Pause,
-} from "lucide-react"
+} from "lucide-react";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 interface Case {
-  id: number
-  caseNumber: string
-  name: string
-  description: string
-  investigator: string
-  status: "open" | "analyzing" | "closed" | "suspended"
-  priority: "low" | "medium" | "high" | "critical"
-  createdAt: string
-  updatedAt: string
-  evidenceCount: number
-  tags: string[]
+  id: number;
+  caseNumber: string;
+  name: string;
+  description: string;
+  investigator: string;
+  status: "open" | "analyzing" | "closed" | "suspended";
+  priority: "low" | "medium" | "high" | "critical";
+  createdAt: string;
+  updatedAt: string;
+  evidenceCount: number;
+  tags: string[];
 }
 
 interface Evidence {
-  id: number
-  filename: string
-  fileSize: number
-  mimeType: string
-  sha256Hash: string
-  uploadedAt: string
-  analysisStatus: string
-  verdict?: string
-  severity?: string
+  id: number;
+  filename: string;
+  fileSize: number;
+  mimeType: string;
+  sha256Hash: string;
+  uploadedAt: string;
+  analysisStatus: string;
+  verdict?: string;
+  severity?: string;
 }
 
 interface CreateCaseData {
-  name: string
-  description: string
-  investigator: string
-  status: string
-  priority: string
-  tags: string[]
+  name: string;
+  description: string;
+  investigator: string;
+  status: string;
+  priority: string;
+  tags: string[];
 }
 
 export default function CasesPage() {
-  const [cases, setCases] = useState<Case[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [cases, setCases] = useState<Case[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [createData, setCreateData] = useState<CreateCaseData>({
     name: "",
     description: "",
@@ -83,46 +98,49 @@ export default function CasesPage() {
     status: "open",
     priority: "medium",
     tags: [],
-  })
-  const [tagInput, setTagInput] = useState("")
-  const [selectedCase, setSelectedCase] = useState<Case | null>(null)
-  const [showCaseDetails, setShowCaseDetails] = useState(false)
-  const [caseEvidence, setCaseEvidence] = useState<Evidence[]>([])
+  });
+  const [tagInput, setTagInput] = useState("");
+  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+  const [showCaseDetails, setShowCaseDetails] = useState(false);
+  const [caseEvidence, setCaseEvidence] = useState<Evidence[]>([]);
 
   // Function to view case details and fetch evidence
   const viewCaseDetails = async (caseItem: Case) => {
     try {
-      setSelectedCase(caseItem)
-      setShowCaseDetails(true)
+      setSelectedCase(caseItem);
+      setShowCaseDetails(true);
 
       // Fetch evidence for this case
-      const token = localStorage.getItem("aegis_token")
-      const response = await fetch(`http://localhost:8000/api/evidence-results?case_id=${caseItem.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
+      const token = localStorage.getItem("aegis_token");
+      const response = await fetch(
+        `${API_BASE_URL}/api/evidence-results?case_id=${caseItem.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
-        const data = await response.json()
+        const data = await response.json();
         if (data.status === "success") {
           const mappedEvidence = data.evidence_results.map(
             (item: {
-              id: number
-              filename: string
-              file_size: number
-              file_type?: string
-              file_hash: string
-              collected_at: string
-              case_number: string
-              latest_verdict?: string
-              latest_severity?: string
+              id: number;
+              filename: string;
+              file_size: number;
+              file_type?: string;
+              file_hash: string;
+              collected_at: string;
+              case_number: string;
+              latest_verdict?: string;
+              latest_severity?: string;
               analysis_results: Array<{
-                agent_name: string
-                verdict?: string
-                severity?: string
-              }>
+                agent_name: string;
+                verdict?: string;
+                severity?: string;
+              }>;
             }) => ({
               id: item.id,
               filename: item.filename,
@@ -133,65 +151,65 @@ export default function CasesPage() {
               analysisStatus: "completed",
               verdict: item.latest_verdict,
               severity: item.latest_severity,
-            }),
-          )
-          setCaseEvidence(mappedEvidence)
+            })
+          );
+          setCaseEvidence(mappedEvidence);
         }
       }
     } catch (error) {
-      console.error("Error fetching case details:", error)
+      console.error("Error fetching case details:", error);
     }
-  }
+  };
 
   const fetchCases = async () => {
     try {
-      setLoading(true)
-      const token = localStorage.getItem("aegis_token")
-      const response = await fetch("http://localhost:8000/api/cases", {
+      setLoading(true);
+      const token = localStorage.getItem("aegis_token");
+      const response = await fetch(`${API_BASE_URL}/api/cases`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch cases: ${response.status}`)
+        throw new Error(`Failed to fetch cases: ${response.status}`);
       }
 
-      const data = await response.json()
+      const data = await response.json();
       if (data.status === "success") {
-        setCases(data.cases || [])
+        setCases(data.cases || []);
       } else {
-        throw new Error("Failed to load cases")
+        throw new Error("Failed to load cases");
       }
     } catch (err) {
-      console.error("Error fetching cases:", err)
-      setError(err instanceof Error ? err.message : "Failed to load cases")
+      console.error("Error fetching cases:", err);
+      setError(err instanceof Error ? err.message : "Failed to load cases");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const createCase = async () => {
     try {
-      const token = localStorage.getItem("aegis_token")
-      const response = await fetch("http://localhost:8000/api/cases", {
+      const token = localStorage.getItem("aegis_token");
+      const response = await fetch(`${API_BASE_URL}/api/cases`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(createData),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Failed to create case: ${response.status}`)
+        throw new Error(`Failed to create case: ${response.status}`);
       }
 
-      const data = await response.json()
+      const data = await response.json();
       if (data.status === "success") {
-        await fetchCases()
-        setShowCreateForm(false)
+        await fetchCases();
+        setShowCreateForm(false);
         setCreateData({
           name: "",
           description: "",
@@ -199,108 +217,111 @@ export default function CasesPage() {
           status: "open",
           priority: "medium",
           tags: [],
-        })
-        setTagInput("")
+        });
+        setTagInput("");
       } else {
-        throw new Error("Failed to create case")
+        throw new Error("Failed to create case");
       }
     } catch (err) {
-      console.error("Error creating case:", err)
-      setError(err instanceof Error ? err.message : "Failed to create case")
+      console.error("Error creating case:", err);
+      setError(err instanceof Error ? err.message : "Failed to create case");
     }
-  }
+  };
 
   const deleteCase = async (caseId: number) => {
     if (!confirm("Are you sure you want to delete this case?")) {
-      return
+      return;
     }
 
     try {
-      const token = localStorage.getItem("aegis_token")
-      const response = await fetch(`http://localhost:8000/api/cases/${caseId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
+      const token = localStorage.getItem("aegis_token");
+      const response = await fetch(
+        `${API_BASE_URL}/api/cases/${caseId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
-        throw new Error(`Failed to delete case: ${response.status}`)
+        throw new Error(`Failed to delete case: ${response.status}`);
       }
 
-      await fetchCases()
+      await fetchCases();
     } catch (err) {
-      console.error("Error deleting case:", err)
-      setError(err instanceof Error ? err.message : "Failed to delete case")
+      console.error("Error deleting case:", err);
+      setError(err instanceof Error ? err.message : "Failed to delete case");
     }
-  }
+  };
 
   const addTag = () => {
     if (tagInput.trim() && !createData.tags.includes(tagInput.trim())) {
       setCreateData({
         ...createData,
         tags: [...createData.tags, tagInput.trim()],
-      })
-      setTagInput("")
+      });
+      setTagInput("");
     }
-  }
+  };
 
   const removeTag = (tagToRemove: string) => {
     setCreateData({
       ...createData,
       tags: createData.tags.filter((tag) => tag !== tagToRemove),
-    })
-  }
+    });
+  };
 
   useEffect(() => {
-    fetchCases()
-  }, [])
+    fetchCases();
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "open":
-        return "text-purple-700 bg-purple-100/80 border-purple-200"
+        return "text-purple-700 bg-purple-100/80 border-purple-200";
       case "analyzing":
-        return "text-blue-700 bg-blue-100/80 border-blue-200"
+        return "text-blue-700 bg-blue-100/80 border-blue-200";
       case "closed":
-        return "text-slate-700 bg-slate-100/80 border-slate-200"
+        return "text-slate-700 bg-slate-100/80 border-slate-200";
       case "suspended":
-        return "text-red-700 bg-red-100/80 border-red-200"
+        return "text-red-700 bg-red-100/80 border-red-200";
       default:
-        return "text-slate-700 bg-slate-100/80 border-slate-200"
+        return "text-slate-700 bg-slate-100/80 border-slate-200";
     }
-  }
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "critical":
-        return "text-red-700 bg-red-100/80 border-red-200"
+        return "text-red-700 bg-red-100/80 border-red-200";
       case "high":
-        return "text-orange-700 bg-orange-100/80 border-orange-200"
+        return "text-orange-700 bg-orange-100/80 border-orange-200";
       case "medium":
-        return "text-yellow-700 bg-yellow-100/80 border-yellow-200"
+        return "text-yellow-700 bg-yellow-100/80 border-yellow-200";
       case "low":
-        return "text-emerald-700 bg-emerald-100/80 border-emerald-200"
+        return "text-emerald-700 bg-emerald-100/80 border-emerald-200";
       default:
-        return "text-slate-700 bg-slate-100/80 border-slate-200"
+        return "text-slate-700 bg-slate-100/80 border-slate-200";
     }
-  }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "open":
-        return <CheckCircle className="w-3 h-3" />
+        return <CheckCircle className="w-3 h-3" />;
       case "analyzing":
-        return <Clock className="w-3 h-3" />
+        return <Clock className="w-3 h-3" />;
       case "closed":
-        return <AlertCircle className="w-3 h-3" />
+        return <AlertCircle className="w-3 h-3" />;
       case "suspended":
-        return <Pause className="w-3 h-3" />
+        return <Pause className="w-3 h-3" />;
       default:
-        return <AlertCircle className="w-3 h-3" />
+        return <AlertCircle className="w-3 h-3" />;
     }
-  }
+  };
 
   return (
     <AuthGuard>
@@ -310,14 +331,20 @@ export default function CasesPage() {
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-2">
-                <Badge variant="outline" className="border-primary/20 text-primary">
+                <Badge
+                  variant="outline"
+                  className="border-primary/20 text-primary"
+                >
                   <CheckCircle className="w-3 h-3 mr-1" />
                   Case Management System
                 </Badge>
               </div>
-              <h1 className="text-3xl font-bold text-foreground">Case Management</h1>
+              <h1 className="text-3xl font-bold text-foreground">
+                Case Management
+              </h1>
               <p className="text-lg text-muted-foreground">
-                Manage your forensic investigation cases with advanced tracking and AI-powered insights.
+                Manage your forensic investigation cases with advanced tracking
+                and AI-powered insights.
               </p>
             </div>
             <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
@@ -331,7 +358,8 @@ export default function CasesPage() {
                 <DialogHeader>
                   <DialogTitle>Create New Case</DialogTitle>
                   <DialogDescription>
-                    Start a new forensic investigation case with detailed information.
+                    Start a new forensic investigation case with detailed
+                    information.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -341,7 +369,9 @@ export default function CasesPage() {
                     <Input
                       id="case-name"
                       value={createData.name}
-                      onChange={(e) => setCreateData({ ...createData, name: e.target.value })}
+                      onChange={(e) =>
+                        setCreateData({ ...createData, name: e.target.value })
+                      }
                       placeholder="Enter case name"
                     />
                   </div>
@@ -351,7 +381,12 @@ export default function CasesPage() {
                     <Textarea
                       id="description"
                       value={createData.description}
-                      onChange={(e) => setCreateData({ ...createData, description: e.target.value })}
+                      onChange={(e) =>
+                        setCreateData({
+                          ...createData,
+                          description: e.target.value,
+                        })
+                      }
                       placeholder="Enter case description"
                       rows={4}
                     />
@@ -362,7 +397,12 @@ export default function CasesPage() {
                     <Input
                       id="investigator"
                       value={createData.investigator}
-                      onChange={(e) => setCreateData({ ...createData, investigator: e.target.value })}
+                      onChange={(e) =>
+                        setCreateData({
+                          ...createData,
+                          investigator: e.target.value,
+                        })
+                      }
                       placeholder="Enter investigator name"
                     />
                   </div>
@@ -372,7 +412,9 @@ export default function CasesPage() {
                       <Label>Status</Label>
                       <Select
                         value={createData.status}
-                        onValueChange={(value) => setCreateData({ ...createData, status: value })}
+                        onValueChange={(value) =>
+                          setCreateData({ ...createData, status: value })
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -390,7 +432,9 @@ export default function CasesPage() {
                       <Label>Priority</Label>
                       <Select
                         value={createData.priority}
-                        onValueChange={(value) => setCreateData({ ...createData, priority: value })}
+                        onValueChange={(value) =>
+                          setCreateData({ ...createData, priority: value })
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -421,9 +465,16 @@ export default function CasesPage() {
                     </div>
                     <div className="flex flex-wrap gap-2 mt-2">
                       {createData.tags.map((tag, index) => (
-                        <Badge key={index} variant="secondary" className="gap-1">
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className="gap-1"
+                        >
                           {tag.toUpperCase()}
-                          <button onClick={() => removeTag(tag)} className="ml-1 hover:text-destructive">
+                          <button
+                            onClick={() => removeTag(tag)}
+                            className="ml-1 hover:text-destructive"
+                          >
                             <X className="w-3 h-3" />
                           </button>
                         </Badge>
@@ -433,7 +484,10 @@ export default function CasesPage() {
                 </div>
 
                 <div className="flex justify-end space-x-2 mt-6">
-                  <Button variant="outline" onClick={() => setShowCreateForm(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowCreateForm(false)}
+                  >
                     Cancel
                   </Button>
                   <Button
@@ -490,20 +544,29 @@ export default function CasesPage() {
               <CardContent className="p-12 text-center">
                 <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No cases found</h3>
-                <p className="text-muted-foreground">Create your first case to get started</p>
+                <p className="text-muted-foreground">
+                  Create your first case to get started
+                </p>
               </CardContent>
             </Card>
           ) : (
             <div className="space-y-4">
               {cases.map((caseItem) => (
-                <Card key={caseItem.id} className="hover:shadow-md transition-shadow">
+                <Card
+                  key={caseItem.id}
+                  className="hover:shadow-md transition-shadow"
+                >
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-xl font-semibold mb-1">{caseItem.name}</h3>
+                        <h3 className="text-xl font-semibold mb-1">
+                          {caseItem.name}
+                        </h3>
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Hash className="w-4 h-4" />
-                          <span className="font-mono text-sm">Case #{caseItem.caseNumber}</span>
+                          <span className="font-mono text-sm">
+                            Case #{caseItem.caseNumber}
+                          </span>
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -512,10 +575,10 @@ export default function CasesPage() {
                             caseItem.status === "open"
                               ? "default"
                               : caseItem.status === "analyzing"
-                                ? "secondary"
-                                : caseItem.status === "closed"
-                                  ? "outline"
-                                  : "destructive"
+                              ? "secondary"
+                              : caseItem.status === "closed"
+                              ? "outline"
+                              : "destructive"
                           }
                         >
                           {getStatusIcon(caseItem.status)}
@@ -526,10 +589,10 @@ export default function CasesPage() {
                             caseItem.priority === "critical"
                               ? "destructive"
                               : caseItem.priority === "high"
-                                ? "destructive"
-                                : caseItem.priority === "medium"
-                                  ? "secondary"
-                                  : "outline"
+                              ? "destructive"
+                              : caseItem.priority === "medium"
+                              ? "secondary"
+                              : "outline"
                           }
                         >
                           {caseItem.priority.toUpperCase()}
@@ -537,35 +600,45 @@ export default function CasesPage() {
                       </div>
                     </div>
 
-                    <p className="text-muted-foreground mb-4">{caseItem.description}</p>
+                    <p className="text-muted-foreground mb-4">
+                      {caseItem.description}
+                    </p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-primary" />
                         <div>
                           <span className="font-medium">Investigator:</span>
-                          <p className="text-muted-foreground">{caseItem.investigator}</p>
+                          <p className="text-muted-foreground">
+                            {caseItem.investigator}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <FileText className="w-4 h-4 text-primary" />
                         <div>
                           <span className="font-medium">Evidence:</span>
-                          <p className="text-muted-foreground">{caseItem.evidenceCount} items</p>
+                          <p className="text-muted-foreground">
+                            {caseItem.evidenceCount} items
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-primary" />
                         <div>
                           <span className="font-medium">Created:</span>
-                          <p className="text-muted-foreground">{new Date(caseItem.createdAt).toLocaleDateString()}</p>
+                          <p className="text-muted-foreground">
+                            {new Date(caseItem.createdAt).toLocaleDateString()}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4 text-primary" />
                         <div>
                           <span className="font-medium">Updated:</span>
-                          <p className="text-muted-foreground">{new Date(caseItem.updatedAt).toLocaleDateString()}</p>
+                          <p className="text-muted-foreground">
+                            {new Date(caseItem.updatedAt).toLocaleDateString()}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -581,7 +654,10 @@ export default function CasesPage() {
                     )}
 
                     <div className="flex justify-end gap-2">
-                      <Button variant="outline" onClick={() => viewCaseDetails(caseItem)}>
+                      <Button
+                        variant="outline"
+                        onClick={() => viewCaseDetails(caseItem)}
+                      >
                         <Eye className="w-4 h-4 mr-2" />
                         View Details
                       </Button>
@@ -606,8 +682,12 @@ export default function CasesPage() {
           <Dialog open={showCaseDetails} onOpenChange={setShowCaseDetails}>
             <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden flex flex-col">
               <DialogHeader className="flex-shrink-0">
-                <DialogTitle>Case Details - {selectedCase.caseNumber}</DialogTitle>
-                <DialogDescription>Detailed information and evidence for this case</DialogDescription>
+                <DialogTitle>
+                  Case Details - {selectedCase.caseNumber}
+                </DialogTitle>
+                <DialogDescription>
+                  Detailed information and evidence for this case
+                </DialogDescription>
               </DialogHeader>
 
               <div className="flex-1 overflow-y-auto space-y-6 pr-2">
@@ -619,24 +699,32 @@ export default function CasesPage() {
                   <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Case Name:</Label>
+                        <Label className="text-sm font-medium text-muted-foreground">
+                          Case Name:
+                        </Label>
                         <p className="font-medium">{selectedCase.name}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Investigator:</Label>
-                        <p className="font-medium">{selectedCase.investigator}</p>
+                        <Label className="text-sm font-medium text-muted-foreground">
+                          Investigator:
+                        </Label>
+                        <p className="font-medium">
+                          {selectedCase.investigator}
+                        </p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Status:</Label>
+                        <Label className="text-sm font-medium text-muted-foreground">
+                          Status:
+                        </Label>
                         <Badge
                           variant={
                             selectedCase.status === "open"
                               ? "default"
                               : selectedCase.status === "analyzing"
-                                ? "secondary"
-                                : selectedCase.status === "closed"
-                                  ? "outline"
-                                  : "destructive"
+                              ? "secondary"
+                              : selectedCase.status === "closed"
+                              ? "outline"
+                              : "destructive"
                           }
                         >
                           {getStatusIcon(selectedCase.status)}
@@ -644,37 +732,51 @@ export default function CasesPage() {
                         </Badge>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Priority:</Label>
+                        <Label className="text-sm font-medium text-muted-foreground">
+                          Priority:
+                        </Label>
                         <Badge
                           variant={
                             selectedCase.priority === "critical"
                               ? "destructive"
                               : selectedCase.priority === "high"
-                                ? "destructive"
-                                : selectedCase.priority === "medium"
-                                  ? "secondary"
-                                  : "outline"
+                              ? "destructive"
+                              : selectedCase.priority === "medium"
+                              ? "secondary"
+                              : "outline"
                           }
                         >
                           {selectedCase.priority.toUpperCase()}
                         </Badge>
                       </div>
                       <div className="col-span-2">
-                        <Label className="text-sm font-medium text-muted-foreground">Description:</Label>
+                        <Label className="text-sm font-medium text-muted-foreground">
+                          Description:
+                        </Label>
                         <p className="mt-1">{selectedCase.description}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Created:</Label>
-                        <p>{new Date(selectedCase.createdAt).toLocaleDateString()}</p>
+                        <Label className="text-sm font-medium text-muted-foreground">
+                          Created:
+                        </Label>
+                        <p>
+                          {new Date(
+                            selectedCase.createdAt
+                          ).toLocaleDateString()}
+                        </p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Evidence Count:</Label>
+                        <Label className="text-sm font-medium text-muted-foreground">
+                          Evidence Count:
+                        </Label>
                         <p>{caseEvidence.length}</p>
                       </div>
                     </div>
                     {selectedCase.tags && selectedCase.tags.length > 0 && (
                       <div className="mt-4">
-                        <Label className="text-sm font-medium text-muted-foreground">Tags:</Label>
+                        <Label className="text-sm font-medium text-muted-foreground">
+                          Tags:
+                        </Label>
                         <div className="flex flex-wrap gap-2 mt-2">
                           {selectedCase.tags.map((tag, index) => (
                             <Badge key={index} variant="secondary">
@@ -696,26 +798,43 @@ export default function CasesPage() {
                     {caseEvidence.length === 0 ? (
                       <div className="text-center py-8">
                         <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                        <p className="text-muted-foreground">No evidence found for this case</p>
+                        <p className="text-muted-foreground">
+                          No evidence found for this case
+                        </p>
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="min-w-[200px]">Filename</TableHead>
-                              <TableHead className="min-w-[80px]">Size</TableHead>
-                              <TableHead className="min-w-[120px]">Type</TableHead>
-                              <TableHead className="min-w-[100px]">Status</TableHead>
-                              <TableHead className="min-w-[100px]">Verdict</TableHead>
-                              <TableHead className="min-w-[120px]">Actions</TableHead>
+                              <TableHead className="min-w-[200px]">
+                                Filename
+                              </TableHead>
+                              <TableHead className="min-w-[80px]">
+                                Size
+                              </TableHead>
+                              <TableHead className="min-w-[120px]">
+                                Type
+                              </TableHead>
+                              <TableHead className="min-w-[100px]">
+                                Status
+                              </TableHead>
+                              <TableHead className="min-w-[100px]">
+                                Verdict
+                              </TableHead>
+                              <TableHead className="min-w-[120px]">
+                                Actions
+                              </TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {caseEvidence.map((evidence) => (
                               <TableRow key={evidence.id}>
                                 <TableCell className="font-medium min-w-[200px]">
-                                  <div className="truncate max-w-[200px]" title={evidence.filename}>
+                                  <div
+                                    className="truncate max-w-[200px]"
+                                    title={evidence.filename}
+                                  >
                                     {evidence.filename}
                                   </div>
                                 </TableCell>
@@ -723,12 +842,17 @@ export default function CasesPage() {
                                   {(evidence.fileSize / 1024).toFixed(1)} KB
                                 </TableCell>
                                 <TableCell className="min-w-[120px]">
-                                  <div className="truncate max-w-[120px]" title={evidence.mimeType}>
+                                  <div
+                                    className="truncate max-w-[120px]"
+                                    title={evidence.mimeType}
+                                  >
                                     {evidence.mimeType}
                                   </div>
                                 </TableCell>
                                 <TableCell className="min-w-[100px]">
-                                  <Badge variant="secondary">{evidence.analysisStatus.toUpperCase()}</Badge>
+                                  <Badge variant="secondary">
+                                    {evidence.analysisStatus.toUpperCase()}
+                                  </Badge>
                                 </TableCell>
                                 <TableCell className="min-w-[100px]">
                                   {evidence.verdict && (
@@ -737,10 +861,10 @@ export default function CasesPage() {
                                         evidence.verdict === "clean"
                                           ? "default"
                                           : evidence.verdict === "suspicious"
-                                            ? "secondary"
-                                            : evidence.verdict === "malicious"
-                                              ? "destructive"
-                                              : "outline"
+                                          ? "secondary"
+                                          : evidence.verdict === "malicious"
+                                          ? "destructive"
+                                          : "outline"
                                       }
                                     >
                                       {evidence.verdict.toUpperCase()}
@@ -751,8 +875,8 @@ export default function CasesPage() {
                                   <Button
                                     size="sm"
                                     onClick={() => {
-                                      setShowCaseDetails(false)
-                                      window.location.href = "/analysis"
+                                      setShowCaseDetails(false);
+                                      window.location.href = "/analysis";
                                     }}
                                   >
                                     View Report
@@ -772,5 +896,5 @@ export default function CasesPage() {
         )}
       </DashboardLayout>
     </AuthGuard>
-  )
+  );
 }

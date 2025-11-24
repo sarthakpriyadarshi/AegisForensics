@@ -1,190 +1,287 @@
-"use client"
+"use client";
 
-import DashboardLayout from "@/components/DashboardLayout"
-import { AuthGuard } from "@/components/AuthGuard"
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Bot, CheckCircle, AlertCircle, RefreshCw, Settings, FileText, Zap, Activity, Timer } from "lucide-react"
+import DashboardLayout from "@/components/DashboardLayout";
+import { AuthGuard } from "@/components/AuthGuard";
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Bot,
+  CheckCircle,
+  AlertCircle,
+  RefreshCw,
+  Settings,
+  FileText,
+  Zap,
+  Activity,
+  Timer,
+} from "lucide-react";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 interface AgentMetrics {
-  cpuUsage: number
-  memoryUsage: number
-  tasksCompleted: number
-  averageExecutionTime: number
-  successRate: number
+  cpuUsage: number;
+  memoryUsage: number;
+  tasksCompleted: number;
+  averageExecutionTime: number;
+  successRate: number;
 }
 
 interface Agent {
-  id: string
-  name: string
-  type: string
-  status: "online" | "busy" | "offline" | "error"
-  lastActivity: string
-  currentTask?: string
-  metrics: AgentMetrics
-  capabilities: string[]
-  version: string
-  uptime: number
+  id: string;
+  name: string;
+  type: string;
+  status: "online" | "busy" | "offline" | "error";
+  lastActivity: string;
+  currentTask?: string;
+  metrics: AgentMetrics;
+  capabilities: string[];
+  version: string;
+  uptime: number;
 }
 
 interface TaskHistory {
-  id: string
-  agentName: string
-  taskType: string
-  startTime: string
-  endTime?: string
-  status: "running" | "completed" | "failed"
-  executionTime?: number
-  result?: string
+  id: string;
+  agentName: string;
+  taskType: string;
+  startTime: string;
+  endTime?: string;
+  status: "running" | "completed" | "failed";
+  executionTime?: number;
+  result?: string;
 }
 
 interface AgentApiResponse {
-  specialization?: string
-  status: string
-  last_analysis?: string
-  last_activity?: string
-  current_task?: string
-  tasks_completed?: number
-  uptime_hours?: number
+  specialization?: string;
+  status: string;
+  last_analysis?: string;
+  last_activity?: string;
+  current_task?: string;
+  tasks_completed?: number;
+  uptime_hours?: number;
 }
 
 export default function AgentsPage() {
-  const [agents, setAgents] = useState<Agent[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
-  const [showAgentDetails, setShowAgentDetails] = useState(false)
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+  const [showAgentDetails, setShowAgentDetails] = useState(false);
 
   useEffect(() => {
     const loadAgentData = async () => {
       try {
-        const token = localStorage.getItem("aegis_token")
+        const token = localStorage.getItem("aegis_token");
         if (!token) {
-          window.location.href = "/auth/login"
-          return
+          window.location.href = "/auth/login";
+          return;
         }
 
-        const response = await fetch("http://localhost:8000/api/agents/status", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        const response = await fetch(
+          `${API_BASE_URL}/api/agents/status`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.ok) {
-          const data = await response.json()
+          const data = await response.json();
           if (data.agents) {
             // Map API response to Agent interface
-            const agentList = Object.entries(data.agents as Record<string, AgentApiResponse>).map(
-              ([name, agentData]) => ({
-                id: name.toLowerCase().replace(/\s+/g, "-"),
-                name: name,
-                type: getAgentType(agentData.specialization || name),
-                status: mapAgentStatus(agentData.status),
-                lastActivity: agentData.last_activity ? formatLastActivity(agentData.last_activity) : "Unknown",
-                currentTask: agentData.current_task || undefined,
-                metrics: {
-                  cpuUsage: Math.floor(Math.random() * 80) + 10,
-                  memoryUsage: Math.floor(Math.random() * 1500) + 256,
-                  tasksCompleted: agentData.tasks_completed || Math.floor(Math.random() * 200) + 50,
-                  averageExecutionTime: Math.random() * 100 + 20,
-                  successRate: Math.random() * 10 + 90,
-                },
-                capabilities: getAgentCapabilities(name),
-                version: "2.1.0",
-                uptime: agentData.uptime_hours || Math.random() * 200 + 50,
-              }),
-            )
-            setAgents(agentList)
+            const agentList = Object.entries(
+              data.agents as Record<string, AgentApiResponse>
+            ).map(([name, agentData]) => ({
+              id: name.toLowerCase().replace(/\s+/g, "-"),
+              name: name,
+              type: getAgentType(agentData.specialization || name),
+              status: mapAgentStatus(agentData.status),
+              lastActivity: agentData.last_activity
+                ? formatLastActivity(agentData.last_activity)
+                : "Unknown",
+              currentTask: agentData.current_task || undefined,
+              metrics: {
+                cpuUsage: Math.floor(Math.random() * 80) + 10,
+                memoryUsage: Math.floor(Math.random() * 1500) + 256,
+                tasksCompleted:
+                  agentData.tasks_completed ||
+                  Math.floor(Math.random() * 200) + 50,
+                averageExecutionTime: Math.random() * 100 + 20,
+                successRate: Math.random() * 10 + 90,
+              },
+              capabilities: getAgentCapabilities(name),
+              version: "2.1.0",
+              uptime: agentData.uptime_hours || Math.random() * 200 + 50,
+            }));
+            setAgents(agentList);
           }
         } else if (response.status === 401) {
-          localStorage.removeItem("aegis_token")
-          window.location.href = "/auth/login"
+          localStorage.removeItem("aegis_token");
+          window.location.href = "/auth/login";
         } else {
-          throw new Error("Failed to load agent data")
+          throw new Error("Failed to load agent data");
         }
       } catch (error) {
-        console.error("Error loading agents:", error)
-        setError("Failed to load agent data")
+        console.error("Error loading agents:", error);
+        setError("Failed to load agent data");
         // Fallback to mock data if API fails
-        loadMockAgents()
+        loadMockAgents();
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    loadAgentData()
-  }, [])
+    loadAgentData();
+  }, []);
 
   const getAgentType = (specialization: string): string => {
-    if (specialization?.toLowerCase().includes("network")) return "analysis"
-    if (specialization?.toLowerCase().includes("memory")) return "analysis"
-    if (specialization?.toLowerCase().includes("disk")) return "analysis"
-    if (specialization?.toLowerCase().includes("binary")) return "analysis"
-    if (specialization?.toLowerCase().includes("timeline")) return "correlation"
-    if (specialization?.toLowerCase().includes("sandbox")) return "execution"
-    if (specialization?.toLowerCase().includes("recon")) return "intelligence"
-    return "analysis"
-  }
+    if (specialization?.toLowerCase().includes("network")) return "analysis";
+    if (specialization?.toLowerCase().includes("memory")) return "analysis";
+    if (specialization?.toLowerCase().includes("disk")) return "analysis";
+    if (specialization?.toLowerCase().includes("binary")) return "analysis";
+    if (specialization?.toLowerCase().includes("timeline"))
+      return "correlation";
+    if (specialization?.toLowerCase().includes("sandbox")) return "execution";
+    if (specialization?.toLowerCase().includes("recon")) return "intelligence";
+    return "analysis";
+  };
 
-  const mapAgentStatus = (status: string): "online" | "busy" | "offline" | "error" => {
+  const mapAgentStatus = (
+    status: string
+  ): "online" | "busy" | "offline" | "error" => {
     switch (status?.toLowerCase()) {
       case "active":
-        return "online"
+        return "online";
       case "busy":
-        return "busy"
+        return "busy";
       case "idle":
-        return "online"
+        return "online";
       case "offline":
-        return "offline"
+        return "offline";
       case "error":
-        return "error"
+        return "error";
       default:
-        return "online"
+        return "online";
     }
-  }
+  };
 
   const formatLastActivity = (isoString: string): string => {
     try {
-      const date = new Date(isoString)
-      const now = new Date()
-      const diffMs = now.getTime() - date.getTime()
-      const diffMinutes = Math.floor(diffMs / (1000 * 60))
+      const date = new Date(isoString);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
 
-      if (diffMinutes < 1) return "Just now"
-      if (diffMinutes < 60) return `${diffMinutes}m ago`
+      if (diffMinutes < 1) return "Just now";
+      if (diffMinutes < 60) return `${diffMinutes}m ago`;
 
-      const diffHours = Math.floor(diffMinutes / 60)
-      if (diffHours < 24) return `${diffHours}h ago`
+      const diffHours = Math.floor(diffMinutes / 60);
+      if (diffHours < 24) return `${diffHours}h ago`;
 
-      const diffDays = Math.floor(diffHours / 24)
-      return `${diffDays}d ago`
+      const diffDays = Math.floor(diffHours / 24);
+      return `${diffDays}d ago`;
     } catch {
-      return "Unknown"
+      return "Unknown";
     }
-  }
+  };
 
   const getAgentCapabilities = (name: string): string[] => {
     const capabilityMap: Record<string, string[]> = {
-      NetworkAnalyzer: ["PCAP Analysis", "Protocol Decoding", "IoC Extraction", "Traffic Analysis"],
-      MemoryAnalyzer: ["Volatility3", "Process Analysis", "Malware Detection", "Memory Forensics"],
-      DiskAnalyzer: ["File System Analysis", "Timeline Creation", "Deleted File Recovery", "Disk Imaging"],
-      BinaryAnalyzer: ["Static Analysis", "Dynamic Analysis", "Malware Detection", "Reverse Engineering"],
-      TimelineAnalyzer: ["Event Correlation", "Timeline Creation", "Pattern Analysis", "Chronological Reconstruction"],
-      SandboxAgent: ["Safe Execution", "Behavior Monitoring", "API Logging", "Dynamic Analysis"],
-      ReconAgent: ["Threat Intelligence", "OSINT", "IOC Research", "Attribution Analysis"],
-      UserProfiler: ["User Behavior Analysis", "Activity Tracking", "Login Patterns", "Access Control"],
-      CustodianAgent: ["Evidence Chain", "Integrity Verification", "Audit Trail", "Data Preservation"],
-      LiveResponseAgent: ["Real-time Analysis", "Remote Collection", "Live Memory", "System State"],
-    }
-    return capabilityMap[name] || ["General Analysis", "Data Processing", "Report Generation"]
-  }
+      NetworkAnalyzer: [
+        "PCAP Analysis",
+        "Protocol Decoding",
+        "IoC Extraction",
+        "Traffic Analysis",
+      ],
+      MemoryAnalyzer: [
+        "Volatility3",
+        "Process Analysis",
+        "Malware Detection",
+        "Memory Forensics",
+      ],
+      DiskAnalyzer: [
+        "File System Analysis",
+        "Timeline Creation",
+        "Deleted File Recovery",
+        "Disk Imaging",
+      ],
+      BinaryAnalyzer: [
+        "Static Analysis",
+        "Dynamic Analysis",
+        "Malware Detection",
+        "Reverse Engineering",
+      ],
+      TimelineAnalyzer: [
+        "Event Correlation",
+        "Timeline Creation",
+        "Pattern Analysis",
+        "Chronological Reconstruction",
+      ],
+      SandboxAgent: [
+        "Safe Execution",
+        "Behavior Monitoring",
+        "API Logging",
+        "Dynamic Analysis",
+      ],
+      ReconAgent: [
+        "Threat Intelligence",
+        "OSINT",
+        "IOC Research",
+        "Attribution Analysis",
+      ],
+      UserProfiler: [
+        "User Behavior Analysis",
+        "Activity Tracking",
+        "Login Patterns",
+        "Access Control",
+      ],
+      CustodianAgent: [
+        "Evidence Chain",
+        "Integrity Verification",
+        "Audit Trail",
+        "Data Preservation",
+      ],
+      LiveResponseAgent: [
+        "Real-time Analysis",
+        "Remote Collection",
+        "Live Memory",
+        "System State",
+      ],
+    };
+    return (
+      capabilityMap[name] || [
+        "General Analysis",
+        "Data Processing",
+        "Report Generation",
+      ]
+    );
+  };
 
   const loadMockAgents = () => {
     setAgents([
@@ -202,7 +299,12 @@ export default function AgentsPage() {
           averageExecutionTime: 45.2,
           successRate: 98.5,
         },
-        capabilities: ["Volatility3", "Process Analysis", "Malware Detection", "Memory Forensics"],
+        capabilities: [
+          "Volatility3",
+          "Process Analysis",
+          "Malware Detection",
+          "Memory Forensics",
+        ],
         version: "2.1.3",
         uptime: 168.5,
       },
@@ -219,7 +321,12 @@ export default function AgentsPage() {
           averageExecutionTime: 89.7,
           successRate: 95.8,
         },
-        capabilities: ["File System Analysis", "Timeline Creation", "Deleted File Recovery", "Disk Imaging"],
+        capabilities: [
+          "File System Analysis",
+          "Timeline Creation",
+          "Deleted File Recovery",
+          "Disk Imaging",
+        ],
         version: "1.9.2",
         uptime: 72.3,
       },
@@ -237,7 +344,12 @@ export default function AgentsPage() {
           averageExecutionTime: 23.1,
           successRate: 97.2,
         },
-        capabilities: ["PCAP Analysis", "Protocol Decoding", "IoC Extraction", "Traffic Analysis"],
+        capabilities: [
+          "PCAP Analysis",
+          "Protocol Decoding",
+          "IoC Extraction",
+          "Traffic Analysis",
+        ],
         version: "3.0.1",
         uptime: 201.7,
       },
@@ -254,12 +366,17 @@ export default function AgentsPage() {
           averageExecutionTime: 15.6,
           successRate: 87.3,
         },
-        capabilities: ["Real-time Collection", "Incident Response", "Remote Execution", "Live Monitoring"],
+        capabilities: [
+          "Real-time Collection",
+          "Incident Response",
+          "Remote Execution",
+          "Live Monitoring",
+        ],
         version: "1.1.2",
         uptime: 0,
       },
-    ])
-  }
+    ]);
+  };
 
   const [taskHistory] = useState<TaskHistory[]>([
     {
@@ -298,59 +415,61 @@ export default function AgentsPage() {
       status: "failed",
       result: "Connection timeout",
     },
-  ])
+  ]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "online":
-        return "default"
+        return "default";
       case "busy":
-        return "secondary"
+        return "secondary";
       case "offline":
-        return "outline"
+        return "outline";
       case "error":
-        return "destructive"
+        return "destructive";
       default:
-        return "outline"
+        return "outline";
     }
-  }
+  };
 
   const getTaskStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "default"
+        return "default";
       case "running":
-        return "secondary"
+        return "secondary";
       case "failed":
-        return "destructive"
+        return "destructive";
       default:
-        return "outline"
+        return "outline";
     }
-  }
+  };
 
   const formatUptime = (hours: number) => {
-    if (hours < 1) return `${Math.round(hours * 60)}m`
-    if (hours < 24) return `${Math.round(hours)}h`
-    return `${Math.round(hours / 24)}d`
-  }
+    if (hours < 1) return `${Math.round(hours * 60)}m`;
+    if (hours < 24) return `${Math.round(hours)}h`;
+    return `${Math.round(hours / 24)}d`;
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-    })
-  }
+    });
+  };
 
-  const totalAgents = agents.length
-  const onlineAgents = agents.filter((a) => a.status === "online" || a.status === "busy").length
-  const busyAgents = agents.filter((a) => a.status === "busy").length
-  const errorAgents = agents.filter((a) => a.status === "error").length
+  const totalAgents = agents.length;
+  const onlineAgents = agents.filter(
+    (a) => a.status === "online" || a.status === "busy"
+  ).length;
+  const busyAgents = agents.filter((a) => a.status === "busy").length;
+  const errorAgents = agents.filter((a) => a.status === "error").length;
 
   const viewAgentDetails = (agent: Agent) => {
-    setSelectedAgent(agent)
-    setShowAgentDetails(true)
-  }
+    setSelectedAgent(agent);
+    setShowAgentDetails(true);
+  };
 
   if (isLoading) {
     return (
@@ -376,7 +495,7 @@ export default function AgentsPage() {
           </div>
         </DashboardLayout>
       </AuthGuard>
-    )
+    );
   }
 
   return (
@@ -387,17 +506,26 @@ export default function AgentsPage() {
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-2">
-                <Badge variant="outline" className="border-primary/20 text-primary">
+                <Badge
+                  variant="outline"
+                  className="border-primary/20 text-primary"
+                >
                   <Bot className="w-3 h-3 mr-1" />
                   AI Agent Monitoring & Management
                 </Badge>
               </div>
-              <h1 className="text-3xl font-bold text-foreground">AI Agent Status</h1>
+              <h1 className="text-3xl font-bold text-foreground">
+                AI Agent Status
+              </h1>
               <p className="text-lg text-muted-foreground">
-                Monitor and manage forensic analysis agents with real-time performance metrics and task tracking.
+                Monitor and manage forensic analysis agents with real-time
+                performance metrics and task tracking.
               </p>
             </div>
-            <Button onClick={() => window.location.reload()} className="bg-primary hover:bg-primary/90 w-full md:w-auto">
+            <Button
+              onClick={() => window.location.reload()}
+              className="bg-primary hover:bg-primary/90 w-full md:w-auto"
+            >
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
@@ -446,13 +574,17 @@ export default function AgentsPage() {
               <Card key={metric.title}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <div className={`w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center`}>
+                    <div
+                      className={`w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center`}
+                    >
                       <metric.icon className={`w-5 h-5 ${metric.color}`} />
                     </div>
                     <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">{metric.title}</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {metric.title}
+                    </p>
                     <div className="text-2xl font-bold">{metric.value}</div>
                   </div>
                 </CardContent>
@@ -484,20 +616,26 @@ export default function AgentsPage() {
                                 agent.status === "online"
                                   ? "bg-green-500"
                                   : agent.status === "busy"
-                                    ? "bg-yellow-500"
-                                    : agent.status === "error"
-                                      ? "bg-red-500"
-                                      : "bg-gray-500"
+                                  ? "bg-yellow-500"
+                                  : agent.status === "error"
+                                  ? "bg-red-500"
+                                  : "bg-gray-500"
                               }`}
                             ></div>
-                            <h3 className="text-lg font-semibold">{agent.name}</h3>
+                            <h3 className="text-lg font-semibold">
+                              {agent.name}
+                            </h3>
                           </div>
                           <div className="flex items-center gap-2 mb-2">
-                            <Badge variant={getStatusColor(agent.status)}>{agent.status.toUpperCase()}</Badge>
+                            <Badge variant={getStatusColor(agent.status)}>
+                              {agent.status.toUpperCase()}
+                            </Badge>
                             <Badge variant="outline">v{agent.version}</Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            {agent.currentTask ? agent.currentTask : `Last activity: ${agent.lastActivity}`}
+                            {agent.currentTask
+                              ? agent.currentTask
+                              : `Last activity: ${agent.lastActivity}`}
                           </p>
                         </div>
                       </div>
@@ -505,20 +643,36 @@ export default function AgentsPage() {
                       {/* Metrics */}
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div className="text-center p-3 bg-muted/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground mb-1">CPU Usage</p>
-                          <p className="text-lg font-bold">{agent.metrics.cpuUsage}%</p>
+                          <p className="text-xs text-muted-foreground mb-1">
+                            CPU Usage
+                          </p>
+                          <p className="text-lg font-bold">
+                            {agent.metrics.cpuUsage}%
+                          </p>
                         </div>
                         <div className="text-center p-3 bg-muted/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground mb-1">Memory</p>
-                          <p className="text-lg font-bold">{agent.metrics.memoryUsage}MB</p>
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Memory
+                          </p>
+                          <p className="text-lg font-bold">
+                            {agent.metrics.memoryUsage}MB
+                          </p>
                         </div>
                         <div className="text-center p-3 bg-muted/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground mb-1">Tasks Done</p>
-                          <p className="text-lg font-bold">{agent.metrics.tasksCompleted}</p>
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Tasks Done
+                          </p>
+                          <p className="text-lg font-bold">
+                            {agent.metrics.tasksCompleted}
+                          </p>
                         </div>
                         <div className="text-center p-3 bg-muted/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground mb-1">Success Rate</p>
-                          <p className="text-lg font-bold">{agent.metrics.successRate.toFixed(1)}%</p>
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Success Rate
+                          </p>
+                          <p className="text-lg font-bold">
+                            {agent.metrics.successRate.toFixed(1)}%
+                          </p>
                         </div>
                       </div>
 
@@ -527,7 +681,9 @@ export default function AgentsPage() {
                         <div className="mb-4">
                           <div className="flex items-center gap-2 mb-2">
                             <Zap className="w-4 h-4 text-yellow-500" />
-                            <span className="text-sm font-medium">Processing...</span>
+                            <span className="text-sm font-medium">
+                              Processing...
+                            </span>
                           </div>
                           <Progress value={60} className="h-2" />
                         </div>
@@ -535,11 +691,17 @@ export default function AgentsPage() {
 
                       {/* Capabilities */}
                       <div className="flex flex-wrap gap-2 mb-4">
-                        {agent.capabilities.slice(0, 3).map((capability, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {capability}
-                          </Badge>
-                        ))}
+                        {agent.capabilities
+                          .slice(0, 3)
+                          .map((capability, index) => (
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {capability}
+                            </Badge>
+                          ))}
                         {agent.capabilities.length > 3 && (
                           <Badge variant="secondary" className="text-xs">
                             +{agent.capabilities.length - 3} more
@@ -568,7 +730,9 @@ export default function AgentsPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Recent Task Activity</CardTitle>
-                  <CardDescription>Monitor recent agent task execution and results</CardDescription>
+                  <CardDescription>
+                    Monitor recent agent task execution and results
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
@@ -586,14 +750,25 @@ export default function AgentsPage() {
                       <TableBody>
                         {taskHistory.map((task) => (
                           <TableRow key={task.id}>
-                            <TableCell className="font-medium">{task.agentName}</TableCell>
+                            <TableCell className="font-medium">
+                              {task.agentName}
+                            </TableCell>
                             <TableCell>{task.taskType}</TableCell>
                             <TableCell>
-                              <Badge variant={getTaskStatusColor(task.status)}>{task.status.toUpperCase()}</Badge>
+                              <Badge variant={getTaskStatusColor(task.status)}>
+                                {task.status.toUpperCase()}
+                              </Badge>
                             </TableCell>
                             <TableCell>{formatDate(task.startTime)}</TableCell>
-                            <TableCell>{task.executionTime ? `${task.executionTime}s` : "-"}</TableCell>
-                            <TableCell className="max-w-xs truncate" title={task.result}>
+                            <TableCell>
+                              {task.executionTime
+                                ? `${task.executionTime}s`
+                                : "-"}
+                            </TableCell>
+                            <TableCell
+                              className="max-w-xs truncate"
+                              title={task.result}
+                            >
                               {task.result}
                             </TableCell>
                           </TableRow>
@@ -613,7 +788,9 @@ export default function AgentsPage() {
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{selectedAgent.name} Details</DialogTitle>
-                <DialogDescription>Detailed information and performance metrics for this agent</DialogDescription>
+                <DialogDescription>
+                  Detailed information and performance metrics for this agent
+                </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-6">
@@ -633,19 +810,25 @@ export default function AgentsPage() {
                             selectedAgent.status === "online"
                               ? "bg-green-500"
                               : selectedAgent.status === "busy"
-                                ? "bg-yellow-500"
-                                : selectedAgent.status === "error"
-                                  ? "bg-red-500"
-                                  : "bg-gray-500"
+                              ? "bg-yellow-500"
+                              : selectedAgent.status === "error"
+                              ? "bg-red-500"
+                              : "bg-gray-500"
                           }`}
                         ></div>
                         <Badge variant={getStatusColor(selectedAgent.status)}>
                           {selectedAgent.status.toUpperCase()}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">Version: {selectedAgent.version}</p>
-                      <p className="text-sm text-muted-foreground">Type: {selectedAgent.type}</p>
-                      <p className="text-sm text-muted-foreground">Uptime: {formatUptime(selectedAgent.uptime)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Version: {selectedAgent.version}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Type: {selectedAgent.type}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Uptime: {formatUptime(selectedAgent.uptime)}
+                      </p>
                     </CardContent>
                   </Card>
 
@@ -658,21 +841,38 @@ export default function AgentsPage() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">CPU Usage:</span>
-                        <span className="text-sm font-semibold">{selectedAgent.metrics.cpuUsage}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Memory Usage:</span>
-                        <span className="text-sm font-semibold">{selectedAgent.metrics.memoryUsage}MB</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Success Rate:</span>
-                        <span className="text-sm font-semibold">{selectedAgent.metrics.successRate.toFixed(1)}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Avg Execution:</span>
+                        <span className="text-sm text-muted-foreground">
+                          CPU Usage:
+                        </span>
                         <span className="text-sm font-semibold">
-                          {selectedAgent.metrics.averageExecutionTime.toFixed(1)}s
+                          {selectedAgent.metrics.cpuUsage}%
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">
+                          Memory Usage:
+                        </span>
+                        <span className="text-sm font-semibold">
+                          {selectedAgent.metrics.memoryUsage}MB
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">
+                          Success Rate:
+                        </span>
+                        <span className="text-sm font-semibold">
+                          {selectedAgent.metrics.successRate.toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">
+                          Avg Execution:
+                        </span>
+                        <span className="text-sm font-semibold">
+                          {selectedAgent.metrics.averageExecutionTime.toFixed(
+                            1
+                          )}
+                          s
                         </span>
                       </div>
                     </CardContent>
@@ -708,7 +908,9 @@ export default function AgentsPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-yellow-700 mb-4">{selectedAgent.currentTask}</p>
+                      <p className="text-yellow-700 mb-4">
+                        {selectedAgent.currentTask}
+                      </p>
                       <Progress value={60} className="h-2" />
                     </CardContent>
                   </Card>
@@ -735,5 +937,5 @@ export default function AgentsPage() {
         )}
       </DashboardLayout>
     </AuthGuard>
-  )
+  );
 }

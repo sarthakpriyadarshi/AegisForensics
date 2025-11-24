@@ -1,150 +1,184 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { AuthGuard } from "@/components/AuthGuard"
-import DashboardLayout from "@/components/DashboardLayout"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Skeleton } from "@/components/ui/skeleton"
-import { RefreshCw, Cpu, HardDrive, Wifi, MemoryStick, AlertCircle, CheckCircle } from "lucide-react"
+import { useState, useEffect } from "react";
+import { AuthGuard } from "@/components/AuthGuard";
+import DashboardLayout from "@/components/DashboardLayout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  RefreshCw,
+  Cpu,
+  HardDrive,
+  Wifi,
+  MemoryStick,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
 
 // Types for our data
 interface SystemMetrics {
   cpu: {
-    usage: number
-    cores: number
-    frequency: number
-  }
+    usage: number;
+    cores: number;
+    frequency: number;
+  };
   memory: {
-    total: number
-    used: number
-    percentage: number
-  }
+    total: number;
+    used: number;
+    percentage: number;
+  };
   disk: {
-    total: number
-    used: number
-    percentage: number
-  }
+    total: number;
+    used: number;
+    percentage: number;
+  };
   network: {
-    bytes_received: number
-    bytes_sent: number
-    packets_received: number
-    packets_sent: number
-  }
+    bytes_received: number;
+    bytes_sent: number;
+    packets_received: number;
+    packets_sent: number;
+  };
 }
 
 interface SystemInfo {
-  version: string
-  hostname: string
-  platform: string
-  architecture: string
-  python_version: string
-  timezone: string
-  uptime: number
+  version: string;
+  hostname: string;
+  platform: string;
+  architecture: string;
+  python_version: string;
+  timezone: string;
+  uptime: number;
 }
 
 interface Process {
-  pid: number
-  name: string
-  cpu_percent: number
-  memory_percent: number
-  memory_mb: number
-  status: string
-  started?: string
+  pid: number;
+  name: string;
+  cpu_percent: number;
+  memory_percent: number;
+  memory_mb: number;
+  status: string;
+  started?: string;
 }
 
 // Helper function to format bytes
 const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return "0 Bytes"
-  const k = 1024
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB"]
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-}
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return (
+    Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+  );
+};
 
 // Helper function to format uptime
 const formatUptime = (hours: number): string => {
-  const days = Math.floor(hours / 24)
-  const remainingHours = Math.floor(hours % 24)
-  const minutes = Math.floor((hours * 60) % 60)
+  const days = Math.floor(hours / 24);
+  const remainingHours = Math.floor(hours % 24);
+  const minutes = Math.floor((hours * 60) % 60);
 
   if (days > 0) {
-    return `${days}d ${remainingHours}h ${minutes}m`
+    return `${days}d ${remainingHours}h ${minutes}m`;
   } else if (remainingHours > 0) {
-    return `${remainingHours}h ${minutes}m`
+    return `${remainingHours}h ${minutes}m`;
   } else {
-    return `${minutes}m`
+    return `${minutes}m`;
   }
-}
+};
 
 // API functions
 const fetchSystemData = async () => {
-  const token = localStorage.getItem("aegis_token")
+  const token = localStorage.getItem("aegis_token");
   if (!token) {
-    throw new Error("No authentication token found")
+    throw new Error("No authentication token found");
   }
 
   const headers = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
-  }
+  };
 
   try {
     const [metricsRes, infoRes, processesRes] = await Promise.all([
-      fetch("http://localhost:8000/system/metrics", { headers }),
-      fetch("http://localhost:8000/system/info", { headers }),
-      fetch("http://localhost:8000/system/processes", { headers }),
-    ])
+      fetch(`${API_BASE_URL}/system/metrics`, { headers }),
+      fetch(`${API_BASE_URL}/system/info`, { headers }),
+      fetch(`${API_BASE_URL}/system/processes`, { headers }),
+    ]);
 
     if (!metricsRes.ok || !infoRes.ok || !processesRes.ok) {
-      throw new Error("Failed to fetch system data")
+      throw new Error("Failed to fetch system data");
     }
 
-    const [metrics, info, processes] = await Promise.all([metricsRes.json(), infoRes.json(), processesRes.json()])
+    const [metrics, info, processes] = await Promise.all([
+      metricsRes.json(),
+      infoRes.json(),
+      processesRes.json(),
+    ]);
 
-    return { metrics, info, processes }
+    return { metrics, info, processes };
   } catch (error) {
-    console.error("Error fetching system data:", error)
-    throw error
+    console.error("Error fetching system data:", error);
+    throw error;
   }
-}
+};
 
 export default function SystemPage() {
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null)
-  const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null)
-  const [processes, setProcesses] = useState<Process[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  const [activeTab, setActiveTab] = useState("overview")
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(
+    null
+  );
+  const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
+  const [processes, setProcesses] = useState<Process[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [activeTab, setActiveTab] = useState("overview");
 
   const loadSystemData = async () => {
     try {
-      setError(null)
-      const data = await fetchSystemData()
-      setSystemMetrics(data.metrics)
-      setSystemInfo(data.info)
-      setProcesses(data.processes)
-      setLastUpdated(new Date())
+      setError(null);
+      const data = await fetchSystemData();
+      setSystemMetrics(data.metrics);
+      setSystemInfo(data.info);
+      setProcesses(data.processes);
+      setLastUpdated(new Date());
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load system data")
+      setError(
+        err instanceof Error ? err.message : "Failed to load system data"
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    loadSystemData()
+    loadSystemData();
 
     // Set up auto-refresh every 5 seconds
-    const interval = setInterval(loadSystemData, 5000)
+    const interval = setInterval(loadSystemData, 5000);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading) {
     return (
@@ -168,7 +202,7 @@ export default function SystemPage() {
           </div>
         </div>
       </DashboardLayout>
-    )
+    );
   }
 
   if (error) {
@@ -192,7 +226,7 @@ export default function SystemPage() {
           </Card>
         </div>
       </DashboardLayout>
-    )
+    );
   }
 
   return (
@@ -203,26 +237,39 @@ export default function SystemPage() {
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-2">
-                <Badge variant="outline" className="border-primary/20 text-primary">
+                <Badge
+                  variant="outline"
+                  className="border-primary/20 text-primary"
+                >
                   <CheckCircle className="w-3 h-3 mr-1" />
                   Real-time Monitoring
                 </Badge>
               </div>
-              <h1 className="text-3xl font-bold text-foreground">System Monitor</h1>
+              <h1 className="text-3xl font-bold text-foreground">
+                System Monitor
+              </h1>
               <p className="text-lg text-muted-foreground">
-                Real-time system monitoring and performance metrics with intelligent alerts.
+                Real-time system monitoring and performance metrics with
+                intelligent alerts.
               </p>
             </div>
             <div className="flex items-center gap-4 w-full md:w-auto">
               {lastUpdated && (
                 <Card className="hidden md:block">
                   <CardContent className="p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Last updated</p>
-                    <p className="text-sm font-medium">{lastUpdated.toLocaleTimeString()}</p>
+                    <p className="text-xs text-muted-foreground mb-1">
+                      Last updated
+                    </p>
+                    <p className="text-sm font-medium">
+                      {lastUpdated.toLocaleTimeString()}
+                    </p>
                   </CardContent>
                 </Card>
               )}
-              <Button onClick={loadSystemData} className="bg-primary hover:bg-primary/90 w-full md:w-auto">
+              <Button
+                onClick={loadSystemData}
+                className="bg-primary hover:bg-primary/90 w-full md:w-auto"
+              >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
               </Button>
@@ -230,7 +277,11 @@ export default function SystemPage() {
           </div>
 
           {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="space-y-6"
+          >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="processes">Processes</TabsTrigger>
@@ -243,32 +294,38 @@ export default function SystemPage() {
                   {
                     title: "CPU Usage",
                     value: `${systemMetrics?.cpu.usage.toFixed(1)}%`,
-                    subtitle: `${systemMetrics?.cpu.cores} cores @ ${systemMetrics?.cpu.frequency.toFixed(0)} MHz`,
+                    subtitle: `${
+                      systemMetrics?.cpu.cores
+                    } cores @ ${systemMetrics?.cpu.frequency.toFixed(0)} MHz`,
                     icon: Cpu,
                     progress: systemMetrics?.cpu.usage,
                   },
                   {
                     title: "Memory Usage",
                     value: `${systemMetrics?.memory.percentage.toFixed(1)}%`,
-                    subtitle: `${formatBytes(systemMetrics?.memory.used || 0)} / ${formatBytes(
-                      systemMetrics?.memory.total || 0,
-                    )}`,
+                    subtitle: `${formatBytes(
+                      systemMetrics?.memory.used || 0
+                    )} / ${formatBytes(systemMetrics?.memory.total || 0)}`,
                     icon: MemoryStick,
                     progress: systemMetrics?.memory.percentage,
                   },
                   {
                     title: "Disk Usage",
                     value: `${systemMetrics?.disk.percentage.toFixed(1)}%`,
-                    subtitle: `${formatBytes(systemMetrics?.disk.used || 0)} / ${formatBytes(
-                      systemMetrics?.disk.total || 0,
-                    )}`,
+                    subtitle: `${formatBytes(
+                      systemMetrics?.disk.used || 0
+                    )} / ${formatBytes(systemMetrics?.disk.total || 0)}`,
                     icon: HardDrive,
                     progress: systemMetrics?.disk.percentage,
                   },
                   {
                     title: "Network",
-                    value: formatBytes(systemMetrics?.network.bytes_received || 0),
-                    subtitle: `↑ ${formatBytes(systemMetrics?.network.bytes_sent || 0)}`,
+                    value: formatBytes(
+                      systemMetrics?.network.bytes_received || 0
+                    ),
+                    subtitle: `↑ ${formatBytes(
+                      systemMetrics?.network.bytes_sent || 0
+                    )}`,
                     icon: Wifi,
                     progress: 0,
                   },
@@ -282,12 +339,17 @@ export default function SystemPage() {
                         <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                       </div>
                       <div className="space-y-2">
-                        <p className="text-sm font-medium text-muted-foreground">{metric.title}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          {metric.title}
+                        </p>
                         <div className="text-2xl font-bold">{metric.value}</div>
-                        <p className="text-xs text-muted-foreground">{metric.subtitle}</p>
-                        {metric.progress !== undefined && metric.progress > 0 && (
-                          <Progress value={metric.progress} className="h-2" />
-                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {metric.subtitle}
+                        </p>
+                        {metric.progress !== undefined &&
+                          metric.progress > 0 && (
+                            <Progress value={metric.progress} className="h-2" />
+                          )}
                       </div>
                     </CardContent>
                   </Card>
@@ -305,12 +367,23 @@ export default function SystemPage() {
                       { label: "Version", value: systemInfo?.version },
                       { label: "Hostname", value: systemInfo?.hostname },
                       { label: "Platform", value: systemInfo?.platform },
-                      { label: "Architecture", value: systemInfo?.architecture },
-                      { label: "Python Version", value: systemInfo?.python_version },
-                      { label: "Uptime", value: formatUptime(systemInfo?.uptime || 0) },
+                      {
+                        label: "Architecture",
+                        value: systemInfo?.architecture,
+                      },
+                      {
+                        label: "Python Version",
+                        value: systemInfo?.python_version,
+                      },
+                      {
+                        label: "Uptime",
+                        value: formatUptime(systemInfo?.uptime || 0),
+                      },
                     ].map((info) => (
                       <div key={info.label} className="space-y-2">
-                        <p className="text-sm font-medium text-primary">{info.label}:</p>
+                        <p className="text-sm font-medium text-primary">
+                          {info.label}:
+                        </p>
                         <p className="font-medium">{info.value}</p>
                       </div>
                     ))}
@@ -323,7 +396,9 @@ export default function SystemPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Running Processes</CardTitle>
-                  <CardDescription>System processes and their resource usage</CardDescription>
+                  <CardDescription>
+                    System processes and their resource usage
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
@@ -341,21 +416,45 @@ export default function SystemPage() {
                       <TableBody>
                         {processes.map((process) => (
                           <TableRow key={process.pid}>
-                            <TableCell className="font-mono">{process.pid}</TableCell>
-                            <TableCell className="font-medium">{process.name}</TableCell>
+                            <TableCell className="font-mono">
+                              {process.pid}
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              {process.name}
+                            </TableCell>
                             <TableCell>
-                              <Badge variant={process.cpu_percent > 50 ? "destructive" : "secondary"}>
+                              <Badge
+                                variant={
+                                  process.cpu_percent > 50
+                                    ? "destructive"
+                                    : "secondary"
+                                }
+                              >
                                 {process.cpu_percent}%
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              <Badge variant={process.memory_percent > 50 ? "destructive" : "secondary"}>
+                              <Badge
+                                variant={
+                                  process.memory_percent > 50
+                                    ? "destructive"
+                                    : "secondary"
+                                }
+                              >
                                 {process.memory_percent}%
                               </Badge>
                             </TableCell>
-                            <TableCell>{process.memory_mb.toFixed(1)} MB</TableCell>
                             <TableCell>
-                              <Badge variant={process.status === "running" ? "default" : "secondary"}>
+                              {process.memory_mb.toFixed(1)} MB
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  process.status === "running"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                              >
                                 {process.status}
                               </Badge>
                             </TableCell>
@@ -371,5 +470,5 @@ export default function SystemPage() {
         </div>
       </DashboardLayout>
     </AuthGuard>
-  )
+  );
 }

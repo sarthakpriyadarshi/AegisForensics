@@ -37,6 +37,8 @@ import {
   Settings,
 } from "lucide-react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 interface SetupFormData {
   full_name: string;
   email: string;
@@ -155,7 +157,7 @@ export default function AdminSetupPage() {
         }),
       };
 
-      const response = await fetch("http://localhost:8000/auth/setup-admin", {
+      const response = await fetch(`${API_BASE_URL}/auth/setup-admin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -167,7 +169,7 @@ export default function AdminSetupPage() {
         const result = await response.json();
         console.log("Admin setup successful:", result);
 
-        const loginResponse = await fetch("http://localhost:8000/auth/login", {
+        const loginResponse = await fetch(`${API_BASE_URL}/auth/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
