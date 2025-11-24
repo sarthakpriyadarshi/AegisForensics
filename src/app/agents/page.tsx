@@ -384,7 +384,7 @@ export default function AgentsPage() {
       <DashboardLayout>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-2">
                 <Badge variant="outline" className="border-primary/20 text-primary">
@@ -397,7 +397,7 @@ export default function AgentsPage() {
                 Monitor and manage forensic analysis agents with real-time performance metrics and task tracking.
               </p>
             </div>
-            <Button onClick={() => window.location.reload()} className="bg-primary hover:bg-primary/90">
+            <Button onClick={() => window.location.reload()} className="bg-primary hover:bg-primary/90 w-full md:w-auto">
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
@@ -571,34 +571,36 @@ export default function AgentsPage() {
                   <CardDescription>Monitor recent agent task execution and results</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Agent</TableHead>
-                        <TableHead>Task Type</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Start Time</TableHead>
-                        <TableHead>Duration</TableHead>
-                        <TableHead>Result</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {taskHistory.map((task) => (
-                        <TableRow key={task.id}>
-                          <TableCell className="font-medium">{task.agentName}</TableCell>
-                          <TableCell>{task.taskType}</TableCell>
-                          <TableCell>
-                            <Badge variant={getTaskStatusColor(task.status)}>{task.status.toUpperCase()}</Badge>
-                          </TableCell>
-                          <TableCell>{formatDate(task.startTime)}</TableCell>
-                          <TableCell>{task.executionTime ? `${task.executionTime}s` : "-"}</TableCell>
-                          <TableCell className="max-w-xs truncate" title={task.result}>
-                            {task.result}
-                          </TableCell>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Agent</TableHead>
+                          <TableHead>Task Type</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Start Time</TableHead>
+                          <TableHead>Duration</TableHead>
+                          <TableHead>Result</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {taskHistory.map((task) => (
+                          <TableRow key={task.id}>
+                            <TableCell className="font-medium">{task.agentName}</TableCell>
+                            <TableCell>{task.taskType}</TableCell>
+                            <TableCell>
+                              <Badge variant={getTaskStatusColor(task.status)}>{task.status.toUpperCase()}</Badge>
+                            </TableCell>
+                            <TableCell>{formatDate(task.startTime)}</TableCell>
+                            <TableCell>{task.executionTime ? `${task.executionTime}s` : "-"}</TableCell>
+                            <TableCell className="max-w-xs truncate" title={task.result}>
+                              {task.result}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -713,16 +715,16 @@ export default function AgentsPage() {
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-4 pt-4 border-t">
-                  <Button className="bg-green-600 hover:bg-green-700">
+                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t">
+                  <Button className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Restart Agent
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="outline" className="w-full sm:w-auto">
                     <FileText className="w-4 h-4 mr-2" />
                     View Logs
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="outline" className="w-full sm:w-auto">
                     <Settings className="w-4 h-4 mr-2" />
                     Configure
                   </Button>

@@ -449,7 +449,7 @@ const DashboardPage: React.FC = () => {
       <DashboardLayout>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-2">
                 <Badge variant="outline" className="border-primary/20 text-primary">
@@ -464,14 +464,14 @@ const DashboardPage: React.FC = () => {
                 Your comprehensive forensics command center with intelligent automation and real-time insights.
               </p>
             </div>
-            <div className="flex items-center gap-4">
-              <Card>
+            <div className="flex items-center gap-4 w-full md:w-auto">
+              <Card className="hidden md:block">
                 <CardContent className="p-3">
                   <p className="text-xs text-muted-foreground mb-1">Last updated</p>
                   <p className="text-sm font-medium">{new Date().toLocaleTimeString()}</p>
                 </CardContent>
               </Card>
-              <Button onClick={() => window.location.reload()} className="bg-primary hover:bg-primary/90">
+              <Button onClick={() => window.location.reload()} className="bg-primary hover:bg-primary/90 w-full md:w-auto">
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
               </Button>

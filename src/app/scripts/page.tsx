@@ -248,7 +248,7 @@ export default function ScriptsPageRevamped() {
                     <p className="font-semibold text-orange-300">📋 Get Your Auth Token</p>
                     <p className="text-sm">Run this command to retrieve your authentication token:</p>
                     <div className="bg-muted/50 rounded-lg p-3 font-mono text-xs overflow-x-auto">
-                      <pre>{`curl -X POST http://localhost:8000/auth/login \\
+                      <pre className="whitespace-pre-wrap break-all">{`curl -X POST http://localhost:8000/auth/login \\
   -H "Content-Type: application/json" \\
   -d '{"username": "your_username", "password": "your_password"}'`}</pre>
                     </div>

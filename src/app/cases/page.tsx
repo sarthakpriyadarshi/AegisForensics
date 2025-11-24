@@ -307,7 +307,7 @@ export default function CasesPage() {
       <DashboardLayout>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-2">
                 <Badge variant="outline" className="border-primary/20 text-primary">
@@ -322,7 +322,7 @@ export default function CasesPage() {
             </div>
             <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
               <DialogTrigger asChild>
-                <Button className="bg-primary hover:bg-primary/90">
+                <Button className="bg-primary hover:bg-primary/90 w-full md:w-auto">
                   <Plus className="w-4 h-4 mr-2" />
                   Create New Case
                 </Button>
@@ -539,7 +539,7 @@ export default function CasesPage() {
 
                     <p className="text-muted-foreground mb-4">{caseItem.description}</p>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-primary" />
                         <div>
@@ -617,7 +617,7 @@ export default function CasesPage() {
                     <CardTitle>Case Information</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Case Name:</Label>
                         <p className="font-medium">{selectedCase.name}</p>

@@ -257,7 +257,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
 
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <div className="flex flex-1 items-center">
-              <h1 className="text-xl font-semibold text-white">
+              <h1 className="text-sm sm:text-xl font-semibold text-white">
                 {navigation.find((item) => item.href === pathname)?.name || "Dashboard"}
               </h1>
             </div>
@@ -369,7 +369,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
         </header>
 
         {/* Page Content */}
-        <main className="py-8">
+        <main className="py-8 mt-4 sm:mt-0">
           <div className="px-4 sm:px-6 lg:px-8">{children}</div>
         </main>
       </div>

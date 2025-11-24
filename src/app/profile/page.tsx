@@ -314,7 +314,7 @@ const ProfilePage: React.FC = () => {
       <DashboardLayout>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-2">
                 <Badge variant="outline" className="border-primary/20 text-primary">
@@ -344,7 +344,7 @@ const ProfilePage: React.FC = () => {
           {/* Profile Card */}
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center space-x-6">
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                 <Avatar className="h-20 w-20">
                   <AvatarImage
                     src={profile.avatar || "/placeholder.svg"}
@@ -355,14 +355,14 @@ const ProfilePage: React.FC = () => {
                     {profile.lastName.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1">
+                <div className="flex-1 text-center md:text-left">
                   <h2 className="text-2xl font-bold mb-2">
                     {profile.firstName} {profile.lastName}
                   </h2>
                   <p className="text-lg font-medium text-primary">{profile.role}</p>
                   <p className="text-muted-foreground">{profile.department}</p>
                 </div>
-                <Card>
+                <Card className="w-full md:w-auto">
                   <CardContent className="p-4">
                     <div className="text-center">
                       <p className="text-sm text-muted-foreground mb-1">Last login</p>
@@ -461,14 +461,14 @@ const ProfilePage: React.FC = () => {
                 <CardContent className="space-y-6">
                   {/* Password Section */}
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       <div>
                         <h4 className="text-lg font-semibold">Password</h4>
                         <p className="text-sm text-muted-foreground">
                           Last changed: {new Date(profile.security.lastPasswordChange).toLocaleDateString()}
                         </p>
                       </div>
-                      <Button variant="outline" onClick={() => setShowPasswordForm(!showPasswordForm)}>
+                      <Button variant="outline" onClick={() => setShowPasswordForm(!showPasswordForm)} className="w-full sm:w-auto">
                         Change Password
                       </Button>
                     </div>
@@ -510,12 +510,12 @@ const ProfilePage: React.FC = () => {
                   </div>
 
                   {/* Two-Factor Authentication */}
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg gap-4">
                     <div>
                       <h4 className="text-lg font-semibold">Two-Factor Authentication</h4>
                       <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
                     </div>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-4 w-full sm:w-auto justify-between sm:justify-end">
                       <Badge variant={profile.security.twoFactorEnabled ? "default" : "secondary"}>
                         {profile.security.twoFactorEnabled ? "Enabled" : "Disabled"}
                       </Badge>
@@ -537,14 +537,14 @@ const ProfilePage: React.FC = () => {
                   </div>
 
                   {/* Active Sessions */}
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg gap-4">
                     <div>
                       <h4 className="text-lg font-semibold">Active Sessions</h4>
                       <p className="text-sm text-muted-foreground">
                         You have {profile.security.activeSessions} active sessions
                       </p>
                     </div>
-                    <Button variant="outline">Manage Sessions</Button>
+                    <Button variant="outline" className="w-full sm:w-auto">Manage Sessions</Button>
                   </div>
                 </CardContent>
               </Card>

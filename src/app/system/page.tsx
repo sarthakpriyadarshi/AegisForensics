@@ -200,7 +200,7 @@ export default function SystemPage() {
       <DashboardLayout>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-2">
                 <Badge variant="outline" className="border-primary/20 text-primary">
@@ -213,16 +213,16 @@ export default function SystemPage() {
                 Real-time system monitoring and performance metrics with intelligent alerts.
               </p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 w-full md:w-auto">
               {lastUpdated && (
-                <Card>
+                <Card className="hidden md:block">
                   <CardContent className="p-3">
                     <p className="text-xs text-muted-foreground mb-1">Last updated</p>
                     <p className="text-sm font-medium">{lastUpdated.toLocaleTimeString()}</p>
                   </CardContent>
                 </Card>
               )}
-              <Button onClick={loadSystemData} className="bg-primary hover:bg-primary/90">
+              <Button onClick={loadSystemData} className="bg-primary hover:bg-primary/90 w-full md:w-auto">
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
               </Button>
@@ -326,42 +326,44 @@ export default function SystemPage() {
                   <CardDescription>System processes and their resource usage</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>PID</TableHead>
-                        <TableHead>Process Name</TableHead>
-                        <TableHead>CPU %</TableHead>
-                        <TableHead>Memory %</TableHead>
-                        <TableHead>Memory (MB)</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {processes.map((process) => (
-                        <TableRow key={process.pid}>
-                          <TableCell className="font-mono">{process.pid}</TableCell>
-                          <TableCell className="font-medium">{process.name}</TableCell>
-                          <TableCell>
-                            <Badge variant={process.cpu_percent > 50 ? "destructive" : "secondary"}>
-                              {process.cpu_percent}%
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={process.memory_percent > 50 ? "destructive" : "secondary"}>
-                              {process.memory_percent}%
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{process.memory_mb.toFixed(1)} MB</TableCell>
-                          <TableCell>
-                            <Badge variant={process.status === "running" ? "default" : "secondary"}>
-                              {process.status}
-                            </Badge>
-                          </TableCell>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>PID</TableHead>
+                          <TableHead>Process Name</TableHead>
+                          <TableHead>CPU %</TableHead>
+                          <TableHead>Memory %</TableHead>
+                          <TableHead>Memory (MB)</TableHead>
+                          <TableHead>Status</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {processes.map((process) => (
+                          <TableRow key={process.pid}>
+                            <TableCell className="font-mono">{process.pid}</TableCell>
+                            <TableCell className="font-medium">{process.name}</TableCell>
+                            <TableCell>
+                              <Badge variant={process.cpu_percent > 50 ? "destructive" : "secondary"}>
+                                {process.cpu_percent}%
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={process.memory_percent > 50 ? "destructive" : "secondary"}>
+                                {process.memory_percent}%
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{process.memory_mb.toFixed(1)} MB</TableCell>
+                            <TableCell>
+                              <Badge variant={process.status === "running" ? "default" : "secondary"}>
+                                {process.status}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

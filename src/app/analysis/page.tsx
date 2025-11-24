@@ -731,7 +731,7 @@ const AnalysisPage: React.FC = () => {
     <AuthGuard>
       <DashboardLayout>
         <div className="space-y-6">
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-2">
                 <Badge variant="outline" className="border-primary/20 text-primary">
@@ -745,7 +745,7 @@ const AnalysisPage: React.FC = () => {
                 comprehensive analysis with unprecedented accuracy.
               </p>
             </div>
-            <Button onClick={loadEvidence} className="bg-primary hover:bg-primary/90">
+            <Button onClick={loadEvidence} className="bg-primary hover:bg-primary/90 w-full md:w-auto">
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
@@ -958,7 +958,7 @@ const AnalysisPage: React.FC = () => {
 
         {selectedEvidence && (
           <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
-            <DialogContent className="w-[54vw] !max-w-[1600px] max-h-[90vh] overflow-y-auto">
+            <DialogContent className="w-[95vw] md:w-[80vw] lg:w-[60vw] max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Evidence Analysis Details</DialogTitle>
                 <DialogDescription>Detailed analysis results for {selectedEvidence.filename}</DialogDescription>
@@ -971,7 +971,7 @@ const AnalysisPage: React.FC = () => {
                     <CardTitle>File Information</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">Filename:</label>
                         <p className="font-medium">{selectedEvidence.filename}</p>

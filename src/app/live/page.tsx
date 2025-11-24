@@ -575,7 +575,7 @@ const LiveStreamingPage: React.FC = () => {
       <DashboardLayout>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-2">
                 <Badge variant="outline" className="border-primary/20 text-primary">
@@ -588,7 +588,7 @@ const LiveStreamingPage: React.FC = () => {
                 Real-time monitoring of forensic analysis and system events
               </p>
             </div>
-            <Button onClick={() => window.location.reload()} className="bg-primary hover:bg-primary/90">
+            <Button onClick={() => window.location.reload()} className="bg-primary hover:bg-primary/90 w-full md:w-auto">
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
