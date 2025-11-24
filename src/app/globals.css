@@ -3,7 +3,7 @@
 
 :root {
   /* Updated to use black and #3533cd color scheme */
-  --background: #000000; /* Pure black background */
+  --background: #030014; /* Rich deep violet-black */
   --foreground: #ffffff; /* White text on black */
   --card: #111111; /* Very dark gray for cards */
   --card-foreground: #ffffff;
@@ -138,9 +138,10 @@
 
 /* Updated body styles for black background and Montserrat */
 body {
-  background: #000000;
+  background: #030014;
   color: #ffffff;
-  font-family: var(--font-montserrat), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-montserrat), -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
   line-height: 1.6;
   font-feature-settings: "rlig" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;

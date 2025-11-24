@@ -1,15 +1,23 @@
-"use client"
+"use client";
 
-import { PulsingBorder } from "@paper-design/shaders-react"
-import { motion } from "framer-motion"
+import { PulsingBorder } from "@paper-design/shaders-react";
+import { motion } from "framer-motion";
 
 export default function PulsingCircle() {
   return (
-    <div className="absolute bottom-8 right-8 z-30">
+    <div className="relative md:fixed md:bottom-8 md:right-8 z-30 mt-8 md:mt-0 flex justify-center md:block">
       <div className="relative w-20 h-20 flex items-center justify-center">
         {/* Pulsing Border Circle */}
         <PulsingBorder
-          colors={["#3533cd", "#4f46e5", "#1e1b4b", "#000000", "#3533cd", "#4f46e5", "#000000"]}
+          colors={[
+            "#3533cd",
+            "#4f46e5",
+            "#1e1b4b",
+            "#000000",
+            "#3533cd",
+            "#4f46e5",
+            "#000000",
+          ]}
           colorBack="#00000000"
           speed={1.5}
           roundness={1}
@@ -43,15 +51,19 @@ export default function PulsingCircle() {
           style={{ transform: "scale(1.6)" }}
         >
           <defs>
-            <path id="circle" d="M 50, 50 m -38, 0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0" />
+            <path
+              id="circle"
+              d="M 50, 50 m -38, 0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0"
+            />
           </defs>
           <text className="text-sm fill-white/80 instrument">
             <textPath href="#circle" startOffset="0%">
-              Aegis Forensics • Aegis Forensics • Aegis Forensics • Aegis Forensics •
+              Aegis Forensics • Aegis Forensics • Aegis Forensics • Aegis
+              Forensics •
             </textPath>
           </text>
         </motion.svg>
       </div>
     </div>
-  )
+  );
 }

@@ -1,27 +1,36 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useEffect, useRef } from "react"
-import { MeshGradient } from "@paper-design/shaders-react"
+import { useEffect, useRef } from "react";
+import { MeshGradient } from "@paper-design/shaders-react";
 
 interface ShaderBackgroundProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export default function ShaderBackground({ children }: ShaderBackgroundProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Mouse interaction removed for now since we're not using isActive
-  }, [])
+  }, []);
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-black relative overflow-hidden">
+    <div
+      ref={containerRef}
+      className="min-h-screen bg-[#030014] relative overflow-x-hidden"
+    >
       {/* SVG Filters */}
       <svg className="absolute inset-0 w-0 h-0">
         <defs>
-          <filter id="glass-effect" x="-50%" y="-50%" width="200%" height="200%">
+          <filter
+            id="glass-effect"
+            x="-50%"
+            y="-50%"
+            width="200%"
+            height="200%"
+          >
             <feTurbulence baseFrequency="0.005" numOctaves="1" result="noise" />
             <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.3" />
             <feColorMatrix
@@ -33,7 +42,13 @@ export default function ShaderBackground({ children }: ShaderBackgroundProps) {
               result="tint"
             />
           </filter>
-          <filter id="gooey-filter" x="-50%" y="-50%" width="200%" height="200%">
+          <filter
+            id="gooey-filter"
+            x="-50%"
+            y="-50%"
+            width="200%"
+            height="200%"
+          >
             <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
             <feColorMatrix
               in="blur"
@@ -49,16 +64,19 @@ export default function ShaderBackground({ children }: ShaderBackgroundProps) {
       {/* Background Shaders */}
       <MeshGradient
         className="absolute inset-0 w-full h-full"
-        colors={["#000000", "#3533cd", "#4f46e5", "#1e1b4b", "#000000"]}
+        colors={["#030014", "#3533cd", "#4f46e5", "#1e1b4b", "#030014"]}
         speed={0.3}
       />
       <MeshGradient
         className="absolute inset-0 w-full h-full opacity-60"
-        colors={["#000000", "#3533cd", "#000000", "#3533cd"]}
+        colors={["#030014", "#3533cd", "#030014", "#3533cd"]}
         speed={0.2}
       />
 
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/40 z-0 pointer-events-none" />
+
       {children}
     </div>
-  )
+  );
 }
