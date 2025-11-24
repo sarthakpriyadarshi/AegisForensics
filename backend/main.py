@@ -6,6 +6,7 @@ import logging
 import json
 import re
 import sys
+import tempfile
 from datetime import datetime
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request, BackgroundTasks, Form
@@ -607,7 +608,8 @@ async def analyze_uploadfile(file: UploadFile = File(...), case_id: str = Form(N
     
     filename = file.filename or f"upload_{uuid.uuid4().hex}"
     safe_name = filename.replace(" ", "_")
-    tmp_path = f"/tmp/{uuid.uuid4().hex}_{safe_name}"
+    tmp_dir = tempfile.gettempdir()
+    tmp_path = os.path.join(tmp_dir, f"{uuid.uuid4().hex}_{safe_name}")
     
     # Save file to disk
     with open(tmp_path, "wb") as f:
@@ -622,9 +624,7 @@ async def analyze_uploadfile(file: UploadFile = File(...), case_id: str = Form(N
         case_identifier, 
         filename, 
         tmp_path, 
-        file_hash,
-        file_size=file_size,
-        file_type=ext,
+        file_hash, 
         evidence_metadata=f"uploaded_at:{datetime.utcnow().isoformat()},file_size:{file_size}"
     )
     
@@ -913,14 +913,6 @@ Based on this technical data, provide your forensic assessment following the exa
         }
     })
 
-@app.post("/api/upload-evidence")
-async def upload_evidence(file: UploadFile = File(...), case_id: str = Form(None)):
-    """
-    Frontend-compatible upload endpoint that proxies to analyze_uploadfile.
-    Accepts file and case_id form fields, triggers full analysis pipeline.
-    """
-    return await analyze_uploadfile(file=file, case_id=case_id)
-
 @app.post("/analyze/streamdata/")
 async def analyze_streamdata(request: Request):
     """
@@ -970,17 +962,7 @@ Required JSON structure:
         analysis_prompt = f"A streamed memory image has been saved to {tmp_path}. Analyze memory for processes and command lines.{json_instruction}"
     
     # Add evidence record
-    import os
-    stream_size = os.path.getsize(tmp_path) if os.path.exists(tmp_path) else 0
-    stream_ext = os.path.splitext(tmp_path)[1].lower() or ".bin"
-    evidence_rec = add_evidence_record(
-        "default", 
-        os.path.basename(tmp_path), 
-        tmp_path, 
-        hashlib.sha256(open(tmp_path,'rb').read()).hexdigest(),
-        file_size=stream_size,
-        file_type=stream_ext
-    )
+    evidence_rec = add_evidence_record("default", os.path.basename(tmp_path), tmp_path, hashlib.sha256(open(tmp_path,'rb').read()).hexdigest())
     add_event("default", f"Stream received and saved to {tmp_path}")
     result_text = await run_orchestrator_prompt(analysis_prompt)
     
@@ -1371,6 +1353,86 @@ async def create_agent_report(case_id: int, report_data: dict):
                 "created_at": report.created_at.isoformat()
             }
         }
+
+@app.post("/api/upload-evidence")
+async def upload_evidence(file: UploadFile = File(...), case_id: str = Form(...)):
+    """
+    Upload evidence file and automatically analyze it for a specific case.
+    Frontend-compatible endpoint that accepts case_id as form data.
+    """
+    try:
+        # Convert case_id to integer
+        case_id_int = int(case_id)
+        
+        # Verify case exists
+        with SessionLocal() as db:
+            from database.models import Case
+            case = db.query(Case).filter(Case.id == case_id_int).first()
+            if not case:
+                raise HTTPException(status_code=404, detail=f"Case with ID {case_id} not found")
+        
+        # Read file contents
+        contents = await file.read()
+        filename = file.filename or f"upload_{uuid.uuid4().hex}"
+        safe_name = filename.replace(" ", "_")
+        tmp_path = f"/tmp/{uuid.uuid4().hex}_{safe_name}"
+        
+        # Save file
+        with open(tmp_path, "wb") as f:
+            f.write(contents)
+        
+        # Calculate file hash
+        file_hash = hashlib.sha256(contents).hexdigest()
+        ext = os.path.splitext(filename)[1].lower()
+        file_size = len(contents)
+        
+        # Add evidence record
+        with SessionLocal() as db:
+            from database.models import Evidence
+            evidence = Evidence(
+                case_id=case_id_int,
+                filename=filename,
+                file_path=tmp_path,
+                file_hash=file_hash,
+                file_size=file_size,
+                file_type=ext,
+                analysis_status="processing",
+                evidence_metadata=f"uploaded_at:{datetime.utcnow().isoformat()}"
+            )
+            db.add(evidence)
+            db.commit()
+            db.refresh(evidence)
+            evidence_id = evidence.id
+        
+        # Start background processing
+        import asyncio
+        asyncio.create_task(
+            process_evidence_background(
+                str(evidence_id),
+                tmp_path,
+                filename,
+                ext,
+                file_hash,
+                str(case_id_int)
+            )
+        )
+        
+        logger.info(f"Evidence uploaded successfully: {filename} for case {case_id_int}")
+        
+        return {
+            "status": "success",
+            "message": f"File '{filename}' uploaded and analysis started",
+            "evidence_id": evidence_id,
+            "case_id": case_id_int,
+            "filename": filename,
+            "file_hash": file_hash
+        }
+        
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid case_id format. Must be an integer.")
+    except Exception as e:
+        logger.error(f"Upload failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 @app.post("/api/cases/{case_id}/analyze")
 async def analyze_file_for_case(case_id: int, file: UploadFile = File(...)):

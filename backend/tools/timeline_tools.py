@@ -2,6 +2,7 @@
 import subprocess
 import re
 import os
+import tempfile
 from google.adk.tools import ToolContext
 
 def generate_timeline(tool_context: ToolContext) -> dict:
@@ -58,7 +59,7 @@ def generate_timeline(tool_context: ToolContext) -> dict:
         return {"status": "error", "message": "No disk_image_path in request or session state."}
     try:
         # Example: run log2timeline if available (plaso). This is a placeholder.
-        output_path = f"/tmp/timeline_{os.path.basename(disk_image)}.txt"
+        output_path = os.path.join(tempfile.gettempdir(), f"timeline_{os.path.basename(disk_image)}.txt")
         proc = subprocess.run(["log2timeline.py", output_path, disk_image], capture_output=True, text=True, timeout=600)
         if proc.returncode != 0:
             return {"status": "error", "message": proc.stderr}

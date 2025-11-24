@@ -45,16 +45,16 @@ export default function HeroContent() {
           <Button
             asChild
             variant="outline"
-            className="w-full sm:w-auto px-8 py-3 rounded-full bg-transparent border border-white/30 text-white font-normal text-xs transition-all duration-200 hover:bg-white/10 hover:border-white/50 cursor-pointer"
+            className="w-full sm:w-auto px-8 py-3 rounded-full bg-white/10 hover:bg-indigo-500/20 backdrop-blur-sm border border-white/30 hover:border-indigo-400/50 text-white font-medium text-xs transition-all duration-200 cursor-pointer shadow-lg"
           >
-            <Link href="/auth/login">Access Platform</Link>
+            <Link href="/auth/login">Sign In</Link>
           </Button>
           <Button
             asChild
             className="w-full sm:w-auto px-8 py-3 rounded-full bg-[#3533cd] hover:bg-[#4f46e5] text-white font-normal text-xs transition-all duration-200 cursor-pointer"
           >
             <Link href="/auth/setup">
-              Start Investigation
+              Get Started
               <ArrowRight className="w-3 h-3 ml-2" />
             </Link>
           </Button>
